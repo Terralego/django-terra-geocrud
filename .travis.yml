@@ -11,6 +11,9 @@ services:
 
 addons:
   postgresql: "10"
+  apt:
+    packages:
+      - postgresql-10-postgis-2.4
 
 stages:
   - lint
@@ -25,6 +28,7 @@ install:
 before_script:
   - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
   - psql -c 'create database travis_ci_test WITH OWNER travis_ci_test;' -U postgres
+  - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
 
 script:
   - coverage run ./manage.py test terra_crud.tests
