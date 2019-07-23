@@ -27,7 +27,7 @@ before_script:
   - psql -c 'create database travis_ci_test WITH OWNER travis_ci_test;' -U postgres
 
 script:
-  - coverage run ./manage.py terra_crud.tests
+  - coverage run ./manage.py test terra_crud.tests
   - codecov
 
 jobs:
