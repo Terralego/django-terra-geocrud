@@ -6,6 +6,11 @@ python:
 - '3.6'
 - '3.7'
 
+services:
+  - postgresql
+
+addons:
+  postgresql: "11"
 
 stages:
   - lint
@@ -13,12 +18,16 @@ stages:
   - deploy
 
 install:
-- pip install coverage codecov
-- pip setup.py install
+  - pip install coverage codecov
+  - python setup.py install
+
+before_script:
+  - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
+  - psql -c 'create database travis_ci_test WITH OWNER travis_ci_test;' -U postgres
 
 script:
-- coverage run
-- codecov
+  - coverage run terra_crud.tests
+  - codecov
 
 jobs:
   include:
