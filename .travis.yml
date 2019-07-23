@@ -18,6 +18,7 @@ stages:
   - deploy
 
 install:
+  - apt-get install libproj-dev binutils gdal-bin
   - pip install coverage codecov
   - python setup.py install
 
