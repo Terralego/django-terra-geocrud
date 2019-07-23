@@ -3,6 +3,8 @@ from rest_framework.routers import SimpleRouter
 
 from . import views
 
+app_name = 'terra_crud'
+
 router = SimpleRouter()
 router.register('groups', views.CrudGroupViewSet)
 router.register('views', views.CrudViewViewSet)
