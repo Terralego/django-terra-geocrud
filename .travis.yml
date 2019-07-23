@@ -10,7 +10,7 @@ services:
   - postgresql
 
 addons:
-  postgresql: "11"
+  postgresql: "10"
 
 stages:
   - lint
