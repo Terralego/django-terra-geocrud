@@ -1,0 +1,4 @@
+include *.md
+recursive-include terra_crud *.md
+recursive-include terra_crud *.py
+recursive-exclude test_terra_crud *
