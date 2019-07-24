@@ -28,8 +28,8 @@ class CrudView(CrudModelMixin):
     layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
     # TODO : wait for terra MR that set group in instance
     # tile_group = models.ForeignKey('terra.VTGroup', on_delete=models.CASCADE, related_name='crud_views')
-    pictogram = models.ImageField(upload_to='crud/views/pictograms')
-    map_style = JSONField(default=dict)
+    pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True)
+    map_style = JSONField(default=dict, blank=True)
 
     class Meta:
         verbose_name = _("View")
