@@ -5,7 +5,7 @@ terra_crud
 
 Terralego backend app
 
-.. octree::
+.. toctree::
 
    installation
    configuration
