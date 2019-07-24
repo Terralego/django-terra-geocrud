@@ -37,6 +37,7 @@ setup(
     install_requires = [
         # Github Private Repository - needs entry in `dependency_links`
         'terra_common',
+        # wait until drf-yasg next version
         'packaging',
     ],
     dependency_links=[

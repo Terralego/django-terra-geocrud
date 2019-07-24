@@ -16,5 +16,6 @@ services:
     volumes:
       - ./terra_crud:/code/terra_crud
       - ./test_terra_crud:/code/test_terra_crud
+      - ./.coveragerc:/code/.coveragerc
     ports:
       - "8000:8000"
