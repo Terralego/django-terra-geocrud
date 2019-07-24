@@ -81,9 +81,10 @@ WSGI_APPLICATION = 'test_terra_crud.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'USER': 'travis_ci_test',
         'NAME': 'travis_ci_test',
         'PASSWORD': 'travis_ci_test',
-        'HOST': '127.0.0.1'
+        'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1')
     }
 }
 

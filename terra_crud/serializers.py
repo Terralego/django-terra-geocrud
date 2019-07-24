@@ -1,9 +1,12 @@
 from rest_framework import serializers
+from terracommon.terra.serializers import LayerSerializer
+
 from . import models
 
 
 class CrudViewSerializer(serializers.ModelSerializer):
-    # TODO : include extra data for layer at creation (ex: geom_type write only)
+    layer = LayerSerializer()
+
     class Meta:
         model = models.CrudView
         fields = '__all__'

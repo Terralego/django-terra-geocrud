@@ -36,7 +36,8 @@ setup(
     ],
     install_requires = [
         # Github Private Repository - needs entry in `dependency_links`
-        'terra_common'
+        'terra_common',
+        'packaging',
     ],
     dependency_links=[
         'git+https://github.com/Terralego/terra-back.git@master#egg=terra-common'

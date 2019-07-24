@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class CrudMixin(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    order = models.PositiveSmallIntegerField(unique=True)
+    order = models.PositiveSmallIntegerField()
 
     def __str__(self):
         return self.name
@@ -15,7 +15,7 @@ class CrudMixin(models.Model):
 
 
 class CrudGroupView(CrudMixin):
-    pictogram = models.ImageField(upload_to='crud/groups/pictograms')
+    pictogram = models.ImageField(upload_to='crud/groups/pictograms', null=True, blank=True)
 
     class Meta:
         verbose_name = _("Group")
