@@ -1,13 +1,11 @@
-|Build Status| |Maintainability| |codecov| |Python Version| |Django
-Version| |PyPI version|
+|Build Status| |Maintainability| |codecov|
 
-django-template-engines
+terra_crud
 =======================
 
-This ``Django`` package provides you with additional template engines
-(ODT for now).
+Terralego backend app
 
-.. toctree::
+.. octree::
 
    installation
    configuration
