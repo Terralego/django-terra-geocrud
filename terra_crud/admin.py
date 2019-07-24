@@ -10,4 +10,4 @@ class CrudGroupViewAdmin(admin.ModelAdmin):
 @admin.register(models.CrudView)
 class CrudViewAdmin(admin.ModelAdmin):
     list_display = ['name', 'order', 'pictogram']
-    list_filter = ['group']
+    list_filter = ['group', ]

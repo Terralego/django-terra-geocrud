@@ -26,6 +26,8 @@ class CrudGroupView(CrudMixin):
 class CrudView(CrudMixin):
     group = models.ForeignKey(CrudGroupView, on_delete=models.PROTECT, related_name='crud_views')
     layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
+    # TODO : wait for terra MR that set group in instance
+    # tile_group = models.ForeignKey('terra.VTGroup', on_delete=models.CASCADE, related_name='crud_views')
     pictogram = models.ImageField(upload_to='crud/views/pictograms')
     map_style = JSONField(default=dict)
 
