@@ -1,0 +1,7 @@
+[report]
+omit =
+    */tests*
+    */migrations*
+    terra_test_crud/*
+
+ignore_errors = true
