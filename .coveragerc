@@ -3,6 +3,7 @@ omit =
     */tests*
     */migrations*
     test_terra_crud/*
+    doc/*
     manage.py
 
 ignore_errors = true
