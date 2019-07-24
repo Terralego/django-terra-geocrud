@@ -36,7 +36,7 @@ before_script:
 
 
 script:
-  - coverage run ./manage.py test terra_crud.tests
+  - coverage run ./manage.py test
   - codecov
 
 jobs:

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class CrudMixin(models.Model):
+class CrudModelMixin(models.Model):
     name = models.CharField(max_length=100, unique=True)
     order = models.PositiveSmallIntegerField()
 
@@ -14,7 +14,7 @@ class CrudMixin(models.Model):
         abstract = True
 
 
-class CrudGroupView(CrudMixin):
+class CrudGroupView(CrudModelMixin):
     pictogram = models.ImageField(upload_to='crud/groups/pictograms', null=True, blank=True)
 
     class Meta:
@@ -23,16 +23,13 @@ class CrudGroupView(CrudMixin):
         ordering = ('order', )
 
 
-class CrudView(CrudMixin):
+class CrudView(CrudModelMixin):
     group = models.ForeignKey(CrudGroupView, on_delete=models.PROTECT, related_name='crud_views')
     layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
     # TODO : wait for terra MR that set group in instance
     # tile_group = models.ForeignKey('terra.VTGroup', on_delete=models.CASCADE, related_name='crud_views')
     pictogram = models.ImageField(upload_to='crud/views/pictograms')
     map_style = JSONField(default=dict)
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name = _("View")
