@@ -58,3 +58,27 @@ class CrudViewViewSetTestCase(TestCase):
         data = response.json()
 
         self.assertEqual(data['id'], self.view_1.pk)
+
+
+class CrudSettingsViewTestCase(TestCase):
+    def setUp(self):
+        self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
+        self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
+        self.view_1 = models.CrudView.objects.create(name="View 1", order=0, group=self.group_1,
+                                                     layer=Layer.objects.create(name=1))
+        self.view_2 = models.CrudView.objects.create(name="View 2", order=0, group=self.group_2,
+                                                     layer=Layer.objects.create(name=2))
+        self.view_3 = models.CrudView.objects.create(name="View 3", order=1, group=self.group_2,
+                                                     layer=Layer.objects.create(name=3))
+        self.api_client = APIClient()
+        self.response = self.api_client.get(reverse('terra_crud:settings'))
+
+    def test_endpoint_access(self):
+        self.assertEqual(self.response.status_code, status.HTTP_200_OK)
+
+    def test_endpoint_menu(self):
+        """
+        Menu has 1 section per group, and 1 section for non grouped views
+        """
+        data = self.response.json()
+        self.assertEqual(len(data['menu']), models.CrudGroupView.objects.count() + 1)
