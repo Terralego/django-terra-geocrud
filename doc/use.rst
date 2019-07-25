@@ -20,13 +20,3 @@ Example of use
 ::
 
     ./manage.py create_default_crud_views
-
-- SETTINGS :
-
-Settings should be overrided  with TERRA_CRUD settings in your project settings file:
-
-::
-
-    ...
-    TERRA_CRUD = {}
-    ...

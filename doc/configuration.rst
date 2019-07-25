@@ -10,8 +10,8 @@ In your project :
 
     INSTALLED_APPS = [
         ...
-        'terracommon.terra',
         'terra_crud',
+        'terracommon.terra',
         ...
     ]
 
@@ -35,6 +35,23 @@ Run migrations
 
 
 
-ADMIN
+- ADMIN :
 
 you can disable and / or customize admin
+
+
+- SETTINGS :
+
+Waiting for settings definition directly in models.
+
+Settings should be overrided  with TERRA_CRUD settings in your project settings file:
+
+::
+
+    ...
+    TERRA_CRUD = {}
+    ...
+
+Some keys are available from now :
+
+    TODO: implement base layers for crud here
