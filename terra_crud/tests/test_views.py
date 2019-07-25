@@ -99,4 +99,3 @@ class CrudSettingsViewTestCase(TestCase):
         self.response = self.api_client.get(reverse('terra_crud:settings'))
         data = self.response.json()
         self.assertEqual(data['config'], {"terra_crud_settings_1": True})
-
