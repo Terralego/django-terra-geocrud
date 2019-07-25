@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -82,3 +83,20 @@ class CrudSettingsViewTestCase(TestCase):
         """
         data = self.response.json()
         self.assertEqual(len(data['menu']), models.CrudGroupView.objects.count() + 1)
+
+    def test_endpoint_config_without_settings(self):
+        """
+        Without extra settings, config section is empty
+        """
+        data = self.response.json()
+        self.assertEqual(data['config'], {})
+
+    @override_settings(TERRA_CRUD={"terra_crud_settings_1": True})
+    def test_endpoint_config_with_settings(self):
+        """
+        Extra TERRA_CRUD settings are added to config section
+        """
+        self.response = self.api_client.get(reverse('terra_crud:settings'))
+        data = self.response.json()
+        self.assertEqual(data['config'], {"terra_crud_settings_1": True})
+

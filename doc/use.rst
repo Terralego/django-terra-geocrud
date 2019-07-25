@@ -7,3 +7,26 @@ Example of use
 
     /api/crud/
 
+- There are 3 endpoint:
+
+::
+
+    /api/crud/groups/     -> manage groups of CRUD views
+    /api/crud/views/      -> manage CRUD views (a view creation create its associated layer)
+    /api/crud/settings/   -> get ordered menu with views classified by group or not, and basic map settings
+
+- A command is available to create default views for each existing layer
+
+::
+
+    ./manage.py create_default_crud_views
+
+- SETTINGS :
+
+Settings should be overrided  with TERRA_CRUD settings in your project settings file:
+
+::
+
+    ...
+    TERRA_CRUD = {}
+    ...

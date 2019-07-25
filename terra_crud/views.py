@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext as _
 from rest_framework import viewsets, response
 from rest_framework.views import APIView
@@ -16,8 +17,14 @@ class CrudViewViewSet(viewsets.ModelViewSet):
 
 
 class CrudSettingsApiView(APIView):
-    def get_general_section(self):
-        return {}
+    def get_config_section(self):
+        config = {}
+
+        terra_crud_settings = getattr(settings, 'TERRA_CRUD', {})
+        if terra_crud_settings:
+            config.update(terra_crud_settings)
+
+        return config
 
     def get_menu_section(self):
         data = []
@@ -39,6 +46,7 @@ class CrudSettingsApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         data = {
-            "menu": self.get_menu_section()
+            "menu": self.get_menu_section(),
+            "config": self.get_config_section(),
         }
         return response.Response(data)
