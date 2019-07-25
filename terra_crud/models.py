@@ -15,6 +15,9 @@ class CrudModelMixin(models.Model):
 
 
 class CrudGroupView(CrudModelMixin):
+    """
+    Used to defined group of view in CRUD
+    """
     pictogram = models.ImageField(upload_to='crud/groups/pictograms', null=True, blank=True)
 
     class Meta:
@@ -24,6 +27,9 @@ class CrudGroupView(CrudModelMixin):
 
 
 class CrudView(CrudModelMixin):
+    """
+    Used to defined ad layer's view in CRUD
+    """
     group = models.ForeignKey(CrudGroupView, on_delete=models.PROTECT, related_name='crud_views')
     layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True)

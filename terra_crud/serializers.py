@@ -5,6 +5,9 @@ from . import models
 
 
 class CrudViewSerializer(serializers.ModelSerializer):
+    """
+    TODO: create layer in same time than crud view
+    """
     layer = LayerSerializer()
 
     class Meta:
