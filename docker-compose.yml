@@ -14,7 +14,7 @@ services:
     environment:
       - POSTGRES_HOST=postgres
     volumes:
-      - ./terra_crud:/code/terra_crud
+      - .:/code/
       - ./test_terra_crud:/code/test_terra_crud
       - ./.coveragerc:/code/.coveragerc
     ports:

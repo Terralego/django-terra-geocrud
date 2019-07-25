@@ -5,3 +5,5 @@ COPY . /code
 WORKDIR /code
 
 RUN python3.7 setup.py install
+# Install dev requirements
+RUN pip3 install -e .[dev]

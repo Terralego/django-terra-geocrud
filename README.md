@@ -6,5 +6,6 @@ https://terrabackendcrud.readthedocs.io/en/latest/
 
 Terra django app Backend for CRUD frontend module
 
+* Customize UI elements
 
 Require terracommon.terra in backend

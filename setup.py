@@ -34,7 +34,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    install_requires = [
+    install_requires=[
         # Github Private Repository - needs entry in `dependency_links`
         'terra_common',
         # wait until drf-yasg next version
@@ -42,5 +42,11 @@ setup(
     ],
     dependency_links=[
         'git+https://github.com/Terralego/terra-back.git@master#egg=terra-common'
-    ]
+    ],
+    extras_require={
+        'dev': [
+            'flake8',
+            'coverage',
+        ]
+    }
 )

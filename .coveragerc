@@ -2,6 +2,7 @@
 omit =
     */tests*
     */migrations*
+    */lib*
     test_terra_crud/*
     doc/*
     manage.py
