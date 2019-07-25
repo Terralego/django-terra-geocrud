@@ -26,10 +26,20 @@ class CrudGroupView(CrudModelMixin):
 class CrudView(CrudModelMixin):
     group = models.ForeignKey(CrudGroupView, on_delete=models.PROTECT, related_name='crud_views')
     layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
-    # TODO : wait for terra MR that set group in instance
-    # tile_group = models.ForeignKey('terra.VTGroup', on_delete=models.CASCADE, related_name='crud_views')
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True)
     map_style = JSONField(default=dict, blank=True)
+    ui_schema = JSONField(default=dict, blank=True)
+    # WARNING: settings is only used to wait for model definition
+    settings = JSONField(default=dict, blank=True)
+
+    @property
+    def form_schema(self):
+        """
+        Crud's view custom json form schema
+        """
+        original_schema = self.layer.schema.copy()
+        # TODO: improve schema with custom select from generic foreign key, allowing selecting model from final apps
+        return original_schema
 
     class Meta:
         verbose_name = _("View")

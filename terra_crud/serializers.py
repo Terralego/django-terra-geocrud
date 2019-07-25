@@ -9,7 +9,10 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CrudView
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'pictogram', 'order', 'map_style',
+            'form_schema', 'ui_schema', 'settings', 'layer'
+        )
 
 
 class CrudGroupSerializer(serializers.ModelSerializer):
