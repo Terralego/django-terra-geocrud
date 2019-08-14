@@ -7,7 +7,7 @@ from . import models, serializers
 
 
 class CrudGroupViewSet(viewsets.ModelViewSet):
-    queryset = models.CrudGroupView.objects.all().prefetch_related('crud_views__layer')
+    queryset = models.CrudGroupView.objects.prefetch_related('crud_views__layer')
     serializer_class = serializers.CrudGroupSerializer
 
 
@@ -28,7 +28,7 @@ class CrudSettingsApiView(APIView):
 
     def get_menu_section(self):
         data = []
-        groups = CrudGroupViewSet.queryset
+        groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer')
         group_serializer = CrudGroupViewSet.serializer_class(groups, many=True)
         data = group_serializer.data
 
