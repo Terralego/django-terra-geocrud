@@ -39,6 +39,7 @@ setup(
         'terra_common',
         # wait until drf-yasg next version
         'packaging',
+        'django-template-model',
     ],
     dependency_links=[
         'git+https://github.com/Terralego/terra-back.git@master#egg=terra-common'

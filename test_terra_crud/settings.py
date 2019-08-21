@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'terracommon.terra',
     'terra_crud',
+    'template_model',
 ]
 
 INTERNAL_GEOMETRY_SRID = 4326
