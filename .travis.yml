@@ -24,7 +24,7 @@ stages:
 install:
   - sudo apt-get -y install libproj-dev binutils gdal-bin
   - python setup.py install
-  - pip install codecov
+  - pip install coverage codecov
 
 
 before_script:
