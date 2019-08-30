@@ -11,14 +11,14 @@ class CrudViewSerializer(serializers.ModelSerializer):
     TODO: create layer in same time than crud view
     """
     layer = LayerSerializer()
-    template = TemplateSerializer()
+    templates = TemplateSerializer(many=True)
 
     class Meta:
         model = models.CrudView
         fields = (
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
-            'template',
+            'templates',
         )
 
 
