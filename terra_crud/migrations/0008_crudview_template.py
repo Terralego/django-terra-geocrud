@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='crudview',
             name='template',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='crudviews', to='template_model.Template'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='crud_views', to='template_model.Template'),
         ),
     ]
