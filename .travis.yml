@@ -23,8 +23,8 @@ stages:
 
 install:
   - sudo apt-get -y install libproj-dev binutils gdal-bin
-  - pip install -e .[dev]
-  - pip install codecov
+  - pip3 install -e .[dev]
+  - pip3 install codecov
 
 
 before_script:
@@ -35,6 +35,8 @@ before_script:
   - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
   - psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
 
+after_failure:
+  - pip3 freeze
 
 script:
   - coverage run ./manage.py test
