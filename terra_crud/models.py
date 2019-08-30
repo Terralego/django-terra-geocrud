@@ -33,6 +33,8 @@ class CrudView(CrudModelMixin):
     group = models.ForeignKey(CrudGroupView, on_delete=models.SET_NULL, related_name='crud_views',
                               null=True, blank=True)
     layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
+    template = models.ForeignKey('template_model.Template', on_delete=models.SET_NULL,
+                                 related_name='crud_views', null=True, blank=True)
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True)
     map_style = JSONField(default=dict, blank=True)
     ui_schema = JSONField(default=dict, blank=True)

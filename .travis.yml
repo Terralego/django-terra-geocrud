@@ -23,8 +23,9 @@ stages:
 
 install:
   - sudo apt-get -y install libproj-dev binutils gdal-bin
-  - pip install coverage codecov
   - python setup.py install
+  - pip install coverage codecov
+
 
 before_script:
   - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
@@ -34,6 +35,8 @@ before_script:
   - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
   - psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
 
+after_failure:
+  - pip freeze
 
 script:
   - coverage run ./manage.py test
