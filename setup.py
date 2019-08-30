@@ -35,11 +35,11 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
+        'django-template-model>=0.1.1',
         # Github Private Repository - needs entry in `dependency_links`
         'terra_common',
         # wait until drf-yasg next version
         'packaging',
-        'django-template-model>=0.1.1',
     ],
     dependency_links=[
         'git+https://github.com/Terralego/terra-back.git@master#egg=terra-common'
