@@ -10,8 +10,11 @@ In your project :
 
     INSTALLED_APPS = [
         ...
-        'terra_crud',
+        # apps required by CRUD
         'terracommon.terra',
+        'template_model',
+        # CRUD app
+        'terra_crud',
         ...
     ]
 
