@@ -23,8 +23,9 @@ stages:
 
 install:
   - sudo apt-get -y install libproj-dev binutils gdal-bin
-  - pip install coverage codecov
-  - pip install -r requirements.txt
+  - pip install -e .[dev]
+  - pip install codecov
+
 
 before_script:
   - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres

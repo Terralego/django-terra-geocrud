@@ -1,4 +1,0 @@
--e git+https://github.com/Terralego/terra-back.git@master#egg=terra-common
-
-packaging
-django-template-model
