@@ -42,7 +42,7 @@ setup(
         'packaging',
     ],
     dependency_links=[
-        'git+https://github.com/Terralego/terra-back.git@master#egg=terra-common'
+        'git+https://github.com/Terralego/terra-back.git@v0.2.0#egg=terra-common'
     ],
     extras_require={
         'dev': [
