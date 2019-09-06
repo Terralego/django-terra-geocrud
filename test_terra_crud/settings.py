@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'terracommon.terra',
     'terra_crud',
     'template_model',
+    'template_engines',
 ]
 
 INTERNAL_GEOMETRY_SRID = 4326
@@ -72,6 +73,8 @@ TEMPLATES = [
             ],
         },
     },
+    {'BACKEND': 'template_engines.backends.odt.OdtEngine'},
+    {'BACKEND': 'template_engines.backends.docx.DocxEngine'},
 ]
 
 WSGI_APPLICATION = 'test_terra_crud.wsgi.application'
@@ -129,3 +132,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 SWAGGER_ENABLED = False
+
+# TODO: a temporary fix for terracommon.terra
+MIN_TILE_ZOOM = 0
+MAX_TILE_ZOOM = 20

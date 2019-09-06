@@ -7,6 +7,8 @@ Requirements
 Must be installed, for the package to work:
 
 * terracommon.terra
+* template_model
+* template_engines
 
 With pip
 --------

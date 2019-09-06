@@ -1,11 +1,19 @@
+import os
+from io import BytesIO
+from zipfile import ZipFile
+
+from django.core.files import File
+from django.contrib.gis.geos import Point
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from terracommon.terra.models import Layer
+from terracommon.terra.models import Layer, Feature
+from template_model.models import Template
 
 from .. import models
+from .settings import ODT_TEMPLATE, CONTENT_XML_PATH
 
 
 class CrudGroupViewSetTestCase(TestCase):
@@ -99,3 +107,35 @@ class CrudSettingsViewTestCase(TestCase):
         self.response = self.api_client.get(reverse('terra_crud:settings'))
         data = self.response.json()
         self.assertEqual(data['config'], {"terra_crud_settings_1": True})
+
+
+class CrudRenderTemplateDetailViewTestCase(TestCase):
+
+    def setUp(self):
+        self.layer = Layer.objects.create(name='Chemins', geom_type=1)
+        self.feature = Feature.objects.create(identifier='Hello', layer=self.layer, geom=Point(x=0, y=0))
+        self.template = Template.objects.create(
+            name='Beautiful template',
+            template_file=File(open(ODT_TEMPLATE, 'rb')),
+        )
+        self.crud_view = models.CrudView.objects.create(name='view 1', order=0, layer=self.layer)
+        self.crud_view.templates.add(self.template)
+        self.api_client = APIClient()
+
+    def test_works(self):
+        response = self.api_client.get(
+            reverse(
+                'terra_crud:render-template',
+                kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        with open(CONTENT_XML_PATH) as reader:
+            content_xml = reader.read().encode('utf-8')
+        buffer = BytesIO(response.content)
+        with ZipFile(buffer) as archive:
+            with archive.open('content.xml') as reader:
+                self.assertEqual(reader.read(), content_xml)
+
+    def tearDown(self):
+        os.remove(self.template.template_file.path)
