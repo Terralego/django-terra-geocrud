@@ -19,7 +19,7 @@ class EnrichedTemplateSerializer(TemplateSerializer):
         }
 
     def get_url(self, obj):
-        return reverse('terra_crud:render-template-patern', kwargs={'template_pk': obj.pk})
+        return reverse('terra_crud:render-template-pattern', kwargs={'template_pk': obj.pk})
 
 
 class CrudViewSerializer(serializers.ModelSerializer):

@@ -13,9 +13,9 @@ router.register('views', views.CrudViewViewSet)
 urlpatterns = [
     path('api/crud/settings/', views.CrudSettingsApiView.as_view(), name="settings"),
     path('api/crud/', include(router.urls)),
-    path('api/crud/template/<template_pk>/render/<pk>',
+    path('api/crud/template/<template_pk>/render/<pk>/',
          views.CrudRenderTemplateDetailView.as_view(), name='render-template'),
-    path('api/crud/template/<template_pk>/render/{pk}',
+    path('api/crud/template/<template_pk>/render/{pk}/',
          lambda request, **kwargs: HttpResponseNotFound(),
-         name='render-template-patern')
+         name='render-template-pattern')
 ]
