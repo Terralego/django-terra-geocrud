@@ -14,7 +14,7 @@ Example of use
     /api/crud/groups/                       -> manage groups of CRUD views
     /api/crud/views/                        -> manage CRUD views (a view creation create its associated layer)
     /api/crud/settings/                     -> get ordered menu with views classified by group or not, and basic map settings
-    /api/template/<template_pk>/render/<pk> -> fill a template with a feature
+    /api/crud/template/<template_pk>/render/<pk> -> fill a template with a feature
 
 - A command is available to create default views for each existing layer
 
