@@ -2,9 +2,17 @@
 CHANGELOG
 =========
 
-0.0.1.dev3 (XXXX-XX-XX)
+0.0.1.dev3 (2019-09-10)
 -----------------------
 
+Features
+
+* Manage template models for each crud view
+
+
+Breaking changes
+
+* Require django-template-model, django-template-engine and extra configuration (see documentation)
 
 
 0.0.1.dev2 (2019-09-02)
