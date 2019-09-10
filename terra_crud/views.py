@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.utils.translation import gettext as _
+from django.shortcuts import get_object_or_404
+from django.views.generic.detail import DetailView
 from rest_framework import viewsets, response
 from rest_framework.views import APIView
+from terracommon.terra.models import Feature
 
 from . import models, serializers
 
@@ -50,3 +53,18 @@ class CrudSettingsApiView(APIView):
             "config": self.get_config_section(),
         }
         return response.Response(data)
+
+
+class CrudRenderTemplateDetailView(DetailView):
+    model = Feature
+    pk_template_field = 'pk'
+    pk_template_kwargs = 'template_pk'
+
+    def get_template_names(self):
+        template = get_object_or_404(
+            self.get_object().layer.crud_view.templates,
+            **{
+                self.pk_template_field: self.kwargs.get(self.pk_template_kwargs)
+            },
+        )
+        return template.template_file.path

@@ -13,9 +13,18 @@ In your project :
         # apps required by CRUD
         'terracommon.terra',
         'template_model',
+        'template_engines',
         # CRUD app
         'terra_crud',
         ...
+    ]
+    ...
+    TEMPLATES = [
+        ...
+        # if you want to render odt templates
+        {'BACKEND': 'template_engines.backends.odt.OdtEngine'},
+        # if you want to render docx templates
+        {'BACKEND': 'template_engines.backends.docx.DocxEngine'},
     ]
 
 * urls
