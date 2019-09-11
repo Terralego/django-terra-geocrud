@@ -2,8 +2,13 @@
 CHANGELOG
 =========
 
-0.0.1.dev4 (XXXX-XX-XX)
+0.1.0      (2019-11-11)
 -----------------------
+
+
+Fixes
+
+* Fixup rendering issue
 
 
 0.0.1.dev3 (2019-09-10)
