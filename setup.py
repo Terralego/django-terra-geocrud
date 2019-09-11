@@ -36,7 +36,7 @@ setup(
     ],
     install_requires=[
         'django-template-model>=1.0.0',
-        'django-template-engines>=1.2.2',
+        'django-template-engines>=1.2.3',
         'terra_common>=0.2.2',
         # wait until drf-yasg next version
         'packaging',
