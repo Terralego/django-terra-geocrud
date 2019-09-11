@@ -61,10 +61,14 @@ class CrudRenderTemplateDetailView(DetailView):
     pk_template_kwargs = 'template_pk'
 
     def get_template_names(self):
-        template = get_object_or_404(
+        return self.template.template_file.path
+
+    def render_to_response(self, context, **response_kwargs):
+        self.template = get_object_or_404(
             self.get_object().layer.crud_view.templates,
             **{
                 self.pk_template_field: self.kwargs.get(self.pk_template_kwargs)
             },
         )
-        return template.template_file.path
+        self.content_type = self.template.mime_type
+        return super().render_to_response(context, **response_kwargs)
