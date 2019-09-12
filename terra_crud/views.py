@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
@@ -71,4 +72,6 @@ class CrudRenderTemplateDetailView(DetailView):
             },
         )
         self.content_type = self.template.mime_type
-        return super().render_to_response(context, **response_kwargs)
+        response = super().render_to_response(context, **response_kwargs)
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
+        return response
