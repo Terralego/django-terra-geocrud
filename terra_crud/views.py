@@ -31,7 +31,6 @@ class CrudSettingsApiView(APIView):
         return config
 
     def get_menu_section(self):
-        data = []
         groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer')
         group_serializer = CrudGroupViewSet.serializer_class(groups, many=True)
         data = group_serializer.data
