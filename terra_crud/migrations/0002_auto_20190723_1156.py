@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='crudview',
             name='layer',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='crud_view', to='terra.Layer'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='crud_view', to='geostore.Layer'),
         ),
     ]

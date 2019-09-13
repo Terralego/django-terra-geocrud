@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from terracommon.terra.models import Layer, Feature
+from geostore.models import Layer, Feature
 from template_model.models import Template
 
 from .. import models

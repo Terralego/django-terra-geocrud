@@ -32,7 +32,7 @@ class CrudView(CrudModelMixin):
     """
     group = models.ForeignKey(CrudGroupView, on_delete=models.SET_NULL, related_name='crud_views',
                               null=True, blank=True)
-    layer = models.OneToOneField('terra.Layer', on_delete=models.CASCADE, related_name='crud_view')
+    layer = models.OneToOneField('geostore.Layer', on_delete=models.CASCADE, related_name='crud_view')
     templates = models.ManyToManyField('template_model.Template', related_name='crud_views', blank=True)
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True)
     map_style = JSONField(default=dict, blank=True)

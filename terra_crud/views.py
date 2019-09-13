@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
 from rest_framework import viewsets, response
 from rest_framework.views import APIView
-from terracommon.terra.models import Feature
+from geostore.models import Feature
 
 from . import models, serializers
 

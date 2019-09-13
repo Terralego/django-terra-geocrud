@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'django.contrib.staticfiles',
     'rest_framework',
-    'terracommon.terra',
+    'geostore',
     'terra_crud',
     'template_model',
     'template_engines',

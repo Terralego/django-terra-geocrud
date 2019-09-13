@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from terracommon.terra.models import Layer
+from geostore.models import Layer
 
 from ...models import CrudView
 
