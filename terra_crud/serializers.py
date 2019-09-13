@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils.http import urlunquote
 from rest_framework import serializers
 from terracommon.terra.serializers import LayerSerializer
 from template_model.models import Template
@@ -19,7 +20,8 @@ class EnrichedTemplateSerializer(TemplateSerializer):
         }
 
     def get_url(self, obj):
-        return reverse('terra_crud:render-template-pattern', kwargs={'template_pk': obj.pk})
+        return urlunquote(reverse('terra_crud:render-template-pattern',
+                                  kwargs={'template_pk': obj.pk}))
 
 
 class CrudViewSerializer(serializers.ModelSerializer):
