@@ -2,6 +2,14 @@
 CHANGELOG
 =========
 
+0.1.2      (2019-11-13)
+-----------------------
+
+Update
+
+* Default template generation with template original name
+
+
 0.1.1      (2019-11-11)
 -----------------------
 
