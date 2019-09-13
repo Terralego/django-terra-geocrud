@@ -36,7 +36,8 @@ class CrudView(CrudModelMixin):
     templates = models.ManyToManyField('template_model.Template', related_name='crud_views', blank=True)
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True)
     map_style = JSONField(default=dict, blank=True)
-    ui_schema = JSONField(default=dict, blank=True)
+    ui_schema = JSONField(default=dict, blank=True,
+                          help_text="https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/")
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
 
