@@ -20,7 +20,7 @@ class EnrichedTemplateSerializerTestCase(TestCase):
         serializer = EnrichedTemplateSerializer(instance=self.template)
         data = serializer.data
         self.assertEqual(data['id'], self.template.pk)
-        self.assertTrue('/api/crud/template/{}/render/%7Bpk%7D'.format(self.template.pk) in data['url'])
+        self.assertTrue('/api/crud/template/%s/render/{pk}/' % self.template.pk in data['url'])
         self.assertEqual(data['name'], self.template.name)
         self.assertEqual(data['mime_type'], 'application/vnd.oasis.opendocument.text')
 
