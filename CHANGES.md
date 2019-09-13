@@ -2,6 +2,14 @@
 CHANGELOG
 =========
 
+0.1.4      (2019-11-13)
+-----------------------
+
+Breaking change
+
+* replace template rendering url parameter from {pk} to {id}
+
+
 0.1.3      (2019-11-13)
 -----------------------
 
