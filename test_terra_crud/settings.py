@@ -136,3 +136,11 @@ SWAGGER_ENABLED = False
 # TODO: a temporary fix for terracommon.terra
 MIN_TILE_ZOOM = 0
 MAX_TILE_ZOOM = 20
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+RENDER_TEMPLATE_USES_CACHE = True

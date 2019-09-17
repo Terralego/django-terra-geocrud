@@ -1,13 +1,17 @@
 import json
+import base64
+from unittest import mock
 import os
 from io import BytesIO
 from zipfile import ZipFile
 
+from django.core.cache import cache
 from django.core.files import File
 from django.contrib.gis.geos import Point
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.test import APIClient
 from terracommon.terra.models import Layer, Feature
@@ -129,8 +133,17 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
             name='Template',
             template_file=File(open(DOCX_PLAN_DE_GESTION, 'rb')),
         )
+
+        delta = self.feature.updated_at - self.template.updated
+        self.cached_filled_template_id = '{0}_{1}_{2}'.format(
+            slugify(self.template.name),
+            self.feature.identifier,
+            abs(int(delta.total_seconds()))
+        )
+
         self.crud_view = models.CrudView.objects.create(name='view 1', order=0, layer=self.layer)
         self.crud_view.templates.add(self.template)
+
         self.api_client = APIClient()
 
     def test_works(self):
@@ -151,5 +164,49 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
             with archive.open(os.path.join('word', 'document.xml')) as reader:
                 self.assertEqual(reader.read(), content_xml)
 
+    def test_save_in_cache(self):
+        response = self.api_client.get(
+            reverse(
+                'terra_crud:render-template',
+                kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        cached_filled_template = cache.get(self.cached_filled_template_id)
+        self.assertTrue(cached_filled_template is not None)
+        btemplate = base64.b64decode(cached_filled_template)
+        with open(SNAPSHOT_PLAN_DE_GESTION) as reader:
+            content_xml = reader.read().encode('utf-8')
+        buffer = BytesIO(btemplate)
+        with ZipFile(buffer) as archive:
+            with archive.open(os.path.join('word', 'document.xml')) as reader:
+                self.assertEqual(reader.read(), content_xml)
+
+    def test_cache_is_used(self):
+        cached_filled_template = cache.get(self.cached_filled_template_id)
+        self.assertTrue(cached_filled_template is None)
+
+        self.api_client.get(
+            reverse(
+                'terra_crud:render-template',
+                kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+            )
+        )
+
+        cached_filled_template = cache.get(self.cached_filled_template_id)
+        self.assertTrue(cached_filled_template is not None)
+
+        with mock.patch(
+            'terra_crud.views.CrudRenderTemplateDetailView.render_to_response',
+        ) as mock_render_to_response:
+            self.api_client.get(
+                reverse(
+                    'terra_crud:render-template',
+                    kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+                )
+            )
+            self.assertFalse(mock_render_to_response.called)
+
     def tearDown(self):
         os.remove(self.template.template_file.path)
+        cache.clear()

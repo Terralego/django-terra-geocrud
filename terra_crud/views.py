@@ -1,15 +1,11 @@
-import mimetypes
-
 from django.conf import settings
-from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
-from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
 from rest_framework import viewsets, response
 from rest_framework.views import APIView
 from terracommon.terra.models import Feature
 
-from . import models, serializers
+from . import mixins, models, serializers
 
 
 class CrudGroupViewSet(viewsets.ModelViewSet):
@@ -57,23 +53,7 @@ class CrudSettingsApiView(APIView):
         return response.Response(data)
 
 
-class CrudRenderTemplateDetailView(DetailView):
+class CrudRenderTemplateDetailView(mixins.CachedTemplateResponseMixin, DetailView):
     model = Feature
     pk_template_field = 'pk'
     pk_template_kwargs = 'template_pk'
-
-    def get_template_names(self):
-        return self.template.template_file.name
-
-    def render_to_response(self, context, **response_kwargs):
-        self.template = get_object_or_404(
-            self.get_object().layer.crud_view.templates,
-            **{
-                self.pk_template_field: self.kwargs.get(self.pk_template_kwargs)
-            },
-        )
-        self.content_type, _encoding = mimetypes.guess_type(
-            self.template.template_file.name)
-        response = super().render_to_response(context, **response_kwargs)
-        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
-        return response
