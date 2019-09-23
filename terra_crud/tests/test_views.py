@@ -1,3 +1,4 @@
+import json
 import os
 from io import BytesIO
 from zipfile import ZipFile
@@ -13,7 +14,8 @@ from terracommon.terra.models import Layer, Feature
 from template_model.models import Template
 
 from .. import models
-from .settings import ODT_TEMPLATE, CONTENT_XML_PATH
+from .settings import (DOCX_PLAN_DE_GESTION, FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
+                       SNAPSHOT_PLAN_DE_GESTION)
 
 
 class CrudGroupViewSetTestCase(TestCase):
@@ -112,11 +114,20 @@ class CrudSettingsViewTestCase(TestCase):
 class CrudRenderTemplateDetailViewTestCase(TestCase):
 
     def setUp(self):
-        self.layer = Layer.objects.create(name='Chemins', geom_type=1)
-        self.feature = Feature.objects.create(identifier='Hello', layer=self.layer, geom=Point(x=0, y=0))
+        self.layer = Layer.objects.create(
+            name='composantes',
+            group='reference',
+            schema=json.load(open(LAYER_COMPOSANTES_SCHEMA)),
+            geom_type=1,
+        )
+        self.feature = Feature.objects.create(
+            layer=self.layer,
+            geom=Point(x=-0.246322800072846, y=44.5562461167907),
+            properties=json.load(open(FEATURE_PROPERTIES)),
+        )
         self.template = Template.objects.create(
-            name='Beautiful template',
-            template_file=File(open(ODT_TEMPLATE, 'rb')),
+            name='Template',
+            template_file=File(open(DOCX_PLAN_DE_GESTION, 'rb')),
         )
         self.crud_view = models.CrudView.objects.create(name='view 1', order=0, layer=self.layer)
         self.crud_view.templates.add(self.template)
@@ -132,12 +143,12 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response._headers['content-type'][-1],
-            'application/vnd.oasis.opendocument.text')
-        with open(CONTENT_XML_PATH) as reader:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        with open(SNAPSHOT_PLAN_DE_GESTION) as reader:
             content_xml = reader.read().encode('utf-8')
         buffer = BytesIO(response.content)
         with ZipFile(buffer) as archive:
-            with archive.open('content.xml') as reader:
+            with archive.open(os.path.join('word', 'document.xml')) as reader:
                 self.assertEqual(reader.read(), content_xml)
 
     def tearDown(self):
