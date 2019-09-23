@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
@@ -5,9 +7,12 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
 from rest_framework import viewsets, response
 from rest_framework.views import APIView
+from requests import get
 from terracommon.terra.models import Feature
 
 from . import models, serializers
+
+MAPBOX_ACCESS_TOKEN = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
 
 
 class CrudGroupViewSet(viewsets.ModelViewSet):
@@ -62,6 +67,20 @@ class CrudRenderTemplateDetailView(DetailView):
 
     def get_template_names(self):
         return self.template.template_file.name
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        if MAPBOX_ACCESS_TOKEN:
+            image = get(
+                'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/{},{},{},0,0/600x600?access_token={}'.format(
+                    self.object.geom.centroid.x,
+                    self.object.geom.centroid.y,
+                    12,
+                    MAPBOX_ACCESS_TOKEN,
+                )).content
+            context['map'] = image
+        context.update(kwargs)
+        return super().get_context_data(**context)
 
     def render_to_response(self, context, **response_kwargs):
         self.template = get_object_or_404(

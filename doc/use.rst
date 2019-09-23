@@ -21,3 +21,15 @@ Example of use
 ::
 
     ./manage.py create_default_crud_views
+
+- DOCX and ODT templates can be uploaded. You can use the same tags as in the Django Html templates. If you want to insert the image of a map, add the following code at the top of your template:
+
+::
+
+    {% load docx_image_loader %}
+
+Then, each time you want to insert the image use:
+
+::
+
+    {% docx_image_loader map %}
