@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from terracommon.terra.models import Layer, Feature
+from geostore.models import Layer, Feature
 from template_model.models import Template
 
 from .. import models
@@ -24,7 +24,7 @@ class CrudGroupViewSetTestCase(TestCase):
         self.api_client = APIClient()
 
     def test_list_endpoint(self):
-        response = self.api_client.get(reverse('terra_crud:crudgroupview-list'))
+        response = self.api_client.get(reverse('terra_geocrud:crudgroupview-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -33,7 +33,7 @@ class CrudGroupViewSetTestCase(TestCase):
         self.assertEqual(data[0]['id'], self.group.pk)
 
     def test_detail_endpoint(self):
-        response = self.api_client.get(reverse('terra_crud:crudgroupview-detail', args=(self.group.pk, )))
+        response = self.api_client.get(reverse('terra_geocrud:crudgroupview-detail', args=(self.group.pk, )))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -54,7 +54,7 @@ class CrudViewViewSetTestCase(TestCase):
         self.api_client = APIClient()
 
     def test_list_endpoint(self):
-        response = self.api_client.get(reverse('terra_crud:crudview-list'))
+        response = self.api_client.get(reverse('terra_geocrud:crudview-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -63,7 +63,7 @@ class CrudViewViewSetTestCase(TestCase):
         self.assertEqual(data[0]['id'], self.view_1.pk)
 
     def test_detail_endpoint(self):
-        response = self.api_client.get(reverse('terra_crud:crudview-detail', args=(self.view_1.pk, )))
+        response = self.api_client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk, )))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -82,7 +82,7 @@ class CrudSettingsViewTestCase(TestCase):
         self.view_3 = models.CrudView.objects.create(name="View 3", order=1, group=self.group_2,
                                                      layer=Layer.objects.create(name=3))
         self.api_client = APIClient()
-        self.response = self.api_client.get(reverse('terra_crud:settings'))
+        self.response = self.api_client.get(reverse('terra_geocrud:settings'))
 
     def test_endpoint_access(self):
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)
@@ -101,12 +101,12 @@ class CrudSettingsViewTestCase(TestCase):
         data = self.response.json()
         self.assertEqual(data['config'], {})
 
-    @override_settings(TERRA_CRUD={"terra_crud_settings_1": True})
+    @override_settings(TERRA_GEOCRUD={"terra_crud_settings_1": True})
     def test_endpoint_config_with_settings(self):
         """
-        Extra TERRA_CRUD settings are added to config section
+        Extra TERRA_GEOCRUD settings are added to config section
         """
-        self.response = self.api_client.get(reverse('terra_crud:settings'))
+        self.response = self.api_client.get(reverse('terra_geocrud:settings'))
         data = self.response.json()
         self.assertEqual(data['config'], {"terra_crud_settings_1": True})
 
@@ -116,7 +116,6 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
     def setUp(self):
         self.layer = Layer.objects.create(
             name='composantes',
-            group='reference',
             schema=json.load(open(LAYER_COMPOSANTES_SCHEMA)),
             geom_type=1,
         )
@@ -136,7 +135,7 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
     def test_works(self):
         response = self.api_client.get(
             reverse(
-                'terra_crud:render-template',
+                'terra_geocrud:render-template',
                 kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
             )
         )

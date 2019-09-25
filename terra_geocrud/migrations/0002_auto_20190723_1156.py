@@ -7,18 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('terra_crud', '0001_initial'),
+        ('terra_geocrud', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='crudview',
             name='group',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='crud_views', to='terra_crud.CrudGroupView'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='crud_views', to='terra_geocrud.CrudGroupView'),
         ),
         migrations.AlterField(
             model_name='crudview',
             name='layer',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='crud_view', to='terra.Layer'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='crud_view', to='geostore.Layer'),
         ),
     ]

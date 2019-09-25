@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('template_model', '0001_initial'),
-        ('terra_crud', '0007_auto_20190725_1256'),
+        ('terra_geocrud', '0007_auto_20190725_1256'),
     ]
 
     operations = [

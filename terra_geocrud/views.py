@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
 from rest_framework import viewsets, response
 from rest_framework.views import APIView
-from terracommon.terra.models import Feature
+from geostore.models import Feature
 
 from . import models, serializers
 
@@ -26,7 +26,7 @@ class CrudSettingsApiView(APIView):
     def get_config_section(self):
         config = {}
 
-        terra_crud_settings = getattr(settings, 'TERRA_CRUD', {})
+        terra_crud_settings = getattr(settings, 'TERRA_GEOCRUD', {})
         if terra_crud_settings:
             config.update(terra_crud_settings)
 

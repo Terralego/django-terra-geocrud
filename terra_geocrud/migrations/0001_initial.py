@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('terra', '0026_auto_20190613_1529'),
+        ('geostore', '0026_auto_20190613_1529'),
     ]
 
     operations = [
@@ -36,8 +36,8 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveSmallIntegerField(unique=True)),
                 ('pictogram', models.ImageField(upload_to='crud/views/pictograms')),
                 ('map_style', django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='terra_crud.CrudGroupView')),
-                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='terra.Layer')),
+                ('group', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='terra_geocrud.CrudGroupView')),
+                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='geostore.Layer')),
             ],
             options={
                 'verbose_name': 'View',

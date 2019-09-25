@@ -10,12 +10,12 @@ CHANGES = open(os.path.join(HERE, 'CHANGES.md')).read()
 
 
 setup(
-    name='terra-backend-crud',
-    version=open(os.path.join(HERE, 'terra_crud', 'VERSION.md')).read().strip(),
+    name='django-terra-geocrud',
+    version=open(os.path.join(HERE, 'terra_geocrud', 'VERSION.md')).read().strip(),
     include_package_data=True,
     author="Makina Corpus",
     author_email="terralego-pypi@makina-corpus.com",
-    description='Additional template engines for Django.',
+    description='Geographic CRUD for django-geostore',
     long_description=README + '\n\n' + CHANGES,
     description_content_type="text/markdown",
     long_description_content_type="text/markdown",
@@ -37,7 +37,7 @@ setup(
     install_requires=[
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.9',
-        'terra_common>=0.2.2',
+        'django-geostore>=0.3.1',
         # wait until drf-yasg next version
         'packaging',
     ],

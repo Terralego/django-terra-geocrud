@@ -4,8 +4,12 @@
 
 https://terrabackendcrud.readthedocs.io/en/latest/
 
-Terra django app Backend for CRUD frontend module
+CRUD views definition for django-geostore in terra apps
 
 * Customize UI elements
 
-Require terracommon.terra in backend
+## Requirements
+
+* django-geostore >= 0.3.1
+* django-template-models
+* django-template-engines

@@ -1,6 +1,6 @@
 |Build Status| |Maintainability| |codecov|
 
-terra_crud
+terra_geocrud
 =======================
 
 Terralego backend app

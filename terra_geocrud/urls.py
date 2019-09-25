@@ -4,7 +4,7 @@ from rest_framework.routers import SimpleRouter
 
 from . import views
 
-app_name = 'terra_crud'
+app_name = 'terra_geocrud'
 
 router = SimpleRouter()
 router.register('groups', views.CrudGroupViewSet)

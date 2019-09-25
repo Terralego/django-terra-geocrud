@@ -1,7 +1,7 @@
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_PATH = os.path.join(ROOT, 'terra_crud', 'tests', 'data')
+DATA_PATH = os.path.join(ROOT, 'terra_geocrud', 'tests', 'data')
 TEMPLATES_PATH = os.path.join(DATA_PATH, 'templates')
 JSON_PATH = os.path.join(DATA_PATH, 'json')
 SNAPSHOTS_PATH = os.path.join(DATA_PATH, 'snapshots')

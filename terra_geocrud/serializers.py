@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.utils.http import urlunquote
 from rest_framework import serializers
-from terracommon.terra.serializers import LayerSerializer
+from geostore.serializers import LayerSerializer
 from template_model.models import Template
 from template_model.serializers import TemplateSerializer
 
@@ -20,7 +20,7 @@ class EnrichedTemplateSerializer(TemplateSerializer):
         }
 
     def get_url(self, obj):
-        return urlunquote(reverse('terra_crud:render-template-pattern',
+        return urlunquote(reverse('terra_geocrud:render-template-pattern',
                                   kwargs={'template_pk': obj.pk}))
 
 
