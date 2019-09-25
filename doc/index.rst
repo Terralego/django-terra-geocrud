@@ -13,7 +13,8 @@ Terralego backend app
 
 .. |Build Status| image:: https://travis-ci.org/Terralego/terra.backend.crud.svg?branch=master
    :target: https://travis-ci.org/Terralego//terra.backend.crud
-.. |Maintainability| image:: https://api.codeclimate.com/v1/badges/e6e4cac2f8f1fc41c49a/maintainability
-   :target: https://codeclimate.com/github/Terralego//terra.backend.crud/maintainability
-.. |codecov| image:: https://codecov.io/gh/Terralego/terra.backend.crud/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/Terralego/terra.backend.crud
+.. image:: https://api.codeclimate.com/v1/badges/633c620b6dcfc0e18df2/maintainability
+   :target: https://codeclimate.com/github/Terralego/django-terra-geocrud/maintainability
+   :alt: Maintainability
+.. image:: https://travis-ci.org/Terralego/django-terra-geocrud.svg?branch=master
+    :target: https://travis-ci.org/Terralego/django-terra-geocrud
