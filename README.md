@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/Terralego/django-terra-geocrud/branch/master/graph/badge.svg)](https://codecov.io/gh/Terralego/django-terra-geocrud)
 [![Maintainability](https://api.codeclimate.com/v1/badges/633c620b6dcfc0e18df2/maintainability)](https://codeclimate.com/github/Terralego/django-terra-geocrud/maintainability)
 
-https://terrabackendcrud.readthedocs.io/en/latest/
+https://django-terra-geocrud.readthedocs.io/
 
 CRUD views definition for django-geostore in terra apps
 
