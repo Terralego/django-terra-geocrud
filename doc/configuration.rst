@@ -15,7 +15,7 @@ In your project :
         'template_model',
         'template_engines',
         # CRUD app
-        'terra_crud',
+        'terra_geocrud',
         ...
     ]
     ...
@@ -33,11 +33,11 @@ In your project :
 
     urlpatterns = [
         ...
-        path('', include('terra_crud.urls', namespace='terra_crud')),
+        path('', include('terra_geocrud.urls', namespace='terra_geocrud')),
         ...
     ]
 
-You can customize default url and namespace by including terra_crud.views directly
+You can customize default url and namespace by including terra_geocrud.views directly
 
 Run migrations
 
@@ -56,12 +56,12 @@ you can disable and / or customize admin
 
 Waiting for settings definition directly in models.
 
-Settings should be overrided  with TERRA_CRUD settings in your project settings file:
+Settings should be overrided  with TERRA_GEOCRUD settings in your project settings file:
 
 ::
 
     ...
-    TERRA_CRUD = {}
+    TERRA_GEOCRUD = {}
     ...
 
 Some keys are available from now :

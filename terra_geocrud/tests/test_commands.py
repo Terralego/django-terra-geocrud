@@ -3,7 +3,7 @@ from django.test.testcases import TestCase
 from geostore import GeometryTypes
 from geostore.models import Layer
 
-from terra_crud.models import CrudView
+from terra_geocrud.models import CrudView
 
 
 class CreateDefaultCrudViewTestCase(TestCase):

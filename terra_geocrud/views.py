@@ -26,7 +26,7 @@ class CrudSettingsApiView(APIView):
     def get_config_section(self):
         config = {}
 
-        terra_crud_settings = getattr(settings, 'TERRA_CRUD', {})
+        terra_crud_settings = getattr(settings, 'TERRA_GEOCRUD', {})
         if terra_crud_settings:
             config.update(terra_crud_settings)
 

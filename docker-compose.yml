@@ -15,7 +15,7 @@ services:
       - POSTGRES_HOST=postgres
     volumes:
       - .:/code/
-      - ./test_terra_crud:/code/test_terra_crud
+      - ./test_terra_geocrud:/code/test_terra_geocrud
       - ./.coveragerc:/code/.coveragerc
     ports:
       - "8000:8000"

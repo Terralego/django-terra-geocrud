@@ -48,7 +48,7 @@ jobs:
       install:
         - pip install flake8
       script:
-        - flake8 terra_crud
+        - flake8 terra_geocrud
 
     - stage: deploy
       install: skip

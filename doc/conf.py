@@ -24,7 +24,7 @@ copyright = '2019, Makina Corpus'
 author = 'Makina Corpus'
 
 # The full version, including alpha/beta/rc tags
-release = open(os.path.join(root, 'terra_crud', 'VERSION.md')).read()
+release = open(os.path.join(root, 'terra_geocrud', 'VERSION.md')).read()
 
 
 # -- General configuration ---------------------------------------------------

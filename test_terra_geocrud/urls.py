@@ -1,4 +1,4 @@
-"""test_terra_crud URL Configuration
+"""test_terra_geocrud URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -19,5 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('geostore.urls')),
-    path('', include('terra_crud.urls', namespace='terra_crud')),
+    path('', include('terra_crud.urls', namespace='terra_geocrud')),
 ]

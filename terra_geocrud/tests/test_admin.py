@@ -19,11 +19,11 @@ class CrudGroupAdminTestCase(TestCase):
         self.client.force_login(self.user_admin)
 
     def test_list_endpoint(self):
-        response = self.client.get(reverse('admin:terra_crud_crudgroupview_changelist'))
+        response = self.client.get(reverse('admin:terra_geocrud_crudgroupview_changelist'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_endpoint(self):
-        response = self.client.get(reverse('admin:terra_crud_crudgroupview_change', args=(self.group.pk,)))
+        response = self.client.get(reverse('admin:terra_geocrud_crudgroupview_change', args=(self.group.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -44,9 +44,9 @@ class CrudViewAdminTestCase(TestCase):
         self.client.force_login(self.user_admin)
 
     def test_list_endpoint(self):
-        response = self.client.get(reverse('admin:terra_crud_crudview_changelist'))
+        response = self.client.get(reverse('admin:terra_geocrud_crudview_changelist'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_detail_endpoint(self):
-        response = self.client.get(reverse('admin:terra_crud_crudview_change', args=(self.view_1.pk,)))
+        response = self.client.get(reverse('admin:terra_geocrud_crudview_change', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

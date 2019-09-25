@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('terra_crud', '0003_auto_20190724_0849'),
+        ('terra_geocrud', '0003_auto_20190724_0849'),
     ]
 
     operations = [

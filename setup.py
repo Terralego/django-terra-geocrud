@@ -11,7 +11,7 @@ CHANGES = open(os.path.join(HERE, 'CHANGES.md')).read()
 
 setup(
     name='terra-backend-crud',
-    version=open(os.path.join(HERE, 'terra_crud', 'VERSION.md')).read().strip(),
+    version=open(os.path.join(HERE, 'terra_geocrud', 'VERSION.md')).read().strip(),
     include_package_data=True,
     author="Makina Corpus",
     author_email="terralego-pypi@makina-corpus.com",

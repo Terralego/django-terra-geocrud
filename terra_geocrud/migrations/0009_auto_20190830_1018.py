@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('terra_crud', '0008_crudview_template'),
+        ('terra_geocrud', '0008_crudview_template'),
     ]
 
     operations = [

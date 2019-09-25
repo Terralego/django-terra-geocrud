@@ -20,7 +20,7 @@ class EnrichedTemplateSerializer(TemplateSerializer):
         }
 
     def get_url(self, obj):
-        return urlunquote(reverse('terra_crud:render-template-pattern',
+        return urlunquote(reverse('terra_geocrud:render-template-pattern',
                                   kwargs={'template_pk': obj.pk}))
 
 
