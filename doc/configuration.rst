@@ -11,7 +11,7 @@ In your project :
     INSTALLED_APPS = [
         ...
         # apps required by CRUD
-        'terracommon.terra',
+        'geostore',
         'template_model',
         'template_engines',
         # CRUD app
