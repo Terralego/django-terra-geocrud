@@ -1,3 +1,5 @@
+import mimetypes
+
 from django.conf import settings
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
@@ -70,7 +72,8 @@ class CrudRenderTemplateDetailView(DetailView):
                 self.pk_template_field: self.kwargs.get(self.pk_template_kwargs)
             },
         )
-        self.content_type = self.template.mime_type
+        self.content_type, _encoding = mimetypes.guess_type(
+            self.template.template_file.name)
         response = super().render_to_response(context, **response_kwargs)
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
         return response

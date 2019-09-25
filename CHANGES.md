@@ -2,6 +2,21 @@
 CHANGELOG
 =========
 
+0.1.5      (XXXX-XX-XX)
+-----------------------
+
+Update
+
+* requirements (`django-template-model>=1.0.1` and `django-template-engines>=1.2.9`)
+
+0.1.4      (2019-11-13)
+-----------------------
+
+Breaking change
+
+* replace template rendering url parameter from {pk} to {id}
+
+
 0.1.3      (2019-11-13)
 -----------------------
 
