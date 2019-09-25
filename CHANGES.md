@@ -2,8 +2,11 @@
 CHANGELOG
 =========
 
-0.1.5      (XXXX-XX-XX)
+0.3.0      (2019-09-24)
 -----------------------
+
+Breaking changes
+* app renamed from terra_crud to terra_geocrud
 
 Update
 
