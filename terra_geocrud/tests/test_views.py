@@ -116,7 +116,6 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
     def setUp(self):
         self.layer = Layer.objects.create(
             name='composantes',
-            group='reference',
             schema=json.load(open(LAYER_COMPOSANTES_SCHEMA)),
             geom_type=1,
         )
