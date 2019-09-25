@@ -130,6 +130,9 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response._headers['content-type'][-1],
+            'application/vnd.oasis.opendocument.text')
         with open(CONTENT_XML_PATH) as reader:
             content_xml = reader.read().encode('utf-8')
         buffer = BytesIO(response.content)
