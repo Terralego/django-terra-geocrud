@@ -1,6 +1,8 @@
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 
 
 class CrudModelMixin(models.Model):
@@ -50,7 +52,39 @@ class CrudView(CrudModelMixin):
         # TODO: improve schema with custom select from generic foreign key, allowing selecting model from final apps
         return original_schema
 
+    @property
+    def properties(self):
+        return sorted(list(self.layer.layer_properties.keys()))
+
     class Meta:
         verbose_name = _("View")
         verbose_name_plural = _("Views")
         ordering = ('order',)
+
+
+class FeaturePropertyDisplayGroup(models.Model):
+    crud_view = models.ForeignKey(CrudView, related_name='feature_display_groups', on_delete=models.CASCADE)
+    label = models.CharField(max_length=50)
+    slug = models.SlugField(blank=True)
+    pictogram = models.ImageField(upload_to='crud/feature_display_group/pictograms', null=True, blank=True)
+    properties = ArrayField(models.CharField(max_length=250), default=list)
+
+    class Meta:
+        verbose_name = _("Display Group")
+        verbose_name_plural = _("Display Groups")
+        ordering = ('label',)
+        unique_together = (
+            ('crud_view', 'label'),
+            ('crud_view', 'slug'),
+        )
+
+    def clean(self):
+        # verify properties exists
+        if list(set(self.properties) - set(self.crud_view.properties)) != []:
+            raise ValidationError('Properties should exists')
+
+    def save(self, *args, **kwargs):
+        # generate slug
+        self.slug = slugify(self.label)
+
+        super().save(*args, **kwargs)

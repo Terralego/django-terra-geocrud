@@ -1,6 +1,8 @@
 from django.urls import reverse
 from django.utils.http import urlunquote
 from rest_framework import serializers
+
+import geostore
 from geostore.serializers import LayerSerializer
 from template_model.models import Template
 from template_model.serializers import TemplateSerializer

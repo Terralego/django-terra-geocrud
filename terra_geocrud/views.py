@@ -5,9 +5,11 @@ from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
-from rest_framework import viewsets, response
+from rest_framework import viewsets, response, generics
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
 from geostore.models import Feature
+from terra_geocrud.models import FeaturePropertyDisplayGroup
 
 from . import models, serializers
 
@@ -77,3 +79,38 @@ class CrudRenderTemplateDetailView(DetailView):
         response = super().render_to_response(context, **response_kwargs)
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
         return response
+
+
+class CrudFeatureViewset(APIView):
+    queryset = Feature.objects.all().select_related('layer__crud_view')
+
+    def get(self, request, *args, **kwargs):
+        processed_properties = []
+        results = {}
+        self.object = self.queryset.get(pk=self.kwargs.get('pk'))
+        layer = self.object.layer
+        crud_view = layer.crud_view
+        # get ordered groups filled
+        groups = crud_view.feature_display_groups.all()
+        for group in groups:
+            results[group.slug] = {
+                "title": group.label,
+                "pictogram": group.pictogram.url if group.pictogram else None,
+                "properties": {
+                    self.object.layer.get_property_title(prop): self.object.properties.get(prop)
+                    for prop in list(group.properties)
+                }
+            }
+            processed_properties += list(group.properties)
+
+        # add default other properties
+        remained_properties = list(set(crud_view.properties) - set(processed_properties))
+        if remained_properties:
+            results['default'] = {
+                "properties": {
+                    self.object.layer.get_property_title(prop): self.object.properties.get(prop)
+                    for prop in remained_properties
+                }
+            }
+
+        return response.Response(results)
