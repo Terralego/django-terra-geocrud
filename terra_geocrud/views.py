@@ -91,24 +91,30 @@ class CrudFeatureViewset(APIView):
         # get ordered groups filled
         groups = crud_view.feature_display_groups.all()
         for group in groups:
-            results[group.slug] = {
+            serializer = serializers.FeatureDisplayPropertyGroup({
                 "title": group.label,
-                "pictogram": group.pictogram.url if group.pictogram else None,
+                "pictogram": group.pictogram,
+                "order": group.order,
                 "properties": {
                     self.object.layer.get_property_title(prop): self.object.properties.get(prop)
                     for prop in list(group.properties)
                 }
-            }
+            }, context={'request': request})
+            results[group.slug] = serializer.data
             processed_properties += list(group.properties)
 
         # add default other properties
         remained_properties = list(set(crud_view.properties) - set(processed_properties))
         if remained_properties:
-            results['default'] = {
+            serializer = serializers.FeatureDisplayPropertyGroup({
+                "title": "",
+                "pictogram": None,
+                "order": 9999,
                 "properties": {
                     self.object.layer.get_property_title(prop): self.object.properties.get(prop)
-                    for prop in remained_properties
+                    for prop in list(remained_properties)
                 }
-            }
+            })
+            results['__default__'] = serializer.data
 
         return response.Response(results)

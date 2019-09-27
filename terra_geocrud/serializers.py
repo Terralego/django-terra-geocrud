@@ -47,3 +47,10 @@ class CrudGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CrudGroupView
         fields = '__all__'
+
+
+class FeatureDisplayPropertyGroup(serializers.Serializer):
+    title = serializers.CharField()
+    order = serializers.IntegerField()
+    pictogram = serializers.ImageField()
+    properties = serializers.JSONField()
