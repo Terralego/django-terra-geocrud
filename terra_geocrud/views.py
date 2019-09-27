@@ -1,16 +1,14 @@
 import mimetypes
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
-from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
-from rest_framework import viewsets, response, generics
-from rest_framework.generics import RetrieveAPIView
+from rest_framework import viewsets, response
 from rest_framework.views import APIView
-from geostore.models import Feature
-from terra_geocrud.models import FeaturePropertyDisplayGroup
 
+from geostore.models import Feature
 from . import models, serializers
 
 
