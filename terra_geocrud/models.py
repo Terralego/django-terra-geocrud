@@ -64,6 +64,7 @@ class CrudView(CrudModelMixin):
 
 class FeaturePropertyDisplayGroup(models.Model):
     crud_view = models.ForeignKey(CrudView, related_name='feature_display_groups', on_delete=models.CASCADE)
+    order = models.PositiveSmallIntegerField(default=0)
     label = models.CharField(max_length=50)
     slug = models.SlugField(blank=True)
     pictogram = models.ImageField(upload_to='crud/feature_display_group/pictograms', null=True, blank=True)
@@ -72,7 +73,7 @@ class FeaturePropertyDisplayGroup(models.Model):
     class Meta:
         verbose_name = _("Display Group")
         verbose_name_plural = _("Display Groups")
-        ordering = ('label',)
+        ordering = ('order', 'label',)
         unique_together = (
             ('crud_view', 'label'),
             ('crud_view', 'slug'),
