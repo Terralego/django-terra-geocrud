@@ -88,6 +88,7 @@ class CrudFeatureViewset(APIView):
         self.object = self.queryset.get(pk=self.kwargs.get('pk'))
         layer = self.object.layer
         crud_view = layer.crud_view
+
         # get ordered groups filled
         groups = crud_view.feature_display_groups.all()
         for group in groups:
@@ -116,5 +117,9 @@ class CrudFeatureViewset(APIView):
                 }
             })
             results['__default__'] = serializer.data
+
+        results['id'] = self.object.pk
+        results['identifier'] = self.object.identifier
+        results['geom'] = self.object.geom
 
         return response.Response(results)
