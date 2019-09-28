@@ -164,6 +164,8 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
                                               properties={"age": 10, "name": "jec", "country": "slovenija"},
                                               layer=self.crud_view.layer)
+        self.template = factories.TemplateDocxFactory()
+        self.crud_view.templates.add(self.template)
 
     def test_list_endpoint(self):
         response_list = self.client.get(reverse('terra_geocrud:feature-list', args=(self.crud_view.layer_id,)),
@@ -171,7 +173,7 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         data = response_list.json()
         self.assertEqual(len(data), self.crud_view.layer.features.count())
 
-    def test_property_detail_with_groups(self):
+    def test_property_detail_display_with_groups(self):
         response_detail = self.client.get(reverse('terra_geocrud:feature-detail',
                                                   args=(self.crud_view.layer_id,
                                                         self.feature.identifier)),
@@ -180,3 +182,11 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         expected_keys = list(self.crud_view.feature_display_groups.all()
                              .values_list('slug', flat=True)) + ['__default__']
         self.assertEqual(list(data['display_properties'].keys()), expected_keys)
+
+    def test_property_detail_documents(self):
+        response_detail = self.client.get(reverse('terra_geocrud:feature-detail',
+                                                  args=(self.crud_view.layer_id,
+                                                        self.feature.identifier)),
+                                          format="json")
+        data = response_detail.json()
+        self.assertEqual(len(data['documents']), self.crud_view.templates.count())

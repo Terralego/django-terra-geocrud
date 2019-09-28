@@ -8,6 +8,7 @@ from terra_geocrud.tests.settings import DOCX_PLAN_DE_GESTION
 
 
 class TemplateDocxFactory(factory.DjangoModelFactory):
+    name = "Plan de gestion"
     template_file = factory.django.FileField(from_path=DOCX_PLAN_DE_GESTION)
 
     class Meta:
