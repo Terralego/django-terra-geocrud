@@ -2,6 +2,15 @@
 CHANGELOG
 =========
 
+0.3.1      (XXXX-XX-XX)
+-----------------------
+
+Features
+
+* Ability to groups layers properties in form schema and data display
+* New layer/<layer/features endpoint that provide custom data. Usage of old geostore endpoint will be deprecated.
+
+
 0.3.0      (2019-09-24)
 -----------------------
 
