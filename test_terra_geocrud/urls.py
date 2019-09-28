@@ -25,7 +25,7 @@ urlpatterns = [
     path('', include('terra_geocrud.urls', namespace='terra_geocrud')),
 ]
 
-if settings.DEBUG and settings.TEST:
+if settings.DEBUG and not settings.TEST:
     import debug_toolbar
     urlpatterns = [
                       path('__debug__/', include(debug_toolbar.urls)),
