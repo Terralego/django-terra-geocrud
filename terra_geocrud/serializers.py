@@ -62,12 +62,17 @@ class FeatureDisplayPropertyGroup(serializers.Serializer):
 
 class CrudFeatureListSerializer(FeatureSerializer):
     detail_url = serializers.SerializerMethodField()
+    extent = serializers.SerializerMethodField()
+
+    def get_extent(self, obj):
+        geom = obj.geom.transform(4326, clone=True)
+        return geom.extent
 
     def get_detail_url(self, obj):
         return reverse('terra_geocrud:feature-detail', args=(obj.layer_id, obj.identifier))
 
     class Meta(FeatureSerializer.Meta):
-        exclude = ('source', 'target', 'layer', )
+        exclude = ('source', 'target', 'layer',)
         fields = None
 
 
