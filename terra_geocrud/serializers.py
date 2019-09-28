@@ -1,12 +1,12 @@
 import json
 
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
-
 from . import models
 
 
@@ -17,14 +17,20 @@ class LayerViewSerializer(LayerSerializer):
 
     class Meta(LayerSerializer.Meta):
         fields = None
-        exclude = ('schema', )
+        exclude = ('schema',)
 
 
 class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
-    feature_endpoint = serializers.SerializerMethodField()
-    feature_list_properties = serializers.SerializerMethodField()
-    feature_list_default_properties = serializers.SerializerMethodField()
+    feature_endpoint = serializers.SerializerMethodField(
+        help_text=_("Url endpoint for view's features")
+    )
+    feature_list_properties = serializers.SerializerMethodField(
+        help_text=_("Available properties for feature datatable")
+    )
+    feature_list_default_properties = serializers.SerializerMethodField(
+        help_text=_("Properties selected by default in datatable")
+    )
 
     def get_feature_list_default_properties(self, obj):
         return obj.default_list_properties or obj.properties[:8]
@@ -34,7 +40,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return obj.properties
 
     def get_feature_endpoint(self, obj):
-        return reverse('terra_geocrud:feature-list', args=(obj.layer_id, ))
+        return reverse('terra_geocrud:feature-list', args=(obj.layer_id,))
 
     class Meta:
         model = models.CrudView
@@ -74,6 +80,27 @@ class CrudFeatureListSerializer(FeatureSerializer):
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer',)
         fields = None
+
+
+class DocumentFeatureSerializer(serializers.ModelSerializer):
+    extension = serializers.SerializerMethodField()
+    template_name = serializers.CharField(source='name')
+    template_file = serializers.SerializerMethodField()
+    download_url = serializers.SerializerMethodField()
+
+    def get_extension(self, obj):
+        return Path(obj.template_file.name).suffix
+
+    def get_template_file(self, obj):
+        return Path(obj.template_file.name).name
+
+    def get_download_url(self, obj):
+        return reverse('terra_geocrud:render-template', args=(obj.pk,
+                                                              self.context.get('feature').pk))
+
+    class Meta:
+        fields = ('extension', 'template_name', 'template_file', 'download_url')
+        model = Template
 
 
 class CrudFeatureDetailSerializer(FeatureSerializer):
@@ -137,16 +164,11 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
         return results
 
     def get_documents(self, obj):
-        results = []
-        for template in obj.layer.crud_view.templates.all():
-            template_path = Path(template.template_file.name)
-            results.append({
-                "extension": template_path.suffix,
-                "template_name": template.name,
-                "template_file": template_path.name,
-                "download_url": reverse('terra_geocrud:render-template', args=(template.pk, obj.pk)),
-            })
-        return results
+        serializer = DocumentFeatureSerializer(obj.layer.crud_view.templates.all(),
+                                               many=True,
+                                               context={'request': self.context.get('request'),
+                                                        'feature': obj})
+        return serializer.data
 
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer',)

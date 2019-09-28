@@ -59,24 +59,22 @@ class CrudView(CrudModelMixin):
         original_schema = self.layer.schema.copy()
         generated_schema = original_schema.copy()
         groups = self.feature_display_groups.all()
+        processed_properties = []
+        generated_schema['properties'] = {}
 
-        if groups.exists():
-            processed_properties = []
-            generated_schema['properties'] = {}
-
-            for group in groups:
-                # group properties by sub object, then add other properties
-                generated_schema['properties'][group.slug] = group.form_schema
-                processed_properties += list(group.properties)
-                for prop in group.properties:
-                    try:
-                        generated_schema.get('required', []).remove(prop)
-                    except ValueError:
-                        pass
-            # add default other properties
-            remained_properties = list(set(self.properties) - set(processed_properties))
-            for prop in remained_properties:
-                generated_schema['properties'][prop] = original_schema['properties'][prop]
+        for group in groups:
+            # group properties by sub object, then add other properties
+            generated_schema['properties'][group.slug] = group.form_schema
+            processed_properties += list(group.properties)
+            for prop in group.properties:
+                try:
+                    generated_schema.get('required', []).remove(prop)
+                except ValueError:
+                    pass
+        # add default other properties
+        remained_properties = list(set(self.properties) - set(processed_properties))
+        for prop in remained_properties:
+            generated_schema['properties'][prop] = original_schema['properties'][prop]
 
         return generated_schema
 
