@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 class CrudModelMixin(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text=_("Display name in left menu"))
-    order = models.PositiveSmallIntegerField(help_text=_("Order entry in left menu"))
+    order = models.PositiveSmallIntegerField(help_text=_("Order entry in left menu"), db_index=True)
 
     def __str__(self):
         return self.name
@@ -56,10 +56,6 @@ class CrudView(CrudModelMixin):
 
     @property
     def form_schema(self):
-        """
-        Crud's view custom json form schema
-        TODO : exclude computed properties
-        """
         original_schema = self.layer.schema.copy()
         generated_schema = original_schema.copy()
         groups = self.feature_display_groups.all()
@@ -70,21 +66,7 @@ class CrudView(CrudModelMixin):
 
             for group in groups:
                 # group properties by sub object, then add other properties
-                properties = {}
-                required = []
-                for prop in list(group.properties):
-                    properties[prop] = original_schema['properties'][prop]
-
-                    if prop in original_schema['required']:
-                        original_schema['required'].remove(prop)
-                        required.append(prop)
-
-                generated_schema['properties'][group.slug] = {
-                    "type": "object",
-                    "title": group.label,
-                    "required": required,
-                    "properties": properties
-                }
+                generated_schema['properties'][group.slug] = group.form_schema
                 processed_properties += list(group.properties)
 
             # add default other properties
@@ -105,8 +87,9 @@ class CrudView(CrudModelMixin):
 
 
 class FeaturePropertyDisplayGroup(models.Model):
+    """ Model used to group layer properties in form_schema and displayed informations """
     crud_view = models.ForeignKey(CrudView, related_name='feature_display_groups', on_delete=models.CASCADE)
-    order = models.PositiveSmallIntegerField(default=0)
+    order = models.PositiveSmallIntegerField(default=0, db_index=True)
     label = models.CharField(max_length=50)
     slug = models.SlugField(blank=True, editable=False)
     pictogram = models.ImageField(upload_to='crud/feature_display_group/pictograms', null=True, blank=True)
@@ -114,6 +97,26 @@ class FeaturePropertyDisplayGroup(models.Model):
 
     def __str__(self):
         return self.label
+
+    @property
+    def form_schema(self):
+        original_schema = self.crud_view.layer.schema.copy()
+        properties = {}
+        required = []
+
+        for prop in list(self.properties):
+            properties[prop] = original_schema['properties'][prop]
+
+            if prop in original_schema['required']:
+                original_schema['required'].remove(prop)
+                required.append(prop)
+
+        return {
+            "type": "object",
+            "title": self.label,
+            "required": required,
+            "properties": properties
+        }
 
     class Meta:
         verbose_name = _("Feature properties display group")
