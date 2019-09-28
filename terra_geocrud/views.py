@@ -9,6 +9,7 @@ from rest_framework import viewsets, response
 from rest_framework.views import APIView
 
 from geostore.models import Feature
+from geostore.views import FeatureViewSet
 from . import models, serializers
 
 
@@ -79,47 +80,8 @@ class CrudRenderTemplateDetailView(DetailView):
         return response
 
 
-class CrudFeatureViewset(APIView):
-    queryset = Feature.objects.all().select_related('layer__crud_view')
-
-    def get(self, request, *args, **kwargs):
-        processed_properties = []
-        results = {}
-        self.object = self.queryset.get(pk=self.kwargs.get('pk'))
-        layer = self.object.layer
-        crud_view = layer.crud_view
-
-        # get ordered groups filled
-        groups = crud_view.feature_display_groups.all()
-        for group in groups:
-            serializer = serializers.FeatureDisplayPropertyGroup({
-                "title": group.label,
-                "pictogram": group.pictogram,
-                "order": group.order,
-                "properties": {
-                    self.object.layer.get_property_title(prop): self.object.properties.get(prop)
-                    for prop in list(group.properties)
-                }
-            }, context={'request': request})
-            results[group.slug] = serializer.data
-            processed_properties += list(group.properties)
-
-        # add default other properties
-        remained_properties = list(set(crud_view.properties) - set(processed_properties))
-        if remained_properties:
-            serializer = serializers.FeatureDisplayPropertyGroup({
-                "title": "",
-                "pictogram": None,
-                "order": 9999,
-                "properties": {
-                    self.object.layer.get_property_title(prop): self.object.properties.get(prop)
-                    for prop in list(remained_properties)
-                }
-            })
-            results['__default__'] = serializer.data
-
-        results['id'] = self.object.pk
-        results['identifier'] = self.object.identifier
-        results['geom'] = self.object.geom
-
-        return response.Response(results)
+class CrudFeatureViewsSet(FeatureViewSet):
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return serializers.CrudFeatureDetailSerializer
+        return serializers.CrudFeatureListSerializer

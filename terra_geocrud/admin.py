@@ -20,6 +20,7 @@ class CrudViewAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
+        ('Feature list', {'fields': ('properties', 'default_list_properties')}),
         ("Document generation", {'fields': ('templates', )}),
         ("Schema", {'fields': ('ui_schema', )}),
         ("Other settings", {'fields': (('map_style', 'settings'), )}),
@@ -27,4 +28,4 @@ class CrudViewAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj and obj.pk:
-            return ['layer', 'form_schema']
+            return ['layer', 'form_schema', 'properties']

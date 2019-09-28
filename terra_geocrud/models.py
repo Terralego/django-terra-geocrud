@@ -46,6 +46,13 @@ class CrudView(CrudModelMixin):
                                          https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
+    default_list_properties = ArrayField(models.CharField(max_length=250), default=list, blank=True)
+
+    def clean(self):
+        # verify properties exists
+        unexpected_properties = list(set(self.default_list_properties) - set(self.properties))
+        if unexpected_properties:
+            raise ValidationError(f'Properties should exists : {unexpected_properties}')
 
     @property
     def form_schema(self):
@@ -119,8 +126,9 @@ class FeaturePropertyDisplayGroup(models.Model):
 
     def clean(self):
         # verify properties exists
-        if list(set(self.properties) - set(self.crud_view.properties)) != []:
-            raise ValidationError('Properties should exists')
+        unexpected_properties = list(set(self.properties) - set(self.crud_view.properties))
+        if unexpected_properties:
+            raise ValidationError(f'Properties should exists : {unexpected_properties}')
 
     def save(self, *args, **kwargs):
         # generate slug
