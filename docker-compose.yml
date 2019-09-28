@@ -20,8 +20,6 @@ services:
       - POSTGRES_HOST=postgres
     volumes:
       - .:/code/
-      - ./test_terra_geocrud:/code/test_terra_geocrud
-      - ./.coveragerc:/code/.coveragerc
     ports:
       - "8000:8000"
     command: python3.7 ./manage.py runserver 0.0.0.0:8000
