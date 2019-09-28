@@ -1,3 +1,5 @@
+import json
+
 from pathlib import Path
 
 from rest_framework import serializers
@@ -22,6 +24,10 @@ class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
     feature_endpoint = serializers.SerializerMethodField()
     feature_list_properties = serializers.SerializerMethodField()
+    feature_list_default_properties = serializers.SerializerMethodField()
+
+    def get_feature_list_default_properties(self, obj):
+        return obj.default_list_properties or obj.properties[:8]
 
     def get_feature_list_properties(self, obj):
         # TODO: override complete list with defined list
@@ -35,7 +41,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
-            'feature_endpoint', 'feature_list_properties'
+            'feature_endpoint', 'feature_list_properties', 'feature_list_default_properties'
         )
 
 
@@ -66,9 +72,14 @@ class CrudFeatureListSerializer(FeatureSerializer):
 
 
 class CrudFeatureDetailSerializer(FeatureSerializer):
+    geom = serializers.SerializerMethodField()
     documents = serializers.SerializerMethodField()
     display_properties = serializers.SerializerMethodField()
     properties = serializers.SerializerMethodField()
+
+    def get_geom(self, obj):
+        geom = obj.geom.transform(4326, clone=True)
+        return json.loads(geom.geojson)
 
     def get_properties(self, obj):
         results = {}
