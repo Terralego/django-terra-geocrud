@@ -25,12 +25,11 @@ urlpatterns = [
     path('', include('terra_geocrud.urls', namespace='terra_geocrud')),
 ]
 
-if settings.DEBUG and not settings.TEST:
+try:
     import debug_toolbar
+
     urlpatterns = [
-                      path('__debug__/', include(debug_toolbar.urls)),
-
-                      # For django versions before 2.0:
-                      # url(r'^__debug__/', include(debug_toolbar.urls)),
-
-                  ] + urlpatterns
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
+except ImportError:
+    pass
