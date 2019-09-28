@@ -6,4 +6,3 @@ WORKDIR /code
 
 # Install dev requirements
 RUN pip3 install -e .[dev]
-USER django

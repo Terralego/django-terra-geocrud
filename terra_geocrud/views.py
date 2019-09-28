@@ -34,12 +34,15 @@ class CrudSettingsApiView(APIView):
         return config
 
     def get_menu_section(self):
-        groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer')
+        groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer',
+                                                               'crud_views__feature_display_groups')
         group_serializer = CrudGroupViewSet.serializer_class(groups, many=True)
         data = group_serializer.data
 
         # add non grouped views
-        ungrouped_views = models.CrudView.objects.filter(group__isnull=True)
+        ungrouped_views = models.CrudView.objects.filter(group__isnull=True)\
+            .select_related('layer')\
+            .prefetch_related('feature_display_groups')
         views_serializer = CrudViewViewSet.serializer_class(ungrouped_views, many=True)
         data.append({
             "id": None,
@@ -81,6 +84,10 @@ class CrudRenderTemplateDetailView(DetailView):
 
 
 class CrudFeatureViewsSet(FeatureViewSet):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.select_related('layer')
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return serializers.CrudFeatureDetailSerializer

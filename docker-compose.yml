@@ -18,6 +18,7 @@ services:
       - postgres
     environment:
       - POSTGRES_HOST=postgres
+      - DJANGO_SETTINGS_MODULE=test_terra_geocrud.settings.dev
     volumes:
       - .:/code/
     ports:
