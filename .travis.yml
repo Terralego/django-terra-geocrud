@@ -23,7 +23,7 @@ stages:
 
 install:
   - sudo apt-get -y install libproj-dev binutils gdal-bin
-  - python setup.py test
+  - pip install -e .[dev]
   - pip install codecov
 
 

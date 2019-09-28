@@ -1,21 +1,20 @@
 import json
 import os
+from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 from django.contrib.gis.geos import Point
-from django.core.files.base import ContentFile
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from io import BytesIO
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from template_model.models import Template
 
 from geostore.models import Layer, Feature
 from terra_geocrud.models import FeaturePropertyDisplayGroup
 from terra_geocrud.tests import factories
-from .settings import (DOCX_PLAN_DE_GESTION, FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
+from .settings import (FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
                        SNAPSHOT_PLAN_DE_GESTION)
 from .. import models
 
@@ -73,6 +72,7 @@ class CrudViewViewSetTestCase(TestCase):
         self.assertEqual(data['id'], self.view_1.pk)
 
 
+@override_settings(MEDIA_ROOT=TemporaryDirectory())
 class CrudSettingsViewTestCase(TestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
@@ -114,7 +114,6 @@ class CrudSettingsViewTestCase(TestCase):
 
 
 class CrudRenderTemplateDetailViewTestCase(TestCase):
-
     def setUp(self):
         self.layer = Layer.objects.create(
             name='composantes',
@@ -126,9 +125,8 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
             geom=Point(x=-0.246322800072846, y=44.5562461167907),
             properties=json.load(open(FEATURE_PROPERTIES)),
         )
-        self.template = Template.objects.create(
+        self.template = factories.TemplateDocxFactory.create(
             name='Template',
-            template_file=ContentFile(open(DOCX_PLAN_DE_GESTION, 'rb').read()),
         )
         self.crud_view = models.CrudView.objects.create(name='view 1', order=0, layer=self.layer)
         self.crud_view.templates.add(self.template)
@@ -175,9 +173,10 @@ class CrudFeatureViewsSetTestCase(APITestCase):
 
     def test_property_detail_with_groups(self):
         response_detail = self.client.get(reverse('terra_geocrud:feature-detail',
-                                                  args=(self.crud_view.layer_id, self.feature.identifier)),
+                                                  args=(self.crud_view.layer_id,
+                                                        self.feature.identifier)),
                                           format="json")
         data = response_detail.json()
-        expected_keys = list(self.crud_view.feature_display_groups.all().values_list('slug', flat=True)) + [
-            '__default__']
+        expected_keys = list(self.crud_view.feature_display_groups.all()
+                             .values_list('slug', flat=True)) + ['__default__']
         self.assertEqual(list(data['display_properties'].keys()), expected_keys)
