@@ -1,4 +1,5 @@
 from django.contrib.gis.geos import Point
+from django.core.exceptions import ValidationError
 from django.test.testcases import TestCase
 from geostore.models import Feature
 
@@ -13,6 +14,16 @@ class CrudModelMixinTestCase(TestCase):
 
         a = MyTestModel()
         self.assertEqual(a.name, str(a))
+
+
+class CrudViewTestCase(TestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+
+    def test_clean(self):
+        with self.assertRaises(ValidationError):
+            self.crud_view.default_list_properties.append('toto')
+            self.crud_view.clean()
 
 
 class FeaturePropertyDisplayGroupTestCase(TestCase):
@@ -68,3 +79,8 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
                 },
             }
         })
+
+    def test_clean(self):
+        with self.assertRaises(ValidationError):
+            self.group_1.properties.append('toto')
+            self.group_1.clean()
