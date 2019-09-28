@@ -1,5 +1,8 @@
+from tempfile import TemporaryDirectory
+
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
+from django.test import override_settings
 from django.test.testcases import TestCase
 from geostore.models import Feature
 
@@ -26,6 +29,7 @@ class CrudViewTestCase(TestCase):
             self.crud_view.clean()
 
 
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class FeaturePropertyDisplayGroupTestCase(TestCase):
     def setUp(self) -> None:
         self.crud_view = factories.CrudViewFactory()

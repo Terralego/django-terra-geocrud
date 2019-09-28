@@ -113,6 +113,7 @@ class CrudSettingsViewTestCase(TestCase):
         self.assertEqual(data['config'], {"terra_crud_settings_1": True})
 
 
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudRenderTemplateDetailViewTestCase(TestCase):
     def setUp(self):
         self.layer = Layer.objects.create(
@@ -154,6 +155,7 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
         os.remove(self.template.template_file.path)
 
 
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudFeatureViewsSetTestCase(APITestCase):
     def setUp(self):
         self.crud_view = factories.CrudViewFactory()
