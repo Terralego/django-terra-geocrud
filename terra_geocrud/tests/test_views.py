@@ -1,21 +1,23 @@
 import json
 import os
-from io import BytesIO
 from zipfile import ZipFile
 
-from django.core.files import File
 from django.contrib.gis.geos import Point
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from io import BytesIO
 from rest_framework import status
-from rest_framework.test import APIClient
-from geostore.models import Layer, Feature
+from rest_framework.test import APIClient, APITestCase
 from template_model.models import Template
 
-from .. import models
+from geostore.models import Layer, Feature
+from terra_geocrud.models import FeaturePropertyDisplayGroup
+from terra_geocrud.tests import factories
 from .settings import (DOCX_PLAN_DE_GESTION, FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
                        SNAPSHOT_PLAN_DE_GESTION)
+from .. import models
 
 
 class CrudGroupViewSetTestCase(TestCase):
@@ -33,7 +35,7 @@ class CrudGroupViewSetTestCase(TestCase):
         self.assertEqual(data[0]['id'], self.group.pk)
 
     def test_detail_endpoint(self):
-        response = self.api_client.get(reverse('terra_geocrud:crudgroupview-detail', args=(self.group.pk, )))
+        response = self.api_client.get(reverse('terra_geocrud:crudgroupview-detail', args=(self.group.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -63,7 +65,7 @@ class CrudViewViewSetTestCase(TestCase):
         self.assertEqual(data[0]['id'], self.view_1.pk)
 
     def test_detail_endpoint(self):
-        response = self.api_client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk, )))
+        response = self.api_client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -126,13 +128,13 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
         )
         self.template = Template.objects.create(
             name='Template',
-            template_file=File(open(DOCX_PLAN_DE_GESTION, 'rb')),
+            template_file=ContentFile(open(DOCX_PLAN_DE_GESTION, 'rb').read()),
         )
         self.crud_view = models.CrudView.objects.create(name='view 1', order=0, layer=self.layer)
         self.crud_view.templates.add(self.template)
         self.api_client = APIClient()
 
-    def test_works(self):
+    def test_template_rendering(self):
         response = self.api_client.get(
             reverse(
                 'terra_geocrud:render-template',
@@ -152,3 +154,30 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
 
     def tearDown(self):
         os.remove(self.template.template_file.path)
+
+
+class CrudFeatureViewsSetTestCase(APITestCase):
+    def setUp(self):
+        self.crud_view = factories.CrudViewFactory()
+        self.group_1 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test',
+                                                                  properties=['age'])
+        self.group_2 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
+                                                                  properties=['name'])
+        self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
+                                              properties={"age": 10, "name": "jec", "country": "slovenija"},
+                                              layer=self.crud_view.layer)
+
+    def test_list_endpoint(self):
+        response_list = self.client.get(reverse('terra_geocrud:feature-list', args=(self.crud_view.layer_id,)),
+                                        format="json")
+        data = response_list.json()
+        self.assertEqual(len(data), self.crud_view.layer.features.count())
+
+    def test_property_detail_with_groups(self):
+        response_detail = self.client.get(reverse('terra_geocrud:feature-detail',
+                                                  args=(self.crud_view.layer_id, self.feature.identifier)),
+                                          format="json")
+        data = response_detail.json()
+        expected_keys = list(self.crud_view.feature_display_groups.all().values_list('slug', flat=True)) + [
+            '__default__']
+        self.assertEqual(list(data['display_properties'].keys()), expected_keys)
