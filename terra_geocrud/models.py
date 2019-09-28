@@ -68,7 +68,11 @@ class CrudView(CrudModelMixin):
                 # group properties by sub object, then add other properties
                 generated_schema['properties'][group.slug] = group.form_schema
                 processed_properties += list(group.properties)
-
+                for prop in group.properties:
+                    try:
+                        generated_schema.get('required', []).remove(prop)
+                    except ValueError:
+                        pass
             # add default other properties
             remained_properties = list(set(self.properties) - set(processed_properties))
             for prop in remained_properties:
@@ -107,8 +111,7 @@ class FeaturePropertyDisplayGroup(models.Model):
         for prop in list(self.properties):
             properties[prop] = original_schema['properties'][prop]
 
-            if prop in original_schema['required']:
-                original_schema['required'].remove(prop)
+            if prop in original_schema.get('required', []):
                 required.append(prop)
 
         return {

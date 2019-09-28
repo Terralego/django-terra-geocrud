@@ -23,6 +23,7 @@ class CrudViewFactory(factory.DjangoModelFactory):
         geom_type=GeometryTypes.Point,
         schema={
             "type": "object",
+            "required": ["name", ],
             "properties": {
                 "name": {
                     'type': "string",
