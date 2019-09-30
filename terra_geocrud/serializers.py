@@ -11,18 +11,23 @@ from . import models
 
 
 class LayerViewSerializer(LayerSerializer):
-    schema = None
+    schema = serializers.JSONField(write_only=True)
+    # disable other fields
+    name = serializers.CharField(read_only=True)
     layer_groups = None
     routing_url = None
+    shapefile_url = None
+    geojson_url = None
+    layer_intersects = None
 
     class Meta(LayerSerializer.Meta):
-        fields = None
-        exclude = ('schema',)
+        pass
 
 
 class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
     extent = serializers.SerializerMethodField()
+    exports = serializers.SerializerMethodField()
     templates = serializers.SerializerMethodField()  # DEPRECATED
     ui_schema = serializers.SerializerMethodField()
     feature_endpoint = serializers.SerializerMethodField(
@@ -31,6 +36,15 @@ class CrudViewSerializer(serializers.ModelSerializer):
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: title}")
     )
+
+    def get_exports(self, obj):
+        return [{
+            "name": "shapefile",
+            "url": reverse('geostore:layer-shapefile', args=[obj.layer_id, ])
+        }, {
+            "name": "geojson",
+            "url": reverse('geostore:layer-geojson', args=[obj.layer_id, ])
+        }]
 
     def get_templates(self, obj):
         # DEPRECATED
@@ -41,6 +55,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return obj.ui_schema
 
     def get_extent(self, obj):
+        # TODO: use annotated extent
         return obj.extent
 
     def get_feature_list_properties(self, obj):
@@ -60,7 +75,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
-            'feature_endpoint', 'extent', 'templates',
+            'feature_endpoint', 'extent', 'templates', 'exports',
             'feature_list_properties',
         )
 
@@ -102,7 +117,8 @@ class CrudFeatureListSerializer(FeatureSerializer):
         return geom.extent
 
     def get_detail_url(self, obj):
-        return reverse('terra_geocrud:feature-detail', args=(obj.layer_id, obj.identifier))
+        return reverse('terra_geocrud:feature-detail',
+                       args=(obj.layer_id, obj.identifier))
 
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer', 'geom')
@@ -122,8 +138,8 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
         return Path(obj.template_file.name).name
 
     def get_download_url(self, obj):
-        return reverse('terra_geocrud:render-template', args=(obj.pk,
-                                                              self.context.get('feature').pk))
+        return reverse('terra_geocrud:render-template',
+                       args=(obj.pk, self.context.get('feature').pk))
 
     class Meta:
         fields = (
