@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
 from geostore.models import Layer, Feature
+from terra_geocrud import settings as app_settings
 from terra_geocrud.models import FeaturePropertyDisplayGroup
 from terra_geocrud.tests import factories
 from .settings import (FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
@@ -101,16 +102,16 @@ class CrudSettingsViewTestCase(TestCase):
         Without extra settings, config section is empty
         """
         data = self.response.json()
-        self.assertEqual(data['config'], {})
+        self.assertDictEqual(data['config'], app_settings._DEFAULT_TERRA_GEOCRUD)
 
-    @override_settings(TERRA_GEOCRUD={"terra_crud_settings_1": True})
+    @override_settings(TERRA_GEOCRUD={"EXTENT": [[0, 90], [90, 180]]})
     def test_endpoint_config_with_settings(self):
         """
         Extra TERRA_GEOCRUD settings are added to config section
         """
         self.response = self.api_client.get(reverse('terra_geocrud:settings'))
         data = self.response.json()
-        self.assertEqual(data['config'], {"terra_crud_settings_1": True})
+        self.assertEqual(data['config'], {"EXTENT": [[0, 90], [90, 180]]})
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

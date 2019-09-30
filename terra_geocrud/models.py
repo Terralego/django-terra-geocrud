@@ -90,7 +90,7 @@ class CrudView(CrudModelMixin):
         features_extent = self.layer.features.aggregate(extent=Extent('geom'))
         # get extent in settings if no features
         return features_extent.get('extent',
-                                   app_settings.TERRA_GEOCRUD_SETTINGS['EXTENT'])
+                                   app_settings.TERRA_GEOCRUD['EXTENT'])
 
     class Meta:
         verbose_name = _("View")

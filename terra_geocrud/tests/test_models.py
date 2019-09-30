@@ -4,8 +4,8 @@ from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.test.testcases import TestCase
-from geostore.models import Feature
 
+from geostore.models import Feature
 from terra_geocrud.tests import factories
 from .. import models
 

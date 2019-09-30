@@ -23,6 +23,7 @@ class LayerViewSerializer(LayerSerializer):
 class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
     extent = serializers.SerializerMethodField()
+    ui_schema = serializers.SerializerMethodField()
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
     )
@@ -32,6 +33,10 @@ class CrudViewSerializer(serializers.ModelSerializer):
     feature_list_default_properties = serializers.SerializerMethodField(
         help_text=_("Properties selected by default in datatable. Ordered, {name: title}")
     )
+
+    def get_ui_schema(self, obj):
+        # TODO: split ui_schema with feature group display
+        return obj.ui_schema
 
     def get_extent(self, obj):
         return obj.extent

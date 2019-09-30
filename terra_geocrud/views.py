@@ -1,5 +1,6 @@
 import mimetypes
 
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
@@ -25,7 +26,9 @@ class CrudViewViewSet(viewsets.ModelViewSet):
 
 class CrudSettingsApiView(APIView):
     def get_config_section(self):
-        return app_settings.TERRA_GEOCRUD_SETTINGS
+        default_config = app_settings.TERRA_GEOCRUD.copy()
+        default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
+        return default_config
 
     def get_menu_section(self):
         groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer',
