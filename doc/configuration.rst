@@ -61,9 +61,8 @@ Settings should be overrided  with TERRA_GEOCRUD settings in your project settin
 ::
 
     ...
-    TERRA_GEOCRUD = {}
+    TERRA_GEOCRUD = {
+        'EXTENT': [[-90.0, -180.0], [90.0, 180.0]],  # default value for map extent. API serialize this for layer extent if there is no features in it (as default)
+
+    }
     ...
-
-Some keys are available from now :
-
-    TODO: implement base layers for crud here
