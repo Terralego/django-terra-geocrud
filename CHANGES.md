@@ -9,7 +9,7 @@ Features
 
 * Ability to groups layers properties in form schema and data display
 * New layer/<layer/features endpoint that provide custom data. Usage of old geostore endpoint will be deprecated.
-
+* Improve CrudView serializer to provide required frontend data, and give frontend urls to follow.
 
 0.3.0      (2019-09-24)
 -----------------------
