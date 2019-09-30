@@ -72,7 +72,7 @@ class CrudViewViewSetTestCase(TestCase):
         self.assertEqual(data['id'], self.view_1.pk)
 
 
-@override_settings(MEDIA_ROOT=TemporaryDirectory())
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudSettingsViewTestCase(TestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
