@@ -66,7 +66,7 @@ class CrudRenderTemplateDetailView(DetailView):
     def get_template_object(self):
         return get_object_or_404(self.get_object().layer.crud_view.templates,
                                  **{self.pk_template_field:
-                                        self.kwargs.get(self.pk_template_kwargs)})
+                                    self.kwargs.get(self.pk_template_kwargs)})
 
     def render_to_response(self, context, **response_kwargs):
         self.template = self.get_template_object()
