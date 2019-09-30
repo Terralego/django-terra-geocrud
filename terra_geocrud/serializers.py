@@ -23,6 +23,7 @@ class LayerViewSerializer(LayerSerializer):
 class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
     extent = serializers.SerializerMethodField()
+    templates = serializers.SerializerMethodField()  # DEPRECATED
     ui_schema = serializers.SerializerMethodField()
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
@@ -30,9 +31,10 @@ class CrudViewSerializer(serializers.ModelSerializer):
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: title}")
     )
-    feature_list_default_properties = serializers.SerializerMethodField(
-        help_text=_("Properties selected by default in datatable. Ordered, {name: title}")
-    )
+
+    def get_templates(self, obj):
+        # DEPRECATED
+        return []
 
     def get_ui_schema(self, obj):
         # TODO: split ui_schema with feature group display
@@ -41,18 +43,14 @@ class CrudViewSerializer(serializers.ModelSerializer):
     def get_extent(self, obj):
         return obj.extent
 
-    def get_feature_list_default_properties(self, obj):
-        if obj.default_list_properties:
-            return [{
-                prop: obj.layer.get_property_title(prop)
-            } for prop in obj.default_list_properties]
-        else:
-            return self.get_feature_list_properties(obj)[:8]
-
     def get_feature_list_properties(self, obj):
+        default_list = obj.default_list_properties or obj.properties[:8]
         return [{
-            prop: obj.layer.get_property_title(prop)
-        } for prop in obj.properties]
+            prop: {
+                "title": obj.layer.get_property_title(prop),
+                "selected": True if prop in default_list else False,
+            }
+            for prop in obj.properties}]
 
     def get_feature_endpoint(self, obj):
         return reverse('terra_geocrud:feature-list', args=(obj.layer_id,))
@@ -62,8 +60,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
-            'feature_endpoint', 'extent',
-            'feature_list_properties', 'feature_list_default_properties'
+            'feature_endpoint', 'extent', 'templates',
+            'feature_list_properties',
         )
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+
 from setuptools import setup, find_packages
 
 HERE = os.path.abspath(os.path.dirname(__file__))
