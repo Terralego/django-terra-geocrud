@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3"
 services:
   postgres:
     image: makinacorpus/pgrouting:10-2.5-2.6
@@ -6,6 +6,11 @@ services:
       - POSTGRES_PASSWORD=travis_ci_test
       - POSTGRES_USER=travis_ci_test
       - POSTGRES_DB=travis_ci_test
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   web:
     build:
       context: .
@@ -13,10 +18,12 @@ services:
       - postgres
     environment:
       - POSTGRES_HOST=postgres
+      - DJANGO_SETTINGS_MODULE=test_terra_geocrud.settings.dev
     volumes:
       - .:/code/
-      - ./test_terra_geocrud:/code/test_terra_geocrud
-      - ./.coveragerc:/code/.coveragerc
     ports:
       - "8000:8000"
     command: python3.7 ./manage.py runserver 0.0.0.0:8000
+
+volumes:
+  postgres:

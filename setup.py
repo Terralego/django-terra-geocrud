@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+
 from setuptools import setup, find_packages
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -8,6 +9,11 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(HERE, 'README.md')).read()
 CHANGES = open(os.path.join(HERE, 'CHANGES.md')).read()
 
+tests_require = [
+    'factory-boy',
+    'flake8',
+    'coverage',
+]
 
 setup(
     name='django-terra-geocrud',
@@ -38,13 +44,15 @@ setup(
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.9',
         'django-geostore>=0.3.1',
+        'djangorestframework>=3.8',
+        'django>=2.2,<3.0',
         # wait until drf-yasg next version
         'packaging',
     ],
+    tests_require=tests_require,
     extras_require={
-        'dev': [
-            'flake8',
-            'coverage',
+        'dev': tests_require + [
+            'django-debug-toolbar',
         ]
     }
 )

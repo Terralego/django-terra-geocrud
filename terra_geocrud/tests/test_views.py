@@ -1,30 +1,32 @@
 import json
 import os
-from io import BytesIO
+from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-from django.core.files import File
 from django.contrib.gis.geos import Point
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from geostore import GeometryTypes
+from io import BytesIO
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
+
 from geostore.models import Layer, Feature
-from template_model.models import Template
-
-from .. import models
-from .settings import (DOCX_PLAN_DE_GESTION, FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
+from terra_geocrud import settings as app_settings
+from terra_geocrud.models import FeaturePropertyDisplayGroup
+from terra_geocrud.tests import factories
+from .settings import (FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
                        SNAPSHOT_PLAN_DE_GESTION)
+from .. import models
 
 
-class CrudGroupViewSetTestCase(TestCase):
+class CrudGroupViewSetTestCase(APITestCase):
     def setUp(self):
         self.group = models.CrudGroupView.objects.create(name="group", order=0)
-        self.api_client = APIClient()
 
     def test_list_endpoint(self):
-        response = self.api_client.get(reverse('terra_geocrud:crudgroupview-list'))
+        response = self.client.get(reverse('terra_geocrud:crudgroupview-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -33,7 +35,7 @@ class CrudGroupViewSetTestCase(TestCase):
         self.assertEqual(data[0]['id'], self.group.pk)
 
     def test_detail_endpoint(self):
-        response = self.api_client.get(reverse('terra_geocrud:crudgroupview-detail', args=(self.group.pk, )))
+        response = self.client.get(reverse('terra_geocrud:crudgroupview-detail', args=(self.group.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -41,7 +43,7 @@ class CrudGroupViewSetTestCase(TestCase):
         self.assertEqual(data['id'], self.group.pk)
 
 
-class CrudViewViewSetTestCase(TestCase):
+class CrudViewViewSetTestCase(APITestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
         self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
@@ -51,10 +53,9 @@ class CrudViewViewSetTestCase(TestCase):
                                                      layer=Layer.objects.create(name=2))
         self.view_3 = models.CrudView.objects.create(name="View 3", order=1, group=self.group_2,
                                                      layer=Layer.objects.create(name=3))
-        self.api_client = APIClient()
 
     def test_list_endpoint(self):
-        response = self.api_client.get(reverse('terra_geocrud:crudview-list'))
+        response = self.client.get(reverse('terra_geocrud:crudview-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -63,14 +64,80 @@ class CrudViewViewSetTestCase(TestCase):
         self.assertEqual(data[0]['id'], self.view_1.pk)
 
     def test_detail_endpoint(self):
-        response = self.api_client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk, )))
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
 
         self.assertEqual(data['id'], self.view_1.pk)
 
+    def test_default_point_style(self):
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.Point)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['point'])
 
+    def test_override_point_style(self):
+        custom_style = {
+            'type': 'circle',
+            'paint': {
+                'circle-color': '#FFFFFF',
+                'circle-radius': 25
+            }
+        }
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.MultiPoint,
+                                              map_style=custom_style)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], custom_style)
+
+    def test_default_line_style(self):
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.LineString)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['line'])
+
+    def test_override_line_style(self):
+        custom_style = {
+            'type': 'line',
+            'paint': {
+                'line-color': '#000',
+                'line-width': 3
+            }
+        }
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.MultiLineString,
+                                              map_style=custom_style)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], custom_style)
+
+    def test_default_polygon_style(self):
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.Polygon)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['polygon'])
+
+    def test_override_polygon_style(self):
+        custom_style = {
+            'type': 'fill',
+            'paint': {
+                'fill-color': '#000'
+            }
+        }
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.MultiPolygon,
+                                              map_style=custom_style)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], custom_style)
+
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudSettingsViewTestCase(TestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
@@ -81,8 +148,7 @@ class CrudSettingsViewTestCase(TestCase):
                                                      layer=Layer.objects.create(name=2))
         self.view_3 = models.CrudView.objects.create(name="View 3", order=1, group=self.group_2,
                                                      layer=Layer.objects.create(name=3))
-        self.api_client = APIClient()
-        self.response = self.api_client.get(reverse('terra_geocrud:settings'))
+        self.response = self.client.get(reverse('terra_geocrud:settings'))
 
     def test_endpoint_access(self):
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)
@@ -99,41 +165,36 @@ class CrudSettingsViewTestCase(TestCase):
         Without extra settings, config section is empty
         """
         data = self.response.json()
-        self.assertEqual(data['config'], {})
+        self.assertDictEqual(data['config'], app_settings._DEFAULT_TERRA_GEOCRUD)
 
-    @override_settings(TERRA_GEOCRUD={"terra_crud_settings_1": True})
+    @override_settings(TERRA_GEOCRUD={"EXTENT": [[0, 90], [90, 180]]})
     def test_endpoint_config_with_settings(self):
         """
         Extra TERRA_GEOCRUD settings are added to config section
         """
-        self.response = self.api_client.get(reverse('terra_geocrud:settings'))
+        self.response = self.client.get(reverse('terra_geocrud:settings'))
         data = self.response.json()
-        self.assertEqual(data['config'], {"terra_crud_settings_1": True})
+        self.assertEqual(data['config']['EXTENT'], [[0, 90], [90, 180]])
 
 
-class CrudRenderTemplateDetailViewTestCase(TestCase):
-
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class CrudRenderTemplateDetailViewTestCase(APITestCase):
     def setUp(self):
-        self.layer = Layer.objects.create(
-            name='composantes',
-            schema=json.load(open(LAYER_COMPOSANTES_SCHEMA)),
-            geom_type=1,
-        )
+        self.crud_view = factories.CrudViewFactory(name="Composantes", order=0,
+                                                   layer__schema=json.load(open(LAYER_COMPOSANTES_SCHEMA)))
+
         self.feature = Feature.objects.create(
-            layer=self.layer,
+            layer=self.crud_view.layer,
             geom=Point(x=-0.246322800072846, y=44.5562461167907),
             properties=json.load(open(FEATURE_PROPERTIES)),
         )
-        self.template = Template.objects.create(
+        self.template = factories.TemplateDocxFactory.create(
             name='Template',
-            template_file=File(open(DOCX_PLAN_DE_GESTION, 'rb')),
         )
-        self.crud_view = models.CrudView.objects.create(name='view 1', order=0, layer=self.layer)
         self.crud_view.templates.add(self.template)
-        self.api_client = APIClient()
 
-    def test_works(self):
-        response = self.api_client.get(
+    def test_template_rendering(self):
+        response = self.client.get(
             reverse(
                 'terra_geocrud:render-template',
                 kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
@@ -150,5 +211,41 @@ class CrudRenderTemplateDetailViewTestCase(TestCase):
             with archive.open(os.path.join('word', 'document.xml')) as reader:
                 self.assertEqual(reader.read(), content_xml)
 
-    def tearDown(self):
-        os.remove(self.template.template_file.path)
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class CrudFeatureViewsSetTestCase(APITestCase):
+    def setUp(self):
+        self.crud_view = factories.CrudViewFactory()
+        self.group_1 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test',
+                                                                  properties=['age'])
+        self.group_2 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
+                                                                  properties=['name'])
+        self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
+                                              properties={"age": 10, "name": "jec", "country": "slovenija"},
+                                              layer=self.crud_view.layer)
+        self.template = factories.TemplateDocxFactory()
+        self.crud_view.templates.add(self.template)
+
+    def test_list_endpoint(self):
+        response_list = self.client.get(reverse('terra_geocrud:feature-list', args=(self.crud_view.layer_id,)),
+                                        format="json")
+        data = response_list.json()
+        self.assertEqual(len(data), self.crud_view.layer.features.count())
+
+    def test_property_detail_display_with_groups(self):
+        response_detail = self.client.get(reverse('terra_geocrud:feature-detail',
+                                                  args=(self.crud_view.layer_id,
+                                                        self.feature.identifier)),
+                                          format="json")
+        data = response_detail.json()
+        expected_keys = list(self.crud_view.feature_display_groups.all()
+                             .values_list('slug', flat=True)) + ['__default__']
+        self.assertEqual(list(data['display_properties'].keys()), expected_keys)
+
+    def test_property_detail_documents(self):
+        response_detail = self.client.get(reverse('terra_geocrud:feature-detail',
+                                                  args=(self.crud_view.layer_id,
+                                                        self.feature.identifier)),
+                                          format="json")
+        data = response_detail.json()
+        self.assertEqual(len(data['documents']), self.crud_view.templates.count())

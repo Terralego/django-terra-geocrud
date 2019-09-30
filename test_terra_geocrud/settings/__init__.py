@@ -13,8 +13,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+TEST = True
+DEBUG = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -44,8 +45,6 @@ INSTALLED_APPS = [
     'template_model',
     'template_engines',
 ]
-
-INTERNAL_GEOMETRY_SRID = 4326
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -131,8 +130,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-SWAGGER_ENABLED = False
+STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
 
-# TODO: a temporary fix for terracommon.terra
-MIN_TILE_ZOOM = 0
-MAX_TILE_ZOOM = 20
+SWAGGER_ENABLED = True

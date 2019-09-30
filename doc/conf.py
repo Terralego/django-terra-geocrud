@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+
 import sys
 
 root = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))

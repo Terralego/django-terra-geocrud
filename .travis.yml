@@ -23,8 +23,8 @@ stages:
 
 install:
   - sudo apt-get -y install libproj-dev binutils gdal-bin
-  - python setup.py install
-  - pip install coverage codecov
+  - pip install -e .[dev]
+  - pip install codecov
 
 
 before_script:
@@ -39,7 +39,7 @@ after_failure:
   - pip freeze
 
 script:
-  - coverage run ./manage.py test
+  - coverage run ./manage.py test --settings=test_terra_geocrud.settings
   - codecov
 
 jobs:
