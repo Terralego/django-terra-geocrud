@@ -7,6 +7,7 @@ from django.contrib.gis.geos import Point
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from geostore import GeometryTypes
 from io import BytesIO
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -70,6 +71,71 @@ class CrudViewViewSetTestCase(APITestCase):
 
         self.assertEqual(data['id'], self.view_1.pk)
 
+    def test_default_point_style(self):
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.Point)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['point'])
+
+    def test_override_point_style(self):
+        custom_style = {
+            'type': 'circle',
+            'paint': {
+                'circle-color': '#FFFFFF',
+                'circle-radius': 25
+            }
+        }
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.MultiPoint,
+                                              map_style=custom_style)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], custom_style)
+
+    def test_default_line_style(self):
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.LineString)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['line'])
+
+    def test_override_line_style(self):
+        custom_style = {
+            'type': 'line',
+            'paint': {
+                'line-color': '#000',
+                'line-width': 3
+            }
+        }
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.MultiLineString,
+                                              map_style=custom_style)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], custom_style)
+
+    def test_default_polygon_style(self):
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.Polygon)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['polygon'])
+
+    def test_override_polygon_style(self):
+        custom_style = {
+            'type': 'fill',
+            'paint': {
+                'fill-color': '#000'
+            }
+        }
+        crud_view = factories.CrudViewFactory(layer__geom_type=GeometryTypes.MultiPolygon,
+                                              map_style=custom_style)
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(crud_view.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['map_style'], custom_style)
+
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudSettingsViewTestCase(TestCase):
@@ -108,7 +174,7 @@ class CrudSettingsViewTestCase(TestCase):
         """
         self.response = self.client.get(reverse('terra_geocrud:settings'))
         data = self.response.json()
-        self.assertEqual(data['config'], {"EXTENT": [[0, 90], [90, 180]]})
+        self.assertEqual(data['config']['EXTENT'], [[0, 90], [90, 180]])
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
@@ -144,9 +210,6 @@ class CrudRenderTemplateDetailViewTestCase(APITestCase):
         with ZipFile(buffer) as archive:
             with archive.open(os.path.join('word', 'document.xml')) as reader:
                 self.assertEqual(reader.read(), content_xml)
-
-    def tearDown(self):
-        os.remove(self.template.template_file.path)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

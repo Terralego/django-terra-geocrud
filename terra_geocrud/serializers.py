@@ -8,6 +8,7 @@ from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
+from . import settings as app_settings
 
 
 class LayerViewSerializer(LayerSerializer):
@@ -30,12 +31,26 @@ class CrudViewSerializer(serializers.ModelSerializer):
     exports = serializers.SerializerMethodField()
     templates = serializers.SerializerMethodField()  # DEPRECATED
     ui_schema = serializers.SerializerMethodField()
+    map_style = serializers.SerializerMethodField()
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
     )
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: title}")
     )
+
+    def get_default_map_style(self, obj):
+        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+        if obj.layer.is_point:
+            return style_settings.get('point')
+        elif obj.layer.is_linestring:
+            return style_settings.get('line')
+        elif obj.layer.is_polygon:
+            return style_settings.get('polygon')
+
+    def get_map_style(self, obj):
+        style = obj.map_style
+        return style if style else self.get_default_map_style(obj)
 
     def get_exports(self, obj):
         return [{
