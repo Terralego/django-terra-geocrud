@@ -1,16 +1,16 @@
 import mimetypes
 
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
-from rest_framework import viewsets, response
+from rest_framework import viewsets
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from geostore.models import Feature
 from geostore.views import FeatureViewSet
-from . import models, serializers
+from . import models, serializers, settings as app_settings
 
 
 class CrudGroupViewSet(viewsets.ModelViewSet):
@@ -25,13 +25,7 @@ class CrudViewViewSet(viewsets.ModelViewSet):
 
 class CrudSettingsApiView(APIView):
     def get_config_section(self):
-        config = {}
-
-        terra_crud_settings = getattr(settings, 'TERRA_GEOCRUD', {})
-        if terra_crud_settings:
-            config.update(terra_crud_settings)
-
-        return config
+        return app_settings.TERRA_GEOCRUD_SETTINGS
 
     def get_menu_section(self):
         groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer',
@@ -58,7 +52,7 @@ class CrudSettingsApiView(APIView):
             "menu": self.get_menu_section(),
             "config": self.get_config_section(),
         }
-        return response.Response(data)
+        return Response(data)
 
 
 class CrudRenderTemplateDetailView(DetailView):
@@ -69,12 +63,14 @@ class CrudRenderTemplateDetailView(DetailView):
     def get_template_names(self):
         return self.template.template_file.name
 
+    def get_template_object(self):
+        return get_object_or_404(self.get_object().layer.crud_view.templates,
+                                 **{self.pk_template_field:
+                                        self.kwargs.get(self.pk_template_kwargs)})
+
     def render_to_response(self, context, **response_kwargs):
-        self.template = get_object_or_404(
-            self.get_object().layer.crud_view.templates,
-            **{self.pk_template_field: self.kwargs.get(self.pk_template_kwargs)},
-        )
-        self.content_type, _encoding = mimetypes.guess_type(self.template.template_file.name)
+        self.template = self.get_template_object()
+        self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
         response = super().render_to_response(context, **response_kwargs)
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
         return response

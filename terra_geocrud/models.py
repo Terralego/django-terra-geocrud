@@ -1,8 +1,11 @@
+from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+
+from . import settings as app_settings
 
 
 class CrudModelMixin(models.Model):
@@ -81,6 +84,13 @@ class CrudView(CrudModelMixin):
     @property
     def properties(self):
         return sorted(list(self.layer.layer_properties.keys()))
+
+    @property
+    def extent(self):
+        features_extent = self.layer.features.aggregate(extent=Extent('geom'))
+        # get extent in settings if no features
+        return features_extent.get('extent',
+                                   app_settings.TERRA_GEOCRUD_SETTINGS['EXTENT'])
 
     class Meta:
         verbose_name = _("View")

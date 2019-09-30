@@ -22,22 +22,32 @@ class LayerViewSerializer(LayerSerializer):
 
 class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
+    extent = serializers.SerializerMethodField()
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
     )
     feature_list_properties = serializers.SerializerMethodField(
-        help_text=_("Available properties for feature datatable")
+        help_text=_("Available properties for feature datatable. Ordered, {name: title}")
     )
     feature_list_default_properties = serializers.SerializerMethodField(
-        help_text=_("Properties selected by default in datatable")
+        help_text=_("Properties selected by default in datatable. Ordered, {name: title}")
     )
 
+    def get_extent(self, obj):
+        return obj.extent
+
     def get_feature_list_default_properties(self, obj):
-        return obj.default_list_properties or obj.properties[:8]
+        if obj.default_list_properties:
+            return [{
+                prop: obj.layer.get_property_title(prop)
+            } for prop in obj.default_list_properties]
+        else:
+            return self.get_feature_list_properties(obj)[:8]
 
     def get_feature_list_properties(self, obj):
-        # TODO: override complete list with defined list
-        return obj.properties
+        return [{
+            prop: obj.layer.get_property_title(prop)
+        } for prop in obj.properties]
 
     def get_feature_endpoint(self, obj):
         return reverse('terra_geocrud:feature-list', args=(obj.layer_id,))
@@ -47,7 +57,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
-            'feature_endpoint', 'feature_list_properties', 'feature_list_default_properties'
+            'feature_endpoint', 'extent',
+            'feature_list_properties', 'feature_list_default_properties'
         )
 
 
@@ -59,14 +70,27 @@ class CrudGroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FeatureDisplayPropertyGroup(serializers.Serializer):
-    title = serializers.CharField()
+class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
+    title = serializers.CharField(source='slug')
     order = serializers.IntegerField()
     pictogram = serializers.ImageField()
-    properties = serializers.JSONField()
+    properties = serializers.SerializerMethodField()
+
+    def get_properties(self, obj):
+        feature = self.context.get('feature')
+        return {
+            feature.layer.get_property_title(prop):
+                feature.properties.get(prop)
+            for prop in list(obj.properties)
+        }
+
+    class Meta:
+        model = models.FeaturePropertyDisplayGroup
+        fields = ('title', 'order', 'pictogram', 'properties')
 
 
 class CrudFeatureListSerializer(FeatureSerializer):
+    geom = None
     detail_url = serializers.SerializerMethodField()
     extent = serializers.SerializerMethodField()
 
@@ -78,7 +102,7 @@ class CrudFeatureListSerializer(FeatureSerializer):
         return reverse('terra_geocrud:feature-detail', args=(obj.layer_id, obj.identifier))
 
     class Meta(FeatureSerializer.Meta):
-        exclude = ('source', 'target', 'layer',)
+        exclude = ('source', 'target', 'layer', 'geom')
         fields = None
 
 
@@ -99,7 +123,9 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
                                                               self.context.get('feature').pk))
 
     class Meta:
-        fields = ('extension', 'template_name', 'template_file', 'download_url')
+        fields = (
+            'extension', 'template_name', 'template_file', 'download_url'
+        )
         model = Template
 
 
@@ -135,22 +161,16 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
 
         # get ordered groups filled
         for group in groups:
-            serializer = FeatureDisplayPropertyGroup({
-                "title": group.label,
-                "pictogram": group.pictogram,
-                "order": group.order,
-                "properties": {
-                    obj.layer.get_property_title(prop):
-                        obj.properties.get(prop)
-                    for prop in list(group.properties)
-                }
-            }, context={'request': self.context.get('request')})
+            serializer = FeatureDisplayPropertyGroup(group,
+                                                     context={'request': self.context.get('request'),
+                                                              'feature': obj})
             results[group.slug] = serializer.data
             processed_properties += list(group.properties)
+
         # add default other properties
         remained_properties = list(set(crud_view.properties) - set(processed_properties))
         if remained_properties:
-            serializer = FeatureDisplayPropertyGroup({
+            results['__default__'] = {
                 "title": "",
                 "pictogram": None,
                 "order": 9999,
@@ -159,8 +179,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
                         obj.properties.get(prop)
                     for prop in list(remained_properties)
                 }
-            })
-            results['__default__'] = serializer.data
+            }
         return results
 
     def get_documents(self, obj):
