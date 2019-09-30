@@ -28,3 +28,8 @@ Example of use
 - First, you need to create crud views for your geostore layers with the command or the admin.
 - These views can be grouped, and will be listed by the frontend api
 - Then, you can customize default layer-schema by providing your own property groups, which will groups properties as json schema nested objects.
+
+
+## ADMIN
+
+* access to /admin/terra_geocrud/
