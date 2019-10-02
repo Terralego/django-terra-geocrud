@@ -70,10 +70,11 @@ class CrudViewSerializer(serializers.ModelSerializer):
         Original ui_schema is recomposed with grouped properties
         """
         ui_schema = obj.ui_schema.copy()
-        # each field defined in ui schema should be placed in group key
 
         for group in obj.feature_display_groups.all():
+            # each field defined in ui schema should be placed in group key
             ui_schema[group.slug] = {'ui-order': []}
+
             for prop in group.properties:
                 # get original definition
                 original_def = ui_schema.pop(prop, None)
@@ -85,8 +86,9 @@ class CrudViewSerializer(serializers.ModelSerializer):
                     ui_schema.get('ui-order').remove(prop)
                     ui_schema[group.slug]['ui-order'] += [prop]
 
-            # finish by adding '*'
+            # finish by adding '*' in all cases (security)
             ui_schema[group.slug]['ui-order'] += ['*']
+
         return ui_schema
 
     def get_extent(self, obj):
