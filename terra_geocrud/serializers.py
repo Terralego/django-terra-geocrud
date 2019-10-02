@@ -73,19 +73,20 @@ class CrudViewSerializer(serializers.ModelSerializer):
         # each field defined in ui schema should be placed in group key
 
         for group in obj.feature_display_groups.all():
-            ui_schema[group.slug] = {'ui-order': ['*']}
+            ui_schema[group.slug] = {'ui-order': []}
             for prop in group.properties:
                 # get original definition
                 original_def = ui_schema.pop(prop, None)
                 if original_def:
                     ui_schema[group.slug][prop] = original_def
-                    ui_schema[group.slug]['ui-order'] = ['*']
 
                 # if original prop in ui-order
                 if prop in ui_schema.get('ui-order', []):
                     ui_schema.get('ui-order').remove(prop)
-                    ui_schema[group.slug]['ui-order'] = [prop] + ui_schema[group.slug]['ui-order']
+                    ui_schema[group.slug]['ui-order'] += [prop]
 
+            # finish by adding '*'
+            ui_schema[group.slug]['ui-order'] += ['*']
         return ui_schema
 
     def get_extent(self, obj):
