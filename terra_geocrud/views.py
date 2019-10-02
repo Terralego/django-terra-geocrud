@@ -85,6 +85,6 @@ class CrudFeatureViewsSet(FeatureViewSet):
         return qs.select_related('layer')
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
         return serializers.CrudFeatureListSerializer
