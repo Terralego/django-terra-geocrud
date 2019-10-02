@@ -245,6 +245,17 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
                                                         'feature': obj})
         return serializer.data
 
+    def validate_properties(self, data):
+        new_data = data.copy()
+        # clean all dict in values
+        for key in new_data:
+            if isinstance(new_data[key], dict):
+                # explode it
+                parsed_data = new_data.pop(key)
+                for parsed_key, parsed_value in parsed_data.items():
+                    new_data[parsed_key] = parsed_value
+        return new_data
+
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer',)
         fields = None
