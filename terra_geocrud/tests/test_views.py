@@ -12,7 +12,7 @@ from io import BytesIO
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from geostore.models import Layer, Feature
+from geostore.models import Feature
 from terra_geocrud import settings as app_settings
 from terra_geocrud.models import FeaturePropertyDisplayGroup
 from terra_geocrud.tests import factories
@@ -47,12 +47,9 @@ class CrudViewViewSetTestCase(APITestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
         self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
-        self.view_1 = models.CrudView.objects.create(name="View 1", order=0, group=self.group_1,
-                                                     layer=Layer.objects.create(name=1))
-        self.view_2 = models.CrudView.objects.create(name="View 2", order=0, group=self.group_2,
-                                                     layer=Layer.objects.create(name=2))
-        self.view_3 = models.CrudView.objects.create(name="View 3", order=1, group=self.group_2,
-                                                     layer=Layer.objects.create(name=3))
+        self.view_1 = factories.CrudViewFactory(name="View 1", order=0, group=self.group_1)
+        self.view_2 = factories.CrudViewFactory(name="View 2", order=0, group=self.group_2)
+        self.view_3 = factories.CrudViewFactory(name="View 3", order=1, group=self.group_2)
 
     def test_list_endpoint(self):
         response = self.client.get(reverse('terra_geocrud:crudview-list'))
@@ -136,18 +133,44 @@ class CrudViewViewSetTestCase(APITestCase):
         data = response.json()
         self.assertDictEqual(data['map_style'], custom_style)
 
+    def test_original_ui_schema(self):
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(data['ui_schema'], self.view_1.ui_schema)
+
+    def test_grouped_ui_schema(self):
+        self.view_1.ui_schema = {
+            'name': {'ui-widget': 'textarea'},
+            'ui-order': ['name', 'age']
+        }
+        self.view_1.save()
+        group_1 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test',
+                                                             properties=['age'])
+        group_2 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test2',
+                                                             properties=['name'])
+        response = self.client.get(reverse('terra_geocrud:crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(
+            data['ui_schema'],
+            {'ui-order': [],
+             'test': {'ui-order': ['age', '*']},
+             'test2': {'ui-order': ['name', '*'],
+                       'name': {'ui-widget': 'textarea'}}}
+        )
+        group_1.delete()
+        group_2.delete()
+
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudSettingsViewTestCase(TestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
         self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
-        self.view_1 = models.CrudView.objects.create(name="View 1", order=0, group=self.group_1,
-                                                     layer=Layer.objects.create(name=1))
-        self.view_2 = models.CrudView.objects.create(name="View 2", order=0, group=self.group_2,
-                                                     layer=Layer.objects.create(name=2))
-        self.view_3 = models.CrudView.objects.create(name="View 3", order=1, group=self.group_2,
-                                                     layer=Layer.objects.create(name=3))
+        self.view_1 = factories.CrudViewFactory(name="View 1", order=0, group=self.group_1)
+        self.view_2 = factories.CrudViewFactory(name="View 2", order=0, group=self.group_2)
+        self.view_3 = factories.CrudViewFactory(name="View 3", order=1, group=self.group_2)
         self.response = self.client.get(reverse('terra_geocrud:settings'))
 
     def test_endpoint_access(self):

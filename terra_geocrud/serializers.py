@@ -66,8 +66,30 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return []
 
     def get_ui_schema(self, obj):
-        # TODO: split ui_schema with feature group display
-        return obj.ui_schema
+        """
+        Original ui_schema is recomposed with grouped properties
+        """
+        ui_schema = obj.ui_schema.copy()
+
+        for group in obj.feature_display_groups.all():
+            # each field defined in ui schema should be placed in group key
+            ui_schema[group.slug] = {'ui-order': []}
+
+            for prop in group.properties:
+                # get original definition
+                original_def = ui_schema.pop(prop, None)
+                if original_def:
+                    ui_schema[group.slug][prop] = original_def
+
+                # if original prop in ui-order
+                if prop in ui_schema.get('ui-order', []):
+                    ui_schema.get('ui-order').remove(prop)
+                    ui_schema[group.slug]['ui-order'] += [prop]
+
+            # finish by adding '*' in all cases (security)
+            ui_schema[group.slug]['ui-order'] += ['*']
+
+        return ui_schema
 
     def get_extent(self, obj):
         # TODO: use annotated extent
@@ -222,6 +244,17 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
                                                context={'request': self.context.get('request'),
                                                         'feature': obj})
         return serializer.data
+
+    def validate_properties(self, data):
+        new_data = data.copy()
+        # clean all dict in values
+        for key in new_data:
+            if isinstance(new_data[key], dict):
+                # explode it
+                parsed_data = new_data.pop(key)
+                for parsed_key, parsed_value in parsed_data.items():
+                    new_data[parsed_key] = parsed_value
+        return new_data
 
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer',)
