@@ -97,12 +97,13 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_feature_list_properties(self, obj):
         default_list = obj.default_list_properties or obj.properties[:8]
-        return [{
+        return {
             prop: {
                 "title": obj.layer.get_property_title(prop),
                 "selected": True if prop in default_list else False,
             }
-            for prop in obj.properties}]
+            for prop in obj.properties
+        }
 
     def get_feature_endpoint(self, obj):
         return reverse('terra_geocrud:feature-list', args=(obj.layer_id,))
