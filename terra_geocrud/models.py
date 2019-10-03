@@ -83,7 +83,7 @@ class CrudView(CrudModelMixin):
 
     @property
     def properties(self):
-        return sorted(list(self.layer.layer_properties.keys()))
+        return sorted(list(self.layer.layer_properties.keys())) if self.layer else []
 
     @property
     def extent(self):

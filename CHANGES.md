@@ -5,7 +5,10 @@ CHANGELOG
 0.3.2.dev0 (XXXX-XX-XX)
 -----------------------
 
-*
+Feature
+
+* ui-schema fixed in api with group defined
+* feature_list_properties are now in object instead of single array element
 
 
 0.3.1      (2019-09-30)
