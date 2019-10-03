@@ -18,7 +18,7 @@ class CrudViewAdmin(admin.ModelAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
     inlines = [FeatureDisplayGroupTabularInline, ]
-
+    readonly_fields = ['form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
         ('Feature list', {'fields': ('properties', 'default_list_properties')}),
@@ -28,5 +28,8 @@ class CrudViewAdmin(admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
+        ro_fields = super(CrudViewAdmin, self).get_readonly_fields(request, obj=obj)
         if obj and obj.pk:
-            return ['layer', 'form_schema', 'properties']
+            return ro_fields + ['layer']
+
+        return ro_fields
