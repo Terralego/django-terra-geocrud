@@ -36,7 +36,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         help_text=_("Url endpoint for view's features")
     )
     feature_list_properties = serializers.SerializerMethodField(
-        help_text=_("Available properties for feature datatable. Ordered, {name: title}")
+        help_text=_("Available properties for feature datatable. Ordered, {name: {title, type}}")
     )
 
     def get_default_map_style(self, obj):
@@ -101,6 +101,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
             prop: {
                 "title": obj.layer.get_property_title(prop),
                 "selected": True if prop in default_list else False,
+                "type": obj.layer.get_property_type(prop)
             }
             for prop in obj.properties
         }
