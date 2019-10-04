@@ -139,3 +139,4 @@ SWAGGER_ENABLED = True
 
 JSON_EDITOR_JS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/4.2.1/jsoneditor.js'
 JSON_EDITOR_CSS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/4.2.1/jsoneditor.css'
+JSON_EDITOR_INIT_JS = "jsoneditor-init.js"
