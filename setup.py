@@ -46,6 +46,7 @@ setup(
         'django-geostore>=0.3.5',
         'djangorestframework>=3.8',
         'django>=2.2,<3.0',
+        'django-jsoneditor',
         # wait until drf-yasg next version
         'packaging',
     ],
