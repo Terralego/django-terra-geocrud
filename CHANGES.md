@@ -2,13 +2,17 @@
 CHANGELOG
 =========
 
-0.3.4.dev0      (XXXX-XX-XX)
+0.3.4           (2019-10-04)
 ----------------------------
 
 Feature
 
 * JSON editor integrated in django admin
 * Dont'a forget to add jsoneditor in your INSTALLED_APPS
+
+Fixes
+
+* feature default list fix
 
 
 0.3.3      (2019-10-04)
