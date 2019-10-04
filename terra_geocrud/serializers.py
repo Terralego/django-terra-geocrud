@@ -103,7 +103,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
                 "selected": True if prop in default_list else False,
                 "type": obj.layer.get_property_type(prop)
             }
-            for prop in obj.properties
+            for prop in obj.list_available_properties
         }
 
     def get_feature_endpoint(self, obj):
