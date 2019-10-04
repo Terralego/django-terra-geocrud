@@ -1,4 +1,11 @@
 from django.contrib import admin
+from django.contrib.postgres.fields import JSONField
+from geostore.admin import LayerAdmin, FeatureAdmin
+
+from geostore.models import Layer, Feature
+
+from jsoneditor.forms import JSONEditor
+
 
 from . import models
 
@@ -28,8 +35,32 @@ class CrudViewAdmin(admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
-        ro_fields = super(CrudViewAdmin, self).get_readonly_fields(request, obj=obj)
+        ro_fields = super().get_readonly_fields(request, obj=obj)
         if obj and obj.pk:
             return ro_fields + ['layer']
 
         return ro_fields
+
+    formfield_overrides = {
+        JSONField: {'widget': JSONEditor},
+    }
+
+
+admin.site.unregister(Layer)
+
+
+@admin.register(Layer)
+class CrudLayerModelAdmin(LayerAdmin):
+    formfield_overrides = {
+        JSONField: {'widget': JSONEditor},
+    }
+
+
+admin.site.unregister(Feature)
+
+
+@admin.register(Feature)
+class CrudFeatureModelAdmin(FeatureAdmin):
+    formfield_overrides = {
+        JSONField: {'widget': JSONEditor},
+    }

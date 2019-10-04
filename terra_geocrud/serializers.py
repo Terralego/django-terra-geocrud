@@ -96,7 +96,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return obj.extent
 
     def get_feature_list_properties(self, obj):
-        default_list = obj.default_list_properties or obj.properties[:8]
+        default_list = obj.default_list_properties or obj.list_available_properties[:8]
         return {
             prop: {
                 "title": obj.layer.get_property_title(prop),
