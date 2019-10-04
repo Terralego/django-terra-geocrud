@@ -53,9 +53,9 @@ class CrudView(CrudModelMixin):
 
     def clean(self):
         # verify properties exists
-        unexpected_properties = list(set(self.default_list_properties) - set(self.properties))
+        unexpected_properties = list(set(self.default_list_properties) - set(self.list_available_properties))
         if unexpected_properties:
-            raise ValidationError(f'Properties should exists : {unexpected_properties}')
+            raise ValidationError(f'Properties should exists and available for feature list : {unexpected_properties}')
 
     @property
     def form_schema(self):
@@ -84,6 +84,21 @@ class CrudView(CrudModelMixin):
     @property
     def properties(self):
         return sorted(list(self.layer.layer_properties.keys())) if self.layer else []
+
+    @property
+    def list_available_properties(self):
+        """ exclude some properties in list (some arrays, data-url, html fields)"""
+        properties = []
+
+        for prop in self.properties:
+            # exclude format 'data-url', array if final data is object, and textarea / rte fields
+            if (self.layer.schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
+                    self.layer.schema.get('properties', {}).get(prop).get('type') != 'array'
+                    or self.layer.schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object')\
+                    and (self.ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
+                         and self.ui_schema.get(prop, {}).get('ui:field') != 'rte'):
+                properties.append(prop)
+        return properties
 
     @property
     def extent(self):
