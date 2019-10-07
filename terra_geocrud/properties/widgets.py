@@ -17,9 +17,11 @@ def get_widgets_choices():
 
 
 class BaseWidget(object):
-    def __init__(self, feature, property):
+    """ Base widget. Inherit all widget from it, and override render method. """
+    def __init__(self, feature, property, args=dict):
         self.feature = feature
         self.property = property
+        self.args = args
         self.value = self.feature.properties.get(self.property)
 
     def render(self, *args, **kwargs):
@@ -30,7 +32,7 @@ class DataUrlToImgWidget(BaseWidget):
     help = "Render img html tag with url to get b64 img stored in properties"
 
     def render(self, *args, **kwargs):
-        attrs = kwargs.get('attrs', {})
+        attrs = self.args
         final_attrs = ""
         for key, v in attrs.items():
             final_attrs += f' {key}="{v}"'

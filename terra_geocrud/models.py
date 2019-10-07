@@ -115,7 +115,7 @@ class CrudView(CrudModelMixin):
         if custom_widget_rendering:
             module_name, unit_name = custom_widget_rendering.widget.rsplit('.', 1)
             WidgetClass = getattr(__import__(module_name, fromlist=['']), unit_name)
-            widget = WidgetClass(feature=feature, property=property_key)
+            widget = WidgetClass(feature=feature, property=property_key, args=custom_widget_rendering.args)
             return widget.render()
 
         return feature.properties.get(property_key)
