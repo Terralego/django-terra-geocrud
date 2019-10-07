@@ -6,6 +6,7 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 
 from geostore.models import Feature
+from terra_geocrud.models import PropertyDisplayRendering
 from terra_geocrud.tests import factories
 from .. import models
 
@@ -27,6 +28,21 @@ class CrudViewTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.crud_view.default_list_properties.append('toto')
             self.crud_view.clean()
+
+    def test_render_property_data(self):
+        self.feature = Feature.objects.create(layer=self.crud_view.layer,
+                                              geom=Point(0, 0, srid=4326),
+                                              properties={"age": 10, "name": "jec", "country": "slovenija"})
+        # without widget, data is like in stored properties json
+        rendered_data = self.crud_view.render_property_data(self.feature, 'age')
+        self.assertEqual(rendered_data, self.feature.properties.get('age'))
+        # add rendering widget
+        PropertyDisplayRendering.objects.create(crud_view=self.crud_view,
+                                                property='age',
+                                                widget='terra_geocrud.properties.widgets.DataUrlToImgWidget')
+        rendered_data = self.crud_view.render_property_data(self.feature, 'age')
+        self.assertNotEqual(rendered_data, self.feature.properties.get('age'))
+        self.assertTrue(rendered_data.startswith('<img '))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
@@ -88,3 +104,17 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.group_1.properties.append('toto')
             self.group_1.clean()
+
+
+class PropertyDisplayRenderingTestCase(TestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+
+    def test_property_not_in_layer_schema(self):
+        with self.assertRaises(ValidationError):
+            prop = PropertyDisplayRendering(
+                crud_view=self.crud_view,
+                property='UNKNOWN_PROPERTY',
+                widget='terra_geocrud.properties.widgets.DataUrlToImgWidgetTestCase'
+            )
+            prop.clean()
