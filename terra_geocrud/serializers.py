@@ -135,9 +135,11 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
     properties = serializers.SerializerMethodField()
 
     def get_properties(self, obj):
+        """ Get feature properties in group to form { title: rendering(value) } """
         feature = self.context.get('feature')
         return {
-            feature.layer.get_property_title(prop): feature.properties.get(prop)
+            feature.layer.get_property_title(prop):
+                feature.layer.crud_view.render_property_data(feature, prop)
             for prop in list(obj.properties)
         }
 

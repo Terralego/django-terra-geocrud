@@ -40,3 +40,19 @@ class DataUrlToImgWidget(BaseWidget):
                                                          self.property))
 
         return f'<img src="{url}" {final_attrs} />'
+
+
+class FileAhrefWidget(BaseWidget):
+    help = "Render a html tag with url to download b64 file stored in properties"
+
+    def render(self, *args, **kwargs):
+        attrs = kwargs.get('attrs', {})
+        # set target="_blank" by default
+        attrs.setdefault('target', '_blank')
+        final_attrs = ""
+        for key, v in attrs.items():
+            final_attrs += f' {key}="{v}"'
+        url = reverse('terra_geocrud:render-file', args=(self.feature.pk,
+                                                         self.property))
+
+        return f'<a href="{url}" {final_attrs} />'
