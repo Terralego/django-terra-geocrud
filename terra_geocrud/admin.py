@@ -1,9 +1,4 @@
 from django.contrib import admin
-from django.contrib.postgres.fields import JSONField
-from geostore.admin import LayerAdmin, FeatureAdmin
-
-from geostore.models import Layer, Feature
-
 
 from . import models
 
