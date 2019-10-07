@@ -5,6 +5,10 @@ CHANGELOG
 0.3.6.dev0      (XXXX-XX-XX)
 ----------------------------
 
+Fixes
+
+* fix ui-order for groups in ui-schema
+
 
 0.3.5           (2019-10-07)
 ----------------------------

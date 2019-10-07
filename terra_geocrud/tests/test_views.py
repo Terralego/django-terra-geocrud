@@ -155,7 +155,7 @@ class CrudViewViewSetTestCase(APITestCase):
         data = response.json()
         self.assertDictEqual(
             data['ui_schema'],
-            {'ui-order': [],
+            {'ui-order': ['test', 'test2', '*'],
              'test': {'ui-order': ['age', '*']},
              'test2': {'ui-order': ['name', '*'],
                        'name': {'ui-widget': 'textarea'}}}
