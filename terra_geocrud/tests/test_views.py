@@ -1,5 +1,6 @@
 import json
 import os
+from base64 import b64encode
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
@@ -272,3 +273,31 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                           format="json")
         data = response_detail.json()
         self.assertEqual(len(data['documents']), self.crud_view.templates.count())
+
+
+class CrudFeatureFileAPIViewTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+        self.crud_view_file = factories.CrudViewFactory(layer__schema={
+            'properties': {
+                'logo': {
+                    "type": "string",
+                    "format": "data-url"
+                }
+            }
+        })
+
+    def test_render_view_not_found(self):
+        feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
+                                         properties={"age": 10, "name": "jec", "country": "slovenija"},
+                                         layer=self.crud_view.layer)
+        response = self.client.get(reverse('terra_geocrud:render-file', args=(feature.pk, 'logo')))
+        self.assertEqual(response.status_code, 404)
+
+    def test_render_view_found(self):
+        data_image = b64encode(b'test')
+        feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
+                                         properties={"logo": f"data=image/png;name=avatar.png;base64,{data_image}"},
+                                         layer=self.crud_view_file.layer)
+        response = self.client.get(reverse('terra_geocrud:render-file', args=(feature.pk, 'logo')))
+        self.assertEqual(response.status_code, 200)
