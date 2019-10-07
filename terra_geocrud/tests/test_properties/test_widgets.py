@@ -2,7 +2,6 @@ from django.test import TestCase
 from rest_framework.reverse import reverse
 
 from geostore.tests.factories import FeatureFactory
-
 from terra_geocrud.properties import widgets
 
 
@@ -89,18 +88,18 @@ class FileAhrefWidgetTestCase(TestCase):
         # should contains reverse url
         self.assertIn(self.url, content)
 
-        # should looks like as img tag
+        # should looks like as a tag
         self.assertTrue(content.startswith('<a href='), content)
         self.assertTrue(content.endswith('</a>'))
 
     def test_rendering_wit_args(self):
         args = {"target": "_blank", "width": '500px', "height": '200px'}
-        widget = widgets.DataUrlToImgWidget(feature=self.feature, property=self.property_key, args=args)
+        widget = widgets.FileAhrefWidget(feature=self.feature, property=self.property_key, args=args)
         content = widget.render()
 
-        # should looks like as img tag
-        self.assertTrue(content.startswith('<img src='))
-        self.assertTrue(content.endswith('/>'))
+        # should looks like as a tag
+        self.assertTrue(content.startswith('<a href='), content)
+        self.assertTrue(content.endswith('</a>'))
 
         # args should be present as html attributes
         for key, value in args.items():
