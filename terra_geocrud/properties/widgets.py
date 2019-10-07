@@ -18,7 +18,9 @@ def get_widgets_choices():
 
 class BaseWidget(object):
     """ Base widget. Inherit all widget from it, and override render method. """
-    def __init__(self, feature, property, args=dict):
+    def __init__(self, feature, property, args=None):
+        if args is None:
+            args = {}
         self.feature = feature
         self.property = property
         self.args = args
@@ -45,8 +47,8 @@ class DataUrlToImgWidget(BaseWidget):
 class FileAhrefWidget(BaseWidget):
     help = "Render a html tag with url to download b64 file stored in properties"
 
-    def render(self, *args, **kwargs):
-        attrs = kwargs.get('attrs', {})
+    def render(self, text="Download", **kwargs):
+        attrs = self.args
         # set target="_blank" by default
         attrs.setdefault('target', '_blank')
         final_attrs = ""
@@ -55,4 +57,4 @@ class FileAhrefWidget(BaseWidget):
         url = reverse('terra_geocrud:render-file', args=(self.feature.pk,
                                                          self.property))
 
-        return f'<a href="{url}" {final_attrs} />'
+        return f'<a href="{url}" {final_attrs}>{text}</a>'
