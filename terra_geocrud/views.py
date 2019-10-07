@@ -1,11 +1,15 @@
 import mimetypes
+import base64
 
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from rest_framework import viewsets
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -76,6 +80,30 @@ class CrudRenderTemplateDetailView(DetailView):
         self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
         response = super().render_to_response(context, **response_kwargs)
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
+        return response
+
+
+class CrudFeatureFileAPIView(RetrieveAPIView):
+    queryset = Feature.objects.select_related('layer__crud_view')
+
+    def get(self, request, pk, key, **kwargs):
+        """ Generate and download file from data-url encoded data """
+        feature = self.get_object()
+        response = HttpResponse()
+
+        file_data = feature.properties.get(key)
+        if not file_data or feature.layer.schema.get(key, {}).get('format') != 'data-url':
+            # if key doesn't exists, is empty or is not data-url
+            response.status_code = 404
+
+        meta, content = file_data.split(';base64,')
+        metas = meta.split(';')
+
+        response = HttpResponse(ContentFile(base64.b64decode(content)),
+                                content_type=metas[0])
+        if len(metas) > 1:
+            file_name = metas[1].split('=')[1]
+            response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(file_name)
         return response
 
 

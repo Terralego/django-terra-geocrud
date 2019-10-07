@@ -18,6 +18,11 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
     extra = 0
 
 
+class PropertyDisplayRenderingTabularInline(admin.TabularInline):
+    model = models.PropertyDisplayRendering
+    extra = 0
+
+
 @admin.register(models.CrudView)
 class CrudViewAdmin(admin.ModelAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]

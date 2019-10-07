@@ -96,6 +96,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return obj.extent
 
     def get_feature_list_properties(self, obj):
+        # TODO: keep default properties at first, then order by property title
         default_list = obj.default_list_properties or obj.list_available_properties[:8]
         return {
             prop: {
@@ -136,8 +137,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
     def get_properties(self, obj):
         feature = self.context.get('feature')
         return {
-            feature.layer.get_property_title(prop):
-                feature.properties.get(prop)
+            feature.layer.get_property_title(prop): feature.properties.get(prop)
             for prop in list(obj.properties)
         }
 
@@ -233,8 +233,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
                 "pictogram": None,
                 "order": 9999,
                 "properties": {
-                    obj.layer.get_property_title(prop):
-                        obj.properties.get(prop)
+                    obj.layer.get_property_title(prop): crud_view.render_property_data(obj, prop)
                     for prop in list(remained_properties)
                 }
             }
