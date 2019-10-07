@@ -142,8 +142,8 @@ class CrudViewViewSetTestCase(APITestCase):
 
     def test_grouped_ui_schema(self):
         self.view_1.ui_schema = {
-            'name': {'ui-widget': 'textarea'},
-            'ui-order': ['name', 'age']
+            'name': {'ui:widget': 'textarea'},
+            'ui:order': ['name', 'age']
         }
         self.view_1.save()
         group_1 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test',
@@ -155,10 +155,10 @@ class CrudViewViewSetTestCase(APITestCase):
         data = response.json()
         self.assertDictEqual(
             data['ui_schema'],
-            {'ui-order': ['test', 'test2', '*'],
-             'test': {'ui-order': ['age', '*']},
-             'test2': {'ui-order': ['name', '*'],
-                       'name': {'ui-widget': 'textarea'}}}
+            {'ui:order': ['test', 'test2', '*'],
+             'test': {'ui:order': ['age', '*']},
+             'test2': {'ui:order': ['name', '*'],
+                       'name': {'ui:widget': 'textarea'}}}
         )
         group_1.delete()
         group_2.delete()

@@ -5,6 +5,10 @@ CHANGELOG
 0.3.7.dev0      (XXXX-XX-XX)
 ----------------------------
 
+Fixes
+
+* ui-order and ui-widget to ui:order and ui:widget
+
 
 0.3.6           (2019-10-07)
 ----------------------------
