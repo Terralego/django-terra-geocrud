@@ -5,14 +5,13 @@ CHANGELOG
 0.3.5.dev0      (XXXX-XX-XX)
 ----------------------------
 
+Feature
+
+* ability to define custom widgets for feature property rendering in crud view
+
 
 0.3.4           (2019-10-04)
 ----------------------------
-
-Feature
-
-* JSON editor integrated in django admin
-* Dont'a forget to add jsoneditor in your INSTALLED_APPS
 
 Fixes
 
