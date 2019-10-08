@@ -1,6 +1,8 @@
 import inspect
 import sys
 
+from datetime import date
+from django.template.defaultfilters import date as date_filter
 from rest_framework.reverse import reverse
 
 
@@ -26,16 +28,16 @@ class BaseWidget(object):
         self.args = args
         self.value = self.feature.properties.get(self.property)
 
-    def render(self, *args, **kwargs):
+    def render(self):
         raise NotImplementedError()
 
 
 class DataUrlToImgWidget(BaseWidget):
     help = "Render img html tag with url to get b64 img stored in properties"
 
-    def render(self, *args, **kwargs):
+    def render(self):
         if self.value:
-            attrs = self.args
+            attrs = self.args.get('attrs', {})
             final_attrs = ""
             for key, v in attrs.items():
                 final_attrs += f' {key}="{v}"'
@@ -45,11 +47,14 @@ class DataUrlToImgWidget(BaseWidget):
 
 
 class FileAhrefWidget(BaseWidget):
-    help = "Render a html tag with url to download b64 file stored in properties"
+    help = "Render html tag with url to download b64 file stored in properties. args: text (string, default 'Download'"
 
-    def render(self, text="Download", **kwargs):
+    def render(self):
         if self.value:
-            attrs = self.args
+            # get html attrs
+            attrs = self.args.get('attrs', {})
+            # get text content
+            text = self.args.get('text', 'Download')
             # set target="_blank" by default
             attrs.setdefault('target', '_blank')
             final_attrs = ""
@@ -58,3 +63,12 @@ class FileAhrefWidget(BaseWidget):
             url = reverse('terra_geocrud:render-file', args=(self.feature.pk,
                                                              self.property))
             return f'<a href="{url}" {final_attrs}>{text}</a>'
+
+
+class DateFormatWidget(BaseWidget):
+    help = "Format date with given format. args: format (string, default to SHORT_DATE_FORMAT)"
+
+    def render(self):
+        if self.value:
+            date_format = self.args.get('format', 'SHORT_DATE_FORMAT')
+            return date_filter(date.fromisoformat(self.value), date_format)
