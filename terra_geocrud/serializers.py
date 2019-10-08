@@ -131,7 +131,7 @@ class CrudGroupSerializer(serializers.ModelSerializer):
 
 
 class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
-    title = serializers.CharField(source='slug')
+    title = serializers.CharField(source='label')
     order = serializers.IntegerField()
     pictogram = serializers.ImageField()
     properties = serializers.SerializerMethodField()
@@ -147,7 +147,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
 
     class Meta:
         model = models.FeaturePropertyDisplayGroup
-        fields = ('title', 'order', 'pictogram', 'properties')
+        fields = ('title', 'slug', 'order', 'pictogram', 'properties')
 
 
 class CrudFeatureListSerializer(FeatureSerializer):
