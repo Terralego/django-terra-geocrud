@@ -131,7 +131,7 @@ class CrudGroupSerializer(serializers.ModelSerializer):
 
 
 class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
-    title = serializers.CharField(source='slug')
+    title = serializers.CharField(source='label')
     order = serializers.IntegerField()
     pictogram = serializers.ImageField()
     properties = serializers.SerializerMethodField()
@@ -147,7 +147,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
 
     class Meta:
         model = models.FeaturePropertyDisplayGroup
-        fields = ('title', 'order', 'pictogram', 'properties')
+        fields = ('title', 'slug', 'order', 'pictogram', 'properties')
 
 
 class CrudFeatureListSerializer(FeatureSerializer):
@@ -192,16 +192,24 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
 
 
 class CrudFeatureDetailSerializer(FeatureSerializer):
+    title = serializers.SerializerMethodField()
     geom = serializers.SerializerMethodField()
     documents = serializers.SerializerMethodField()
     display_properties = serializers.SerializerMethodField()
     properties = serializers.SerializerMethodField()
 
+    def get_title(self, obj):
+        """  """
+        crud_view_defined_property = obj.layer.crud_view.feature_title_property
+        return obj.properties.get(crud_view_defined_property, '') if crud_view_defined_property else obj.identifier
+
     def get_geom(self, obj):
+        """ Get geom as 4326 geojson format """
         geom = obj.geom.transform(4326, clone=True)
         return json.loads(geom.geojson)
 
     def get_properties(self, obj):
+        """ Feature properties as form initial data format (name / value) """
         results = {}
         crud_view = obj.layer.crud_view
         groups = crud_view.feature_display_groups.all()
@@ -216,6 +224,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
         return {**results, **original_properties}
 
     def get_display_properties(self, obj):
+        """ Feature properties to display (title / rendered value) """
         processed_properties = []
         results = {}
         crud_view = obj.layer.crud_view

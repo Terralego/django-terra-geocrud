@@ -51,12 +51,17 @@ class CrudView(CrudModelMixin):
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
     default_list_properties = ArrayField(models.CharField(max_length=250), default=list, blank=True)
+    feature_title_property = models.CharField(help_text=_("Schema property used to define feature title."),
+                                              max_length=250, blank=True, null=False, default="")
 
     def clean(self):
-        # verify properties exists
+        # verify properties in default_list_properties exist
         unexpected_properties = list(set(self.default_list_properties) - set(self.list_available_properties))
         if unexpected_properties:
-            raise ValidationError(f'Properties should exists and available for feature list : {unexpected_properties}')
+            raise ValidationError(f'Properties should exists for feature list : {unexpected_properties}')
+        # verify feature_title_property exists
+        if self.feature_title_property and self.feature_title_property not in self.properties:
+            raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
 
     @property
     def form_schema(self):

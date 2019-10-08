@@ -5,6 +5,14 @@ CHANGELOG
 0.3.8.dev0      (XXXX-XX-XX)
 ----------------------------
 
+News
+
+* Define wich property is used to display feature title
+
+Update
+
+* Generated template default file name.
+
 
 0.3.7           (2019-10-07)
 ----------------------------
