@@ -9,7 +9,7 @@ from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from pathlib import Path
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -89,6 +89,7 @@ class CrudRenderTemplateDetailView(DetailView):
 class CrudFeatureFileAPIView(RetrieveAPIView):
     """ View that serve data url stored property as a file download """
     queryset = Feature.objects.select_related('layer__crud_view')
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request, pk, key, **kwargs):
         """ Generate and download file from data-url encoded data """
