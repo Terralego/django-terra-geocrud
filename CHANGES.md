@@ -13,6 +13,10 @@ Update
 0.3.7           (2019-10-07)
 ----------------------------
 
+News
+
+* Define wich property is used to display feature title
+
 Fixes
 
 * ui-order and ui-widget to ui:order and ui:widget
