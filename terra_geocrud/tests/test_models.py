@@ -24,9 +24,14 @@ class CrudViewTestCase(TestCase):
     def setUp(self) -> None:
         self.crud_view = factories.CrudViewFactory()
 
-    def test_clean(self):
+    def test_clean_default_list_properties(self):
         with self.assertRaises(ValidationError):
             self.crud_view.default_list_properties.append('toto')
+            self.crud_view.clean()
+
+    def test_clean_feature_title_property(self):
+        with self.assertRaises(ValidationError):
+            self.crud_view.feature_title_property = 'toto'
             self.crud_view.clean()
 
     def test_render_property_data(self):
