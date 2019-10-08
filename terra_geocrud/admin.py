@@ -1,5 +1,9 @@
 from django.contrib import admin
+from django.contrib.postgres import fields
+from django_json_widget.widgets import JSONEditorWidget
 
+from geostore.admin import LayerAdmin
+from geostore.models import Layer
 from . import models
 
 
@@ -38,3 +42,15 @@ class CrudViewAdmin(admin.ModelAdmin):
             return ro_fields + ['layer']
 
         return ro_fields
+
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
+
+
+admin.site.unregister(Layer)
+@admin.register(Layer)
+class CrudLayerAdmin(LayerAdmin):
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
