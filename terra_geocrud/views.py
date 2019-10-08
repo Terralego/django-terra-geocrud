@@ -1,5 +1,5 @@
-import mimetypes
 import base64
+import mimetypes
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
+from pathlib import Path
 from rest_framework import viewsets
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
@@ -79,7 +80,9 @@ class CrudRenderTemplateDetailView(DetailView):
         self.template = self.get_template_object()
         self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
         response = super().render_to_response(context, **response_kwargs)
-        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(self.template.template_file.name)
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(
+            Path(self.template.template_file.name).name
+        )
         return response
 
 

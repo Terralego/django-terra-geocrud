@@ -5,6 +5,10 @@ CHANGELOG
 0.3.8.dev0      (XXXX-XX-XX)
 ----------------------------
 
+Update
+
+* Generated template default file name.
+
 
 0.3.7           (2019-10-07)
 ----------------------------
