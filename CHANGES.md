@@ -7,6 +7,7 @@ CHANGELOG
 
 News
 
+* Add json edito in django admin
 * Define wich property is used to display feature title
 
 Update
