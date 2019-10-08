@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.contrib.postgres import fields
-from django_json_widget.widgets import JSONEditorWidget
 
 from geostore.admin import LayerAdmin
 from geostore.models import Layer
 from . import models
+from .jsoneditor import JSONEditorWidget
 
 
 @admin.register(models.CrudGroupView)
