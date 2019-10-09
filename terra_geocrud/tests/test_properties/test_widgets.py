@@ -7,16 +7,47 @@ from terra_geocrud.properties import widgets
 class BaseWidgetTestCase(TestCase):
     def setUp(self) -> None:
         self.property_key = 'logo'
-        self.feature = FeatureFactory(
+        self.feature_with_file_name = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         )
 
     def test_render_raise_exception(self):
         with self.assertRaises(NotImplementedError):
-            widget = widgets.BaseWidget(feature=self.feature, prop=self.property_key)
+            widget = widgets.BaseWidget(feature=self.feature_with_file_name, prop=self.property_key)
             widget.render()
+
+
+class BaseDataFileWidgetTestCase(TestCase):
+    def setUp(self) -> None:
+        self.property_key = 'logo'
+        self.feature_with_file_name = FeatureFactory(
+            properties={
+                self.property_key: 'data:image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+            }
+        )
+        self.feature_without_file_name = FeatureFactory(
+            properties={
+                self.property_key: 'data:image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+            }
+        )
+        self.feature_without_file_data = FeatureFactory(
+            properties={
+                self.property_key: None
+            }
+        )
+
+    def test_get_info_content_no_data(self):
+        widget = widgets.BaseDataFileWidget(feature=self.feature_without_file_data, prop=self.property_key)
+        info, content = widget.get_info_content()
+        self.assertIsNone(info)
+        self.assertIsNone(content)
+
+    def test_get_info_content_no_file_name(self):
+        widget = widgets.BaseDataFileWidget(feature=self.feature_without_file_name, prop=self.property_key)
+        path = widget.get_storage_file_path()
+        self.assertTrue(path.endswith(f'{self.property_key}.png'), path)
 
 
 class GetWidgetChoicesTestCase(TestCase):

@@ -55,28 +55,34 @@ class BaseDataFileWidget(BaseWidget):
         return StorageClass()
 
     def get_storage_file_path(self):
-        # guess filename and extension
-        infos = self.file_info.split(';')
-        try:
-            # get name
-            file_name = infos[1].split('=')[1]
-        except IndexError:
-            extension = mimetypes.guess_extension(infos[0].split(':')[1])
-            file_name = f"{self.property}{extension}"
+        if self.file_info:
+            # guess filename and extension
+            infos = self.file_info.split(';') if self.file_info else ''
+            try:
+                # get name
+                file_name = infos[1].split('=')[1]
+            except IndexError:
+                extension = ''
+                try:
+                    extension = mimetypes.guess_extension(infos[0].split(':')[1])
+                except IndexError:
+                    pass
+                file_name = f"{self.property}{extension}"
 
-        # build name in storage
-        return f'terra_geocrud/data_file/features/{self.feature.pk}/{self.property}/{file_name}'
+            # build name in storage
+            return f'terra_geocrud/data_file/features/{self.feature.pk}/{self.property}/{file_name}'
 
     def get_storage_file_url(self):
         # check if there is file in storage, else store it
         storage = self.get_storage()
 
         storage_file_path = self.get_storage_file_path()
-        if not storage.exists(storage_file_path):
-            # create if not exists
-            storage.save(storage_file_path, ContentFile(base64.b64decode(self.file_content)))
+        if storage_file_path:
+            if not storage.exists(storage_file_path):
+                # create if not exists
+                storage.save(storage_file_path, ContentFile(base64.b64decode(self.file_content)))
 
-        return storage.url(storage_file_path)
+            return storage.url(storage_file_path)
 
 
 class DataUrlToImgWidget(BaseDataFileWidget):
