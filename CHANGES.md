@@ -5,6 +5,9 @@ CHANGELOG
 0.3.9.dev0      (XXXX-XX-XX)
 ----------------------------
 
+News
+
+* Add Date format property render widget.
 
 
 0.3.8           (2019-10-08)
@@ -12,7 +15,7 @@ CHANGELOG
 
 News
 
-* Add json edito in django admin
+* Add json editor in django admin
 * Define wich property is used to display feature title
 
 Update
