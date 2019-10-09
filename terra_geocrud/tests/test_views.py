@@ -274,6 +274,31 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         data = response_detail.json()
         self.assertEqual(len(data['documents']), self.crud_view.templates.count())
 
+    def test_create_grouped_properties(self):
+        """ Test creation with grouped properties """
+        data = {"geom": "POINT(0 0)",
+                "properties": {
+                    "test2": {"name": "toto"},
+                    "test": {"age": 10},
+                    "country": "France"
+                }}
+
+        response = self.client.post(reverse('terra_geocrud:feature-list',
+                                            args=(self.crud_view.layer_id, )),
+                                    data=data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        json_data = response.json()
+
+        # feature properties are grouped in api
+        self.assertDictEqual(json_data['properties'], data['properties'])
+
+        # feature properties are not grouped in object
+        feature = Feature.objects.get(pk=json_data['id'])
+        self.assertDictEqual(feature.properties, {"name": "toto",
+                                                  "age": 10,
+                                                  "country": "France"})
+
 
 class CrudFeatureFileAPIViewTestCase(APITestCase):
     def setUp(self) -> None:

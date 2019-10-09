@@ -5,6 +5,10 @@ CHANGELOG
 0.3.9.dev0      (XXXX-XX-XX)
 ----------------------------
 
+Fixes
+
+* Fix feature creation with grouped properties
+
 News
 
 * Add Date format property render widget.

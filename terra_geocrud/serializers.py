@@ -1,10 +1,10 @@
-import json
 from collections import OrderedDict
 
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework_gis import serializers as geo_serializers
 from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
@@ -164,20 +164,15 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
 
 class CrudFeatureDetailSerializer(FeatureSerializer):
     title = serializers.SerializerMethodField()
-    geom = serializers.SerializerMethodField()
+    geom = geo_serializers.GeometryField()
     documents = serializers.SerializerMethodField()
     display_properties = serializers.SerializerMethodField()
-    properties = serializers.SerializerMethodField()
+    properties = serializers.JSONField()
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
         crud_view_defined_property = obj.layer.crud_view.feature_title_property
         return obj.properties.get(crud_view_defined_property, '') if crud_view_defined_property else obj.identifier
-
-    def get_geom(self, obj):
-        """ Get geom as 4326 geojson format """
-        geom = obj.geom.transform(4326, clone=True)
-        return json.loads(geom.geojson)
 
     def get_properties(self, obj):
         """ Feature properties as form initial data format (name / value) """
@@ -239,7 +234,13 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
                 parsed_data = new_data.pop(key)
                 for parsed_key, parsed_value in parsed_data.items():
                     new_data[parsed_key] = parsed_value
+        super().validate_properties(new_data)
         return new_data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['properties'] = self.get_properties(instance)
+        return data
 
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer',)
