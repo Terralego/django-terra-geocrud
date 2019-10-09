@@ -170,7 +170,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
     properties = serializers.SerializerMethodField()
 
     def get_title(self, obj):
-        """  """
+        """ Get Feature title, as feature_title_property content or identifier by default """
         crud_view_defined_property = obj.layer.crud_view.feature_title_property
         return obj.properties.get(crud_view_defined_property, '') if crud_view_defined_property else obj.identifier
 
