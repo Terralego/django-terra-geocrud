@@ -71,4 +71,4 @@ class DateFormatWidget(BaseWidget):
     def render(self):
         if self.value:
             date_format = self.args.get('format', 'SHORT_DATE_FORMAT')
-            return date_filter(date.fromisoformat(self.value), date_format)
+            return date_filter(parse_date(self.value), date_format)
