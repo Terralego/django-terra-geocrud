@@ -1,7 +1,10 @@
+from copy import deepcopy
+
 from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -65,8 +68,8 @@ class CrudView(CrudModelMixin):
 
     @property
     def grouped_form_schema(self):
-        original_schema = self.layer.schema.copy()
-        generated_schema = original_schema.copy()
+        original_schema = deepcopy(self.layer.schema)
+        generated_schema = deepcopy(original_schema)
         groups = self.feature_display_groups.all()
         processed_properties = []
         generated_schema['properties'] = {}
@@ -92,7 +95,7 @@ class CrudView(CrudModelMixin):
         """
         Original ui_schema is recomposed with grouped properties
         """
-        ui_schema = self.ui_schema.copy()
+        ui_schema = deepcopy(self.ui_schema)
 
         groups = self.feature_display_groups.all()
         for group in groups:
@@ -147,8 +150,7 @@ class CrudView(CrudModelMixin):
         custom_widget_rendering = self.feature_property_rendering.filter(property=property_key).first()
 
         if custom_widget_rendering:
-            module_name, unit_name = custom_widget_rendering.widget.rsplit('.', 1)
-            WidgetClass = getattr(__import__(module_name, fromlist=['']), unit_name)
+            WidgetClass = import_string(custom_widget_rendering.widget)
             widget = WidgetClass(feature=feature, prop=property_key, args=custom_widget_rendering.args)
             return widget.render()
 
@@ -174,7 +176,7 @@ class FeaturePropertyDisplayGroup(models.Model):
 
     @property
     def form_schema(self):
-        original_schema = self.crud_view.layer.schema.copy()
+        original_schema = deepcopy(self.crud_view.layer.schema)
         properties = {}
         required = []
 

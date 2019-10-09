@@ -5,6 +5,10 @@ CHANGELOG
 0.3.10.dev0     (XXXX-XX-XX)
 ----------------------------
 
+News
+
+* Store and serve data file through a customizable django storage (FileSystem / Public by default)
+
 Fixes
 
 * Fix dict iteration in feature creation

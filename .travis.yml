@@ -1,64 +1,53 @@
 dist: xenial
 sudo: required
 language: python
-
 python:
 - '3.6'
 - '3.7'
-
 services:
-  - postgresql
-
+- postgresql
 addons:
-  postgresql: "10"
+  postgresql: '10'
   apt:
     packages:
-      - postgresql-10-postgis-2.4
-      - postgresql-10-pgrouting
-
+    - postgresql-10-postgis-2.4
+    - postgresql-10-pgrouting
 stages:
-  - lint
-  - test
-  - deploy
-
+- lint
+- test
+- deploy
 install:
-  - sudo apt-get -y install libproj-dev binutils gdal-bin
-  - pip install -e .[dev]
-  - pip install codecov
-
-
+- sudo apt-get -y install libproj-dev binutils gdal-bin
+- pip install -e .[dev]
+- pip install codecov
 before_script:
-  - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
-  # allow database creation for test
-  - psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
-  - psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
-  - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
-  - psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
-
+- psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U
+  postgres
+- psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
+- psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
+- psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
+- psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
 after_failure:
-  - pip freeze
-
+- pip freeze
 script:
-  - coverage run ./manage.py test --settings=test_terra_geocrud.settings
-  - codecov
-
+- coverage run ./manage.py test --settings=test_terra_geocrud.settings
+- codecov
 jobs:
   include:
-    - stage: lint
-      install:
-        - pip install flake8
-      script:
-        - flake8 terra_geocrud
-
-    - stage: deploy
-      install: skip
-      before_script: skip
-      script: skip
-      deploy:
-        stage: deploy
-        provider: pypi
-        user: "$PYPI_USER"
-        password:
-          secure: pFnEN/4nfcGNMwOVwBiO5K0hZGVbjPbpMxwxfA9ffGlkJ4lHEU+ElrSvau5TV1Pe0gXCiOHcdHyuEzoi23p75rme+BlNkK+P6YRd0/DCoTFrr80QEKFsyWqoAt7ep67jxKHoO7fy5h1M+VXZwfXZgtiG5zPjkU9cYg0LINf/S7vGMlgz82rv9vZr+u1pG/83oUyeVOibAVnF19XgHXS0BL6VDnc6c4C1odk6AtnSqaI0ASl7q63aXrUbQMpT0+B9esLpEvUHmTrI2t4aI1X02VnhCoM+Ry8b/ltDnFVB0qcnvPqVPdMYdeICnc3bzAJlDUU3xNH1XUo6RWcSbt11woP0MB6NahjYYet7DB8p/dMPgpfbyVSHw2vchy3Kd5teIlssihbuObCPpBhjbdWrKKvhm5rlWslt+Tymcl8MUBNO+2tQiTOGpJZ5dSSyC08VM31+cbxUYWPnmGbFdXlotgrvYMgxLk4n4NVqSa+gG/2wPzWy4OQJhN6eBZEv+qkUhKCB3+5k0/zPOJEjRTh/6b4BG8u+AO9nrNVZsNfY2UgcpeSwdVaU69XijIvQZex2Uck5GdtsWXdrEWhlBzKFXqWK05amavZ5SxsErjT6ljmawE4J8NgL9X+w86k5gJst98bGHhl/7i0V9PX1NwlTHcuAgAZZNAmNtIm1VSm3vWc=
-        on:
-          tags: true
+  - stage: lint
+    install:
+    - pip install flake8
+    script:
+    - flake8 terra_geocrud
+  - stage: deploy
+    install: skip
+    before_script: skip
+    script: skip
+    deploy:
+      stage: deploy
+      provider: pypi
+      user: __token__
+      password:
+        secure: j9fdiMDpjthZN4dhAcGSqFQWuGWPpa5cJmRy50F57G/WXmE76IWLiR/Fagg/acRmclBDfHgN+0y8v6jd64J9/gwpRqKs5Z8jArevjL13zxpkTyP9COSq9Pw5B7to/htwEl9KEBMInHIT/240UGxOj8THSMqPiBTYL5T4k6u6rzYtCcGT0kDeBLdIyTl2fYs31/EeCd941F8OCC+LstOzBiM7A3ISCEubDWYsqnvypYMBFqdlZThC9QjNQGcoQD7lJz6VJSDu0LJiqVcbjb0J4EC1XtxbQoKKNucRPfSv9MRzwA15wvYGjjeGEZQapfopv5TlTuQBDI39bONzIqgLGIk+ApjKMF8v1cIxeY2jcYpEbFS87CqzMC3lOQd+ZPxQCeKvJJU7bJQd7w+tVhMKhKPyUrokhl30mzTzqYVyHtdVfiDY+9aJsP2dCohlJmSG5Trn91CBjniGx3LhDzjwjYblwJij3ik/ovPJcONrZQtaf2xbi5W+PONDegtPKFDMdw+jQ0pomrgZizRO00424il+LMufYrvK7vyM3mUWyfFsk7emG0dmc4CB4VyWhdMGamhL14eQBi1U/mPR9v0OCPfnHgI0kP1xVeyQk5EmDcwy8gWduInkuKhLwdfcqZ9VH4vvGq6xmBHdXS2mwqhoJ7OsoDeXgBuk5H3uSrR7UP4=
+      on:
+        tags: true

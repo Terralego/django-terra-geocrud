@@ -1,5 +1,4 @@
 from django.test import TestCase
-from rest_framework.reverse import reverse
 
 from geostore.tests.factories import FeatureFactory
 from terra_geocrud.properties import widgets
@@ -8,16 +7,47 @@ from terra_geocrud.properties import widgets
 class BaseWidgetTestCase(TestCase):
     def setUp(self) -> None:
         self.property_key = 'logo'
-        self.feature = FeatureFactory(
+        self.feature_with_file_name = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         )
 
     def test_render_raise_exception(self):
         with self.assertRaises(NotImplementedError):
-            widget = widgets.BaseWidget(feature=self.feature, prop=self.property_key)
+            widget = widgets.BaseWidget(feature=self.feature_with_file_name, prop=self.property_key)
             widget.render()
+
+
+class BaseDataFileWidgetTestCase(TestCase):
+    def setUp(self) -> None:
+        self.property_key = 'logo'
+        self.feature_with_file_name = FeatureFactory(
+            properties={
+                self.property_key: 'data:image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+            }
+        )
+        self.feature_without_file_name = FeatureFactory(
+            properties={
+                self.property_key: 'data:image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+            }
+        )
+        self.feature_without_file_data = FeatureFactory(
+            properties={
+                self.property_key: None
+            }
+        )
+
+    def test_get_info_content_no_data(self):
+        widget = widgets.BaseDataFileWidget(feature=self.feature_without_file_data, prop=self.property_key)
+        info, content = widget.get_info_content()
+        self.assertIsNone(info)
+        self.assertIsNone(content)
+
+    def test_get_info_content_no_file_name(self):
+        widget = widgets.BaseDataFileWidget(feature=self.feature_without_file_name, prop=self.property_key)
+        path = widget.get_storage_file_path()
+        self.assertTrue(path.endswith(f'{self.property_key}.png'), path)
 
 
 class GetWidgetChoicesTestCase(TestCase):
@@ -39,18 +69,13 @@ class DataUrlToImgWidgetTestCase(TestCase):
         self.property_key = 'logo'
         self.feature = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=application/pdf;name=toto.pdf;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         )
-        self.url = reverse('terra_geocrud:render-file',
-                           args=(self.feature.pk, self.property_key))
 
     def test_rendering_without_args(self):
         widget = widgets.DataUrlToImgWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
-
-        # should contains reverse url
-        self.assertIn(self.url, content)
 
         # should looks like as img tag
         self.assertTrue(content.startswith('<img src='))
@@ -75,18 +100,13 @@ class FileAhrefWidgetTestCase(TestCase):
         self.property_key = 'logo'
         self.feature = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         )
-        self.url = reverse('terra_geocrud:render-file',
-                           args=(self.feature.pk, self.property_key))
 
     def test_rendering_without_args(self):
         widget = widgets.FileAhrefWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
-
-        # should contains reverse url
-        self.assertIn(self.url, content)
 
         # should looks like as a tag
         self.assertTrue(content.startswith('<a href='), content)

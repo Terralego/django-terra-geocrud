@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from copy import deepcopy
 
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
@@ -179,7 +180,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
         results = {}
         crud_view = obj.layer.crud_view
         groups = crud_view.feature_display_groups.all()
-        original_properties = obj.properties.copy()
+        original_properties = deepcopy(obj.properties)
 
         # get ordered groups filled
         for group in groups:
@@ -226,7 +227,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
         return serializer.data
 
     def validate_properties(self, data):
-        new_data = data.copy()
+        new_data = deepcopy(data)
         # clean all dict in values
         for key, value in new_data.items():
             if isinstance(value, dict):

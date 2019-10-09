@@ -1,16 +1,13 @@
-import base64
 import mimetypes
+from copy import deepcopy
 
 from django.conf import settings
-from django.core.files.base import ContentFile
-from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from pathlib import Path
-from rest_framework import viewsets, permissions
-from rest_framework.generics import RetrieveAPIView
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -31,7 +28,7 @@ class CrudViewViewSet(viewsets.ModelViewSet):
 
 class CrudSettingsApiView(APIView):
     def get_config_section(self):
-        default_config = app_settings.TERRA_GEOCRUD.copy()
+        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
         default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
         return default_config
 
@@ -83,31 +80,6 @@ class CrudRenderTemplateDetailView(DetailView):
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(
             Path(self.template.template_file.name).name
         )
-        return response
-
-
-class CrudFeatureFileAPIView(RetrieveAPIView):
-    """ View that serve data url stored property as a file download """
-    queryset = Feature.objects.select_related('layer__crud_view')
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request, pk, key, **kwargs):
-        """ Generate and download file from data-url encoded data """
-        feature = self.get_object()
-        file_data = feature.properties.get(key)
-
-        if not file_data or feature.layer.schema.get('properties', {}).get(key, {}).get('format') != 'data-url':
-            # if key doesn't exists, is empty or is not data-url
-            return HttpResponseNotFound()
-
-        else:
-            meta, content = file_data.split(';base64,')
-            metas = meta.split(';')
-            response = HttpResponse(ContentFile(base64.b64decode(content)),
-                                    content_type=metas[0])
-            if len(metas) > 1:
-                file_name = metas[1].split('=')[1]
-                response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(file_name)
         return response
 
 
