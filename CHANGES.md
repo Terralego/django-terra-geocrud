@@ -5,6 +5,10 @@ CHANGELOG
 0.3.10.dev0     (XXXX-XX-XX)
 ----------------------------
 
+Fixes
+
+* Fix dict iteration in feature creation
+
 
 0.3.9           (2019-10-09)
 ----------------------------

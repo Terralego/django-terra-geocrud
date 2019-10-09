@@ -228,8 +228,8 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
     def validate_properties(self, data):
         new_data = data.copy()
         # clean all dict in values
-        for key in new_data:
-            if isinstance(new_data[key], dict):
+        for key, value in new_data.items():
+            if isinstance(value, dict):
                 # explode it
                 parsed_data = new_data.pop(key)
                 for parsed_key, parsed_value in parsed_data.items():
