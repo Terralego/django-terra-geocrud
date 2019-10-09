@@ -16,7 +16,7 @@ class BaseWidgetTestCase(TestCase):
 
     def test_render_raise_exception(self):
         with self.assertRaises(NotImplementedError):
-            widget = widgets.BaseWidget(feature=self.feature, property=self.property_key)
+            widget = widgets.BaseWidget(feature=self.feature, prop=self.property_key)
             widget.render()
 
 
@@ -46,7 +46,7 @@ class DataUrlToImgWidgetTestCase(TestCase):
                            args=(self.feature.pk, self.property_key))
 
     def test_rendering_without_args(self):
-        widget = widgets.DataUrlToImgWidget(feature=self.feature, property=self.property_key)
+        widget = widgets.DataUrlToImgWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
 
         # should contains reverse url
@@ -57,8 +57,8 @@ class DataUrlToImgWidgetTestCase(TestCase):
         self.assertTrue(content.endswith('/>'))
 
     def test_rendering_wit_args(self):
-        args = {"target": "_blank", "width": '500px', "height": '200px'}
-        widget = widgets.DataUrlToImgWidget(feature=self.feature, property=self.property_key, args=args)
+        args = {"attrs": {"target": "_blank", "width": '500px', "height": '200px'}}
+        widget = widgets.DataUrlToImgWidget(feature=self.feature, prop=self.property_key, args=args)
         content = widget.render()
 
         # should looks like as img tag
@@ -66,7 +66,7 @@ class DataUrlToImgWidgetTestCase(TestCase):
         self.assertTrue(content.endswith('/>'))
 
         # args should be present as html attributes
-        for key, value in args.items():
+        for key, value in args.get('attrs').items():
             self.assertIn(f'{key}="{value}"', content)
 
 
@@ -82,7 +82,7 @@ class FileAhrefWidgetTestCase(TestCase):
                            args=(self.feature.pk, self.property_key))
 
     def test_rendering_without_args(self):
-        widget = widgets.FileAhrefWidget(feature=self.feature, property=self.property_key)
+        widget = widgets.FileAhrefWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
 
         # should contains reverse url
@@ -93,8 +93,8 @@ class FileAhrefWidgetTestCase(TestCase):
         self.assertTrue(content.endswith('</a>'))
 
     def test_rendering_wit_args(self):
-        args = {"target": "_blank", "width": '500px', "height": '200px'}
-        widget = widgets.FileAhrefWidget(feature=self.feature, property=self.property_key, args=args)
+        args = {"attrs": {"target": "_blank", "width": '500px', "height": '200px'}}
+        widget = widgets.FileAhrefWidget(feature=self.feature, prop=self.property_key, args=args)
         content = widget.render()
 
         # should looks like as a tag
@@ -102,5 +102,29 @@ class FileAhrefWidgetTestCase(TestCase):
         self.assertTrue(content.endswith('</a>'))
 
         # args should be present as html attributes
-        for key, value in args.items():
+        for key, value in args.get('attrs').items():
             self.assertIn(f'{key}="{value}"', content)
+
+
+class DateFormatWidgetTestCase(TestCase):
+    def setUp(self) -> None:
+        self.property_key = 'date'
+        self.feature = FeatureFactory(
+            properties={
+                self.property_key: '1999-12-31'
+            }
+        )
+
+    def test_rendering_without_args(self):
+        widget = widgets.DateFormatWidget(feature=self.feature, prop=self.property_key)
+        content = widget.render()
+
+        # should formatted as SHORT_DATE_FORMAT
+        self.assertEqual(content, '12/31/1999')
+
+    def test_rendering_wit_args(self):
+        args = {"format": "d/m/Y"}
+        widget = widgets.DateFormatWidget(feature=self.feature, prop=self.property_key, args=args)
+        content = widget.render()
+
+        self.assertEqual(content, '31/12/1999')
