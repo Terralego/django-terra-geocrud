@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
@@ -100,7 +101,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
     def get_feature_list_properties(self, obj):
         # TODO: keep default properties at first, then order by property title
         default_list = obj.default_list_properties or obj.list_available_properties[:8]
-        return {
+        result = {
             prop: {
                 "title": obj.layer.get_property_title(prop),
                 "selected": True if prop in default_list else False,
@@ -108,6 +109,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
             }
             for prop in obj.list_available_properties
         }
+        # order by title
+        return OrderedDict(sorted(result.items(), key=lambda x: x[1]['title']))
 
     def get_feature_endpoint(self, obj):
         return reverse('terra_geocrud:feature-list', args=(obj.layer_id,))
