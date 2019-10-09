@@ -1,8 +1,8 @@
 import inspect
 import sys
 
-from datetime import date
 from django.template.defaultfilters import date as date_filter
+from django.utils.dateparse import parse_date
 from rest_framework.reverse import reverse
 
 
@@ -20,11 +20,11 @@ def get_widgets_choices():
 
 class BaseWidget(object):
     """ Base widget. Inherit all widget from it, and override render method. """
-    def __init__(self, feature, property, args=None):
+    def __init__(self, feature, prop, args=None):
         if args is None:
             args = {}
         self.feature = feature
-        self.property = property
+        self.property = prop
         self.args = args
         self.value = self.feature.properties.get(self.property)
 
