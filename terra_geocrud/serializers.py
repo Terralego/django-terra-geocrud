@@ -228,15 +228,17 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
 
     def validate_properties(self, data):
         new_data = deepcopy(data)
+        render_data = deepcopy(new_data)
         # clean all dict in values
         for key, value in new_data.items():
             if isinstance(value, dict):
                 # explode it
-                parsed_data = new_data.pop(key)
+                parsed_data = render_data.pop(key)
                 for parsed_key, parsed_value in parsed_data.items():
-                    new_data[parsed_key] = parsed_value
-        super().validate_properties(new_data)
-        return new_data
+                    render_data[parsed_key] = parsed_value
+
+        super().validate_properties(render_data)
+        return render_data
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
