@@ -62,11 +62,7 @@ class BaseDataFileWidget(BaseWidget):
                 # get name
                 file_name = infos[1].split('=')[1]
             except IndexError:
-                extension = ''
-                try:
-                    extension = mimetypes.guess_extension(infos[0].split(':')[1])
-                except IndexError:
-                    pass
+                extension = mimetypes.guess_extension(infos[0].split(':')[1])
                 file_name = f"{self.property}{extension}"
 
             # build name in storage
