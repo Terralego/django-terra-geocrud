@@ -27,7 +27,7 @@ class CrudViewAdmin(admin.ModelAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
     inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline]
-    readonly_fields = ['form_schema', 'properties']
+    readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
         ('Feature properties', {'fields': ('properties', 'default_list_properties', 'feature_title_property')}),

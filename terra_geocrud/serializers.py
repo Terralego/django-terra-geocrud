@@ -30,8 +30,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
     extent = serializers.SerializerMethodField()
     exports = serializers.SerializerMethodField()
-    templates = serializers.SerializerMethodField()  # DEPRECATED
-    ui_schema = serializers.SerializerMethodField()
+    ui_schema = serializers.JSONField(source='grouped_ui_schema')
+    form_schema = serializers.JSONField(source='grouped_form_schema')
     map_style = serializers.SerializerMethodField()
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
@@ -61,38 +61,6 @@ class CrudViewSerializer(serializers.ModelSerializer):
             "name": "geojson",
             "url": reverse('geostore:layer-geojson', args=[obj.layer_id, ])
         }]
-
-    def get_templates(self, obj):
-        # DEPRECATED
-        return []
-
-    def get_ui_schema(self, obj):
-        """
-        Original ui_schema is recomposed with grouped properties
-        """
-        ui_schema = obj.ui_schema.copy()
-
-        groups = obj.feature_display_groups.all()
-        for group in groups:
-            # each field defined in ui schema should be placed in group key
-            ui_schema[group.slug] = {'ui:order': []}
-
-            for prop in group.properties:
-                # get original definition
-                original_def = ui_schema.pop(prop, None)
-                if original_def:
-                    ui_schema[group.slug][prop] = original_def
-
-                # if original prop in ui:order
-                if prop in ui_schema.get('ui:order', []):
-                    ui_schema.get('ui:order').remove(prop)
-                    ui_schema[group.slug]['ui:order'] += [prop]
-
-            # finish by adding '*' in all cases (security)
-            ui_schema[group.slug]['ui:order'] += ['*']
-        if groups:
-            ui_schema['ui:order'] = list(groups.values_list('slug', flat=True)) + ['*']
-        return ui_schema
 
     def get_extent(self, obj):
         # TODO: use annotated extent
