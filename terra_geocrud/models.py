@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
@@ -66,8 +68,8 @@ class CrudView(CrudModelMixin):
 
     @property
     def grouped_form_schema(self):
-        original_schema = self.layer.schema.copy()
-        generated_schema = original_schema.copy()
+        original_schema = deepcopy(self.layer.schema)
+        generated_schema = deepcopy(original_schema)
         groups = self.feature_display_groups.all()
         processed_properties = []
         generated_schema['properties'] = {}
@@ -93,7 +95,7 @@ class CrudView(CrudModelMixin):
         """
         Original ui_schema is recomposed with grouped properties
         """
-        ui_schema = self.ui_schema.copy()
+        ui_schema = deepcopy(self.ui_schema)
 
         groups = self.feature_display_groups.all()
         for group in groups:
@@ -174,7 +176,7 @@ class FeaturePropertyDisplayGroup(models.Model):
 
     @property
     def form_schema(self):
-        original_schema = self.crud_view.layer.schema.copy()
+        original_schema = deepcopy(self.crud_view.layer.schema)
         properties = {}
         required = []
 

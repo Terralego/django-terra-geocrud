@@ -1,4 +1,5 @@
 import mimetypes
+from copy import deepcopy
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -27,7 +28,7 @@ class CrudViewViewSet(viewsets.ModelViewSet):
 
 class CrudSettingsApiView(APIView):
     def get_config_section(self):
-        default_config = app_settings.TERRA_GEOCRUD.copy()
+        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
         default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
         return default_config
 
