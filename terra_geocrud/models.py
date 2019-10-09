@@ -2,6 +2,7 @@ from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -147,8 +148,7 @@ class CrudView(CrudModelMixin):
         custom_widget_rendering = self.feature_property_rendering.filter(property=property_key).first()
 
         if custom_widget_rendering:
-            module_name, unit_name = custom_widget_rendering.widget.rsplit('.', 1)
-            WidgetClass = getattr(__import__(module_name, fromlist=['']), unit_name)
+            WidgetClass = import_string(custom_widget_rendering.widget)
             widget = WidgetClass(feature=feature, prop=property_key, args=custom_widget_rendering.args)
             return widget.render()
 
