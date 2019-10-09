@@ -39,7 +39,7 @@ class CrudViewAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         ro_fields = super().get_readonly_fields(request, obj=obj)
         if obj and obj.pk:
-            return ro_fields + ['layer']
+            ro_fields += ['layer']
 
         return ro_fields
 
