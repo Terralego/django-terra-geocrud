@@ -82,7 +82,7 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
                               'type': 'object'
                               })
         self.maxDiff = None
-        self.assertDictEqual(self.crud_view.form_schema, {
+        self.assertDictEqual(self.crud_view.grouped_form_schema, {
             "type": "object",
             "required": [],
             "properties": {

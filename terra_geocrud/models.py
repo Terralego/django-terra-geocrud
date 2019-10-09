@@ -64,7 +64,7 @@ class CrudView(CrudModelMixin):
             raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
 
     @property
-    def form_schema(self):
+    def grouped_form_schema(self):
         original_schema = self.layer.schema.copy()
         generated_schema = original_schema.copy()
         groups = self.feature_display_groups.all()
@@ -86,6 +86,35 @@ class CrudView(CrudModelMixin):
             generated_schema['properties'][prop] = original_schema['properties'][prop]
 
         return generated_schema
+
+    @property
+    def grouped_ui_schema(self):
+        """
+        Original ui_schema is recomposed with grouped properties
+        """
+        ui_schema = self.ui_schema.copy()
+
+        groups = self.feature_display_groups.all()
+        for group in groups:
+            # each field defined in ui schema should be placed in group key
+            ui_schema[group.slug] = {'ui:order': []}
+
+            for prop in group.properties:
+                # get original definition
+                original_def = ui_schema.pop(prop, None)
+                if original_def:
+                    ui_schema[group.slug][prop] = original_def
+
+                # if original prop in ui:order
+                if prop in ui_schema.get('ui:order', []):
+                    ui_schema.get('ui:order').remove(prop)
+                    ui_schema[group.slug]['ui:order'] += [prop]
+
+            # finish by adding '*' in all cases (security)
+            ui_schema[group.slug]['ui:order'] += ['*']
+        if groups:
+            ui_schema['ui:order'] = list(groups.values_list('slug', flat=True)) + ['*']
+        return ui_schema
 
     @property
     def properties(self):
@@ -120,7 +149,7 @@ class CrudView(CrudModelMixin):
         if custom_widget_rendering:
             module_name, unit_name = custom_widget_rendering.widget.rsplit('.', 1)
             WidgetClass = getattr(__import__(module_name, fromlist=['']), unit_name)
-            widget = WidgetClass(feature=feature, property=property_key, args=custom_widget_rendering.args)
+            widget = WidgetClass(feature=feature, prop=property_key, args=custom_widget_rendering.args)
             return widget.render()
 
         return feature.properties.get(property_key)
@@ -132,7 +161,7 @@ class CrudView(CrudModelMixin):
 
 
 class FeaturePropertyDisplayGroup(models.Model):
-    """ Model used to group layer properties in form_schema and displayed informations """
+    """ Model used to group layer properties in grouped_form_schema and displayed informations """
     crud_view = models.ForeignKey(CrudView, related_name='feature_display_groups', on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
     label = models.CharField(max_length=50)
