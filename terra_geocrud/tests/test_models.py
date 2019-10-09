@@ -22,7 +22,31 @@ class CrudModelMixinTestCase(TestCase):
 
 class CrudViewTestCase(TestCase):
     def setUp(self) -> None:
-        self.crud_view = factories.CrudViewFactory()
+        self.crud_view = factories.CrudViewFactory(
+            layer__schema={
+                "type": "object",
+                "required": ["name", ],
+                "properties": {
+                    "name": {
+                        'type': "string",
+                        "title": "Name"
+                    },
+                    "logo": {
+                        'type': "string",
+                        "title": "Logo",
+                        "format": "data-url"
+                    },
+                    "age": {
+                        'type': "integer",
+                        "title": "Age",
+                    },
+                    "country": {
+                        'type': "string",
+                        "title": "Country"
+                    },
+                }
+            }
+        )
 
     def test_clean_default_list_properties(self):
         with self.assertRaises(ValidationError):
@@ -37,16 +61,17 @@ class CrudViewTestCase(TestCase):
     def test_render_property_data(self):
         self.feature = Feature.objects.create(layer=self.crud_view.layer,
                                               geom=Point(0, 0, srid=4326),
-                                              properties={"age": 10, "name": "jec", "country": "slovenija"})
+                                              properties={"age": 10, "name": "jec", "country": "slovenija",
+                                                          "logo": "data:image/png;name=toto.png;base64,xxxxxxxxxxxx"})
         # without widget, data is like in stored properties json
-        rendered_data = self.crud_view.render_property_data(self.feature, 'age')
-        self.assertEqual(rendered_data, self.feature.properties.get('age'))
+        rendered_data = self.crud_view.render_property_data(self.feature, 'logo')
+        self.assertEqual(rendered_data, self.feature.properties.get('logo'))
         # add rendering widget
         PropertyDisplayRendering.objects.create(crud_view=self.crud_view,
-                                                property='age',
+                                                property='logo',
                                                 widget='terra_geocrud.properties.widgets.DataUrlToImgWidget')
-        rendered_data = self.crud_view.render_property_data(self.feature, 'age')
-        self.assertNotEqual(rendered_data, self.feature.properties.get('age'))
+        rendered_data = self.crud_view.render_property_data(self.feature, 'logo')
+        self.assertNotEqual(rendered_data, self.feature.properties.get('logo'))
         self.assertTrue(rendered_data.startswith('<img '))
 
 

@@ -1,5 +1,4 @@
 from django.test import TestCase
-from rest_framework.reverse import reverse
 
 from geostore.tests.factories import FeatureFactory
 from terra_geocrud.properties import widgets
@@ -10,7 +9,7 @@ class BaseWidgetTestCase(TestCase):
         self.property_key = 'logo'
         self.feature = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
             }
         )
 
@@ -39,18 +38,13 @@ class DataUrlToImgWidgetTestCase(TestCase):
         self.property_key = 'logo'
         self.feature = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=application/pdf;name=toto.pdf;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         )
-        self.url = reverse('terra_geocrud:render-file',
-                           args=(self.feature.pk, self.property_key))
 
     def test_rendering_without_args(self):
         widget = widgets.DataUrlToImgWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
-
-        # should contains reverse url
-        self.assertIn(self.url, content)
 
         # should looks like as img tag
         self.assertTrue(content.startswith('<img src='))
@@ -75,18 +69,13 @@ class FileAhrefWidgetTestCase(TestCase):
         self.property_key = 'logo'
         self.feature = FeatureFactory(
             properties={
-                self.property_key: 'data=image/png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx'
+                self.property_key: 'data=image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         )
-        self.url = reverse('terra_geocrud:render-file',
-                           args=(self.feature.pk, self.property_key))
 
     def test_rendering_without_args(self):
         widget = widgets.FileAhrefWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
-
-        # should contains reverse url
-        self.assertIn(self.url, content)
 
         # should looks like as a tag
         self.assertTrue(content.startswith('<a href='), content)

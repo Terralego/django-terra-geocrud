@@ -16,5 +16,4 @@ urlpatterns = [
     # template rendering
     path('api/crud/template/<template_pk>/render/<pk>/',
          views.CrudRenderTemplateDetailView.as_view(), name='render-template'),
-    path('api/crud/features/<int:pk>/<slug:key>/', views.CrudFeatureFileAPIView.as_view(), name='render-file')
 ]

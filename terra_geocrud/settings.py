@@ -1,6 +1,9 @@
+from django.conf import settings
+
 _DEFAULT_TERRA_GEOCRUD = {
     # default extent to world
     'EXTENT': [[-90.0, -180.0], [90.0, 180.0]],
+    'DATA_FILE_STORAGE_CLASS': 'django.core.files.storage.FileSystemStorage',
     'STYLES': {
         'line': {
             'type': 'line',
@@ -24,5 +27,5 @@ _DEFAULT_TERRA_GEOCRUD = {
         },
     }
 }
-
-TERRA_GEOCRUD = _DEFAULT_TERRA_GEOCRUD
+_DEFAULT_TERRA_GEOCRUD.update(getattr(settings, 'TERRA_GEOCRUD', {}))
+TERRA_GEOCRUD = _DEFAULT_TERRA_GEOCRUD.copy()
