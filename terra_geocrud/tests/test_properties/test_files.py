@@ -1,13 +1,17 @@
+from tempfile import TemporaryDirectory
+
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from geostore.tests.factories import FeatureFactory
 
-from terra_geocrud.properties.files import get_info_content, get_storage_file_path
+from terra_geocrud.properties.files import get_info_content, get_storage_file_path, get_storage
 from terra_geocrud.tests import factories
 
 
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class StorageFunctionTestCase(APITestCase):
     def setUp(self) -> None:
         self.property_key = 'logo'
@@ -64,3 +68,8 @@ class StorageFunctionTestCase(APITestCase):
             data=data,
             format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        storage = get_storage()
+        storage_file_path = get_storage_file_path(self.property_key,
+                                                  self.feature_with_file_name.properties.get(self.property_key),
+                                                  self.feature_with_file_name)
+        self.assertTrue(storage.exists(storage_file_path))

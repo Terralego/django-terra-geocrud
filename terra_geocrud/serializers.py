@@ -128,6 +128,14 @@ class CrudFeatureListSerializer(FeatureSerializer):
     geom = None
     detail_url = serializers.SerializerMethodField()
     extent = serializers.SerializerMethodField()
+    properties = serializers.SerializerMethodField()
+
+    def get_properties(self, obj):
+        """ Keep only properties that can be shonwed in list """
+        list_available_properties = list(obj.layer.crud_view.list_available_properties)
+        return {
+            key: value for key, value in obj.properties.items() if key in list_available_properties
+        }
 
     def get_extent(self, obj):
         geom = obj.geom.transform(4326, clone=True)
