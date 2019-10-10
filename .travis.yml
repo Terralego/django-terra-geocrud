@@ -40,7 +40,7 @@ script:
 - coverage run ./manage.py test --settings=test_terra_geocrud.settings
 
 after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT
 
 jobs:
   include:
