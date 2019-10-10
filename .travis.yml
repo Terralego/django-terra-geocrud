@@ -1,21 +1,28 @@
-dist: xenial
+dist: bionic
+
 sudo: required
+
 language: python
+
 python:
 - '3.6'
 - '3.7'
+
 services:
 - postgresql
+
 addons:
   postgresql: '10'
   apt:
     packages:
     - postgresql-10-postgis-2.4
     - postgresql-10-pgrouting
+
 stages:
 - lint
 - test
 - deploy
+
 install:
 
 - sudo apt-get -y install libproj-dev binutils gdal-bin
@@ -40,6 +47,7 @@ script:
 - coverage run ./manage.py test --settings=test_terra_geocrud.settings
 
 after_script:
+  - coverage xml
   - ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT
 
 jobs:
