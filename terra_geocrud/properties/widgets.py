@@ -1,14 +1,10 @@
-import base64
 import inspect
-import mimetypes
 import sys
 
-from django.core.files.base import ContentFile
-from django.core.files.storage import get_storage_class
 from django.template.defaultfilters import date as date_filter
 from django.utils.dateparse import parse_date
 
-from terra_geocrud import settings as app_settings
+from terra_geocrud.properties.files import get_storage_file_url
 
 
 def get_widgets_choices():
@@ -16,9 +12,7 @@ def get_widgets_choices():
     widgets = []
 
     for name, obj in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-        if (issubclass(obj, BaseWidget) or issubclass(obj, BaseDataFileWidget)) and (
-                obj in BaseWidget.__subclasses__() or obj in BaseDataFileWidget.__subclasses__()) and not isinstance(
-                obj, BaseDataFileWidget):
+        if getattr(obj, 'widget', False):
             # get BaseWidget subclasses
             widgets.append((f"{__name__}.{name}", name))
 
@@ -39,50 +33,9 @@ class BaseWidget(object):
         raise NotImplementedError()
 
 
-class BaseDataFileWidget(BaseWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.file_info, self.file_content = self.get_info_content()
-
-    def get_info_content(self):
-        if self.value:
-            return self.value.split(';base64,')
-        else:
-            return None, None
-
-    def get_storage(self):
-        StorageClass = get_storage_class(import_path=app_settings.TERRA_GEOCRUD['DATA_FILE_STORAGE_CLASS'])
-        return StorageClass()
-
-    def get_storage_file_path(self):
-        if self.file_info:
-            # guess filename and extension
-            infos = self.file_info.split(';') if self.file_info else ''
-            try:
-                # get name
-                file_name = infos[1].split('=')[1]
-            except IndexError:
-                extension = mimetypes.guess_extension(infos[0].split(':')[1])
-                file_name = f"{self.property}{extension}"
-
-            # build name in storage
-            return f'terra_geocrud/data_file/features/{self.feature.pk}/{self.property}/{file_name}'
-
-    def get_storage_file_url(self):
-        # check if there is file in storage, else store it
-        storage = self.get_storage()
-
-        storage_file_path = self.get_storage_file_path()
-        if storage_file_path:
-            if not storage.exists(storage_file_path):
-                # create if not exists
-                storage.save(storage_file_path, ContentFile(base64.b64decode(self.file_content)))
-
-            return storage.url(storage_file_path)
-
-
-class DataUrlToImgWidget(BaseDataFileWidget):
+class DataUrlToImgWidget(BaseWidget):
     help = "Render img html tag with url to get b64 img stored in properties"
+    widget = True
 
     def render(self):
         if self.value:
@@ -90,12 +43,13 @@ class DataUrlToImgWidget(BaseDataFileWidget):
             final_attrs = ""
             for key, v in attrs.items():
                 final_attrs += f' {key}="{v}"'
-            url = self.get_storage_file_url()
+            url = get_storage_file_url(self.property, self.value, self.feature)
             return f'<img src="{url}" {final_attrs} />'
 
 
-class FileAhrefWidget(BaseDataFileWidget):
+class FileAhrefWidget(BaseWidget):
     help = "Render html tag with url to download b64 file stored in properties. args: text (string, default 'Download'"
+    widget = True
 
     def render(self):
         if self.value:
@@ -108,12 +62,13 @@ class FileAhrefWidget(BaseDataFileWidget):
             final_attrs = ""
             for key, v in attrs.items():
                 final_attrs += f' {key}="{v}"'
-            url = self.get_storage_file_url()
+            url = get_storage_file_url(self.property, self.value, self.feature)
             return f'<a href="{url}" {final_attrs}>{text}</a>'
 
 
 class DateFormatWidget(BaseWidget):
     help = "Format date with given format. args: format (string, default to SHORT_DATE_FORMAT)"
+    widget = True
 
     def render(self):
         if self.value:

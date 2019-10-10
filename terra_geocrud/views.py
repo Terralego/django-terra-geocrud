@@ -86,7 +86,7 @@ class CrudRenderTemplateDetailView(DetailView):
 class CrudFeatureViewsSet(FeatureViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.select_related('layer')
+        return qs.select_related('layer').prefetch_related('layer__crud_view__templates')
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
