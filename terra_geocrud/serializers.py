@@ -9,6 +9,7 @@ from rest_framework_gis import serializers as geo_serializers
 from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
+from terra_geocrud.properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
 from . import models
 from . import settings as app_settings
 
@@ -69,7 +70,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_feature_list_properties(self, obj):
         # TODO: keep default properties at first, then order by property title
-        default_list = obj.default_list_properties or obj.list_available_properties[:8]
+        default_list = list(obj.default_list_properties or obj.list_available_properties[:8])
         result = {
             prop: {
                 "title": obj.layer.get_property_title(prop),
@@ -111,6 +112,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
     def get_properties(self, obj):
         """ Get feature properties in group to form { title: rendering(value) } """
         feature = self.context.get('feature')
+
         return {
             feature.layer.get_property_title(prop):
                 feature.layer.crud_view.render_property_data(feature, prop)
@@ -126,6 +128,14 @@ class CrudFeatureListSerializer(FeatureSerializer):
     geom = None
     detail_url = serializers.SerializerMethodField()
     extent = serializers.SerializerMethodField()
+    properties = serializers.SerializerMethodField()
+
+    def get_properties(self, obj):
+        """ Keep only properties that can be shonwed in list """
+        list_available_properties = list(obj.layer.crud_view.list_available_properties)
+        return {
+            key: value for key, value in obj.properties.items() if key in list_available_properties
+        }
 
     def get_extent(self, obj):
         geom = obj.geom.transform(4326, clone=True)
@@ -228,20 +238,38 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
 
     def validate_properties(self, data):
         new_data = deepcopy(data)
-        render_data = deepcopy(new_data)
-        # clean all dict in values
+        # degroup properties
         for key, value in new_data.items():
             if isinstance(value, dict):
-                # explode it
-                parsed_data = render_data.pop(key)
+                # pop and explode dict
+                parsed_data = data.pop(key)
                 for parsed_key, parsed_value in parsed_data.items():
-                    render_data[parsed_key] = parsed_value
+                    data[parsed_key] = parsed_value
+        # keep parent schema validation
+        super().validate_properties(data)
+        return data
 
-        super().validate_properties(render_data)
-        return render_data
+    def _store_files(self):
+        files_properties = [
+            key for key, value in self.instance.layer.schema['properties'].items()
+            if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
+        ]
+        if files_properties:
+            storage = get_storage()
+            for file_prop in files_properties:
+                value = self.instance.properties.get(file_prop)
+                if value:
+                    storage_file_path = get_storage_file_path(file_prop, value, self.instance)
+                    file_info, file_content = get_info_content(value)
+                    store_data_file(storage, storage_file_path, file_content)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._store_files()
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        # expose properties in groups
         data['properties'] = self.get_properties(instance)
         return data
 

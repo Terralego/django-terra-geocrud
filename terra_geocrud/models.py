@@ -4,6 +4,7 @@ from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -66,7 +67,7 @@ class CrudView(CrudModelMixin):
         if self.feature_title_property and self.feature_title_property not in self.properties:
             raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
 
-    @property
+    @cached_property
     def grouped_form_schema(self):
         original_schema = deepcopy(self.layer.schema)
         generated_schema = deepcopy(original_schema)
@@ -90,7 +91,7 @@ class CrudView(CrudModelMixin):
 
         return generated_schema
 
-    @property
+    @cached_property
     def grouped_ui_schema(self):
         """
         Original ui_schema is recomposed with grouped properties
@@ -119,11 +120,11 @@ class CrudView(CrudModelMixin):
             ui_schema['ui:order'] = list(groups.values_list('slug', flat=True)) + ['*']
         return ui_schema
 
-    @property
+    @cached_property
     def properties(self):
         return sorted(list(self.layer.layer_properties.keys())) if self.layer else []
 
-    @property
+    @cached_property
     def list_available_properties(self):
         """ exclude some properties in list (some arrays, data-url, html fields)"""
         properties = []
@@ -138,7 +139,7 @@ class CrudView(CrudModelMixin):
                 properties.append(prop)
         return properties
 
-    @property
+    @cached_property
     def extent(self):
         features_extent = self.layer.features.aggregate(extent=Extent('geom'))
         # get extent in settings if no features
@@ -174,7 +175,7 @@ class FeaturePropertyDisplayGroup(models.Model):
     def __str__(self):
         return self.label
 
-    @property
+    @cached_property
     def form_schema(self):
         original_schema = deepcopy(self.crud_view.layer.schema)
         properties = {}
