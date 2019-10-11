@@ -5,6 +5,8 @@ CHANGELOG
 0.3.14.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Fix default extent as simple array
+
 
 0.3.13          (2019-10-11)
 ----------------------------
