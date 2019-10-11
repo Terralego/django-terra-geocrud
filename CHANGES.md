@@ -5,6 +5,11 @@ CHANGELOG
 0.3.13.dev0     (XXXX-XX-XX)
 ----------------------------
 
+Fixes
+
+* map_style is now empty and not null in case of undefined geometry layer
+* extent for layer with no features
+
 
 0.3.12          (2019-10-11)
 ----------------------------

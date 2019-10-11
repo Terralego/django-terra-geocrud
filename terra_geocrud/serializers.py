@@ -45,12 +45,14 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_default_map_style(self, obj):
         style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+        response = {}
         if obj.layer.is_point:
-            return style_settings.get('point')
+            response = style_settings.get('point')
         elif obj.layer.is_linestring:
-            return style_settings.get('line')
+            response = style_settings.get('line')
         elif obj.layer.is_polygon:
-            return style_settings.get('polygon')
+            response = style_settings.get('polygon')
+        return response
 
     def get_map_style(self, obj):
         style = obj.map_style
