@@ -5,6 +5,10 @@ CHANGELOG
 0.3.12.dev0     (XXXX-XX-XX)
 ----------------------------
 
+Update
+
+* Optimize widget rendering
+
 
 0.3.11          (2019-10-10)
 ----------------------------
