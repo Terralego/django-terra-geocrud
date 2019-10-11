@@ -3,8 +3,16 @@ import sys
 
 from django.template.defaultfilters import date as date_filter
 from django.utils.dateparse import parse_date
+from django.utils.module_loading import import_string
 
 from terra_geocrud.properties.files import get_storage_file_url
+
+
+def render_property_data(feature, property_renderer):
+    """ apply widget """
+    widget_class = import_string(property_renderer.widget)
+    widget = widget_class(feature=feature, prop=property_renderer.property, args=property_renderer.args)
+    return widget.render()
 
 
 def get_widgets_choices():

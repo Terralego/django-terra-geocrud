@@ -4,6 +4,8 @@ from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.test.testcases import TestCase
+from django.urls import reverse
+from rest_framework import status
 
 from geostore.models import Feature
 from terra_geocrud.models import PropertyDisplayRendering
@@ -63,16 +65,18 @@ class CrudViewTestCase(TestCase):
                                               geom=Point(0, 0, srid=4326),
                                               properties={"age": 10, "name": "jec", "country": "slovenija",
                                                           "logo": "data:image/png;name=toto.png;base64,xxxxxxxxxxxx"})
-        # without widget, data is like in stored properties json
-        rendered_data = self.crud_view.render_property_data(self.feature, 'logo')
-        self.assertEqual(rendered_data, self.feature.properties.get('logo'))
         # add rendering widget
         PropertyDisplayRendering.objects.create(crud_view=self.crud_view,
                                                 property='logo',
                                                 widget='terra_geocrud.properties.widgets.DataUrlToImgWidget')
-        rendered_data = self.crud_view.render_property_data(self.feature, 'logo')
-        self.assertNotEqual(rendered_data, self.feature.properties.get('logo'))
-        self.assertTrue(rendered_data.startswith('<img '))
+        response = self.client.get(reverse('terra_geocrud:feature-detail',
+                                           args=(self.feature.layer_id,
+                                                 self.feature.identifier)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        json_data = response.json()
+        self.assertNotEqual(json_data['display_properties']['__default__']['properties']['Logo'],
+                            self.feature.properties.get('logo'))
+        self.assertTrue(json_data['display_properties']['__default__']['properties']['Logo'].startswith('<img '))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

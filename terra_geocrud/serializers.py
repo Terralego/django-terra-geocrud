@@ -10,6 +10,7 @@ from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from terra_geocrud.properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
+from terra_geocrud.properties.widgets import render_property_data
 from . import models
 from . import settings as app_settings
 
@@ -112,11 +113,19 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
     def get_properties(self, obj):
         """ Get feature properties in group to form { title: rendering(value) } """
         feature = self.context.get('feature')
+        widget_properties = self.context.get('widget_properties')
+        final_properties = {
+            prop: feature.properties.get(prop)
+            for prop in list(obj.properties)
+        }
+
+        # apply widgets
+        for widget in widget_properties.filter(property__in=obj.properties):
+            final_properties[widget.property] = render_property_data(feature, widget)
 
         return {
-            feature.layer.get_property_title(prop):
-                feature.layer.crud_view.render_property_data(feature, prop)
-            for prop in list(obj.properties)
+            feature.layer.get_property_title(key): value
+            for key, value in final_properties.items()
         }
 
     class Meta:
@@ -206,25 +215,34 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
         results = {}
         crud_view = obj.layer.crud_view
         groups = crud_view.feature_display_groups.all()
+        widget_properties = crud_view.feature_property_rendering.all()
 
         # get ordered groups filled
         for group in groups:
             serializer = FeatureDisplayPropertyGroup(group,
                                                      context={'request': self.context.get('request'),
-                                                              'feature': obj})
+                                                              'feature': obj,
+                                                              'widget_properties': widget_properties})
             results[group.slug] = serializer.data
             processed_properties += list(group.properties)
 
         # add default other properties
         remained_properties = list(set(crud_view.properties) - set(processed_properties))
         if remained_properties:
+            final_properties = {
+                prop: obj.properties.get(prop)
+                for prop in list(remained_properties)
+            }
+            # apply widgets
+            for widget in widget_properties.filter(property__in=remained_properties):
+                final_properties[widget.property] = render_property_data(obj, widget)
+
             results['__default__'] = {
                 "title": "",
                 "pictogram": None,
                 "order": 9999,
                 "properties": {
-                    obj.layer.get_property_title(prop): crud_view.render_property_data(obj, prop)
-                    for prop in list(remained_properties)
+                    obj.layer.get_property_title(key): value for key, value in final_properties.items()
                 }
             }
         return results
