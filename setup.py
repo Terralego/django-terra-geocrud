@@ -43,13 +43,11 @@ setup(
     install_requires=[
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.9',
-        'django-geostore>=0.3.5',
+        'django-geostore>=0.3.8',
         'djangorestframework>=3.10',
         'djangorestframework-gis>=0.14'
         'django>=2.2,<3.0',
         'django-json-widget',
-        # wait until drf-yasg next version
-        'packaging',
     ],
     tests_require=tests_require,
     extras_require={

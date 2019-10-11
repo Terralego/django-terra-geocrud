@@ -84,6 +84,8 @@ class CrudRenderTemplateDetailView(DetailView):
 
 
 class CrudFeatureViewsSet(FeatureViewSet):
+    permission_classes = []
+
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.select_related('layer').prefetch_related('layer__crud_view__templates')
