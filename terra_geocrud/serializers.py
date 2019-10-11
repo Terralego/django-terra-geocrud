@@ -93,7 +93,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
-            'feature_endpoint', 'extent', 'templates', 'exports',
+            'feature_endpoint', 'extent', 'exports',
             'feature_list_properties',
         )
 
