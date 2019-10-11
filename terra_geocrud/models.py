@@ -144,7 +144,7 @@ class CrudView(CrudModelMixin):
         extent = features_extent.get('extent')
         # get extent in settings if no features
 
-        return extent if extent else app_settings.TERRA_GEOCRUD['EXTENT'])
+        return extent if extent else app_settings.TERRA_GEOCRUD['EXTENT']
 
     class Meta:
         verbose_name = _("View")
