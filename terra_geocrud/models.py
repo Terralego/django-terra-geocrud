@@ -5,7 +5,6 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
-from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -145,17 +144,6 @@ class CrudView(CrudModelMixin):
         # get extent in settings if no features
         return features_extent.get('extent',
                                    app_settings.TERRA_GEOCRUD['EXTENT'])
-
-    def render_property_data(self, feature, property_key):
-        """ if custom rendering widget defined for property, apply widget """
-        custom_widget_rendering = self.feature_property_rendering.filter(property=property_key).first()
-
-        if custom_widget_rendering:
-            WidgetClass = import_string(custom_widget_rendering.widget)
-            widget = WidgetClass(feature=feature, prop=property_key, args=custom_widget_rendering.args)
-            return widget.render()
-
-        return feature.properties.get(property_key)
 
     class Meta:
         verbose_name = _("View")
