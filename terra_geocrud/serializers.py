@@ -120,7 +120,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
         }
 
         # apply widgets
-        for widget in widget_properties.all():
+        for widget in widget_properties.filter(property__in=obj.properties):
             final_properties[widget.property] = render_property_data(feature, widget)
 
         return {
@@ -234,7 +234,7 @@ class CrudFeatureDetailSerializer(FeatureSerializer):
                 for prop in list(remained_properties)
             }
             # apply widgets
-            for widget in widget_properties.all():
+            for widget in widget_properties.filter(property__in=remained_properties):
                 final_properties[widget.property] = render_property_data(obj, widget)
 
             results['__default__'] = {
