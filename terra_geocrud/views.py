@@ -1,7 +1,9 @@
 import mimetypes
 from copy import deepcopy
 
+import reversion
 from django.conf import settings
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
@@ -16,12 +18,28 @@ from geostore.views import FeatureViewSet
 from . import models, serializers, settings as app_settings
 
 
-class CrudGroupViewSet(viewsets.ModelViewSet):
+class ReversionMixin:
+    def perform_create(self, serializer):
+        with transaction.atomic(), reversion.create_revision():
+            response = super().perform_create(serializer)
+            if not self.request.user.is_anonymous:
+                reversion.set_user(self.request.user)
+            return response
+
+    def perform_update(self, serializer):
+        with transaction.atomic(), reversion.create_revision():
+            response = super().perform_update(serializer)
+            if not self.request.user.is_anonymous:
+                reversion.set_user(self.request.user)
+            return response
+
+
+class CrudGroupViewSet(ReversionMixin, viewsets.ModelViewSet):
     queryset = models.CrudGroupView.objects.prefetch_related('crud_views__layer')
     serializer_class = serializers.CrudGroupSerializer
 
 
-class CrudViewViewSet(viewsets.ModelViewSet):
+class CrudViewViewSet(ReversionMixin, viewsets.ModelViewSet):
     queryset = models.CrudView.objects.all()
     serializer_class = serializers.CrudViewSerializer
 
@@ -83,7 +101,7 @@ class CrudRenderTemplateDetailView(DetailView):
         return response
 
 
-class CrudFeatureViewsSet(FeatureViewSet):
+class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
     permission_classes = []
 
     def get_queryset(self):

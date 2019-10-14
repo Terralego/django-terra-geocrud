@@ -7,10 +7,9 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
 from template_model.models import Template
-
 from geostore.serializers import LayerSerializer, FeatureSerializer
-from terra_geocrud.properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
-from terra_geocrud.properties.widgets import render_property_data
+from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
+from .properties.widgets import render_property_data
 from . import models
 from . import settings as app_settings
 
