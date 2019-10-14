@@ -18,19 +18,22 @@ from geostore.views import FeatureViewSet
 from . import models, serializers, settings as app_settings
 
 
+def set_reversion_user(reversion, user):
+    if not user.is_anonymous:
+        reversion.set_user(user)
+
+
 class ReversionMixin:
     def perform_create(self, serializer):
         with transaction.atomic(), reversion.create_revision():
             response = super().perform_create(serializer)
-            if not self.request.user.is_anonymous:
-                reversion.set_user(self.request.user)
+            set_reversion_user(reversion, self.request.user)
             return response
 
     def perform_update(self, serializer):
         with transaction.atomic(), reversion.create_revision():
             response = super().perform_update(serializer)
-            if not self.request.user.is_anonymous:
-                reversion.set_user(self.request.user)
+            set_reversion_user(reversion, self.request.user)
             return response
 
 
