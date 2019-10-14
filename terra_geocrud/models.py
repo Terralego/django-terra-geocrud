@@ -151,11 +151,11 @@ class CrudView(CrudModelMixin):
         verbose_name_plural = _("Views")
         ordering = ('order',)
         permissions = [
-            ("manage_views", _("Can create / edit / delete views / groups and associated layers.")),
-            ("view_feature", _("Can read feature detail.")),
-            ("create_feature", _("Can create feature")),
-            ("change_feature", _("Can change feature")),
-            ("delete_feature", _("Can delete feature")),
+            ("can_manage_views", _("Can create / edit / delete views / groups and associated layers.")),
+            ("can_view_feature", _("Can read feature detail.")),
+            ("can_add_feature", _("Can create feature")),
+            ("can_change_feature", _("Can change feature")),
+            ("can_delete_feature", _("Can delete feature")),
         ]
 
 
