@@ -2,10 +2,12 @@
 CHANGELOG
 =========
 
-0.3.14.dev0     (XXXX-XX-XX)
+0.3.14          (2019-10-14)
 ----------------------------
 
 * Fix default extent as simple array
+* Use django-reversion to keep changes in admin
+* Add functionnal permissions (used only in frontend for the moment)
 
 
 0.3.13          (2019-10-11)
