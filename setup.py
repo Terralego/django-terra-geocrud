@@ -41,13 +41,14 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
+        'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.9',
         'django-geostore>=0.3.8',
         'djangorestframework>=3.10',
         'djangorestframework-gis>=0.14'
         'django>=2.2,<3.0',
-        'django-json-widget',
+        'django-json-widget>=0.2.0',
     ],
     tests_require=tests_require,
     extras_require={

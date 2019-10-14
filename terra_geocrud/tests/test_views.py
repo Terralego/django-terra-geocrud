@@ -3,6 +3,7 @@ import os
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -248,6 +249,8 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                               layer=self.crud_view.layer)
         self.template = factories.TemplateDocxFactory()
         self.crud_view.templates.add(self.template)
+        self.user = User.objects.create(username='user')
+        self.client.force_authenticate(self.user)
 
     def test_list_endpoint(self):
         response_list = self.client.get(reverse('terra_geocrud:feature-list', args=(self.crud_view.layer_id,)),

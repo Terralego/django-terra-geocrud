@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'terra_geocrud',
     'template_model',
     'template_engines',
+    'reversion'
 ]
 
 MIDDLEWARE = [

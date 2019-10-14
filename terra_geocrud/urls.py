@@ -8,7 +8,7 @@ app_name = 'terra_geocrud'
 router = SimpleRouter()
 router.register('groups', views.CrudGroupViewSet)
 router.register('views', views.CrudViewViewSet)
-router.register(r'layer/(?P<layer>[\d\w\-_]+)/features', views.CrudFeatureViewsSet, base_name='feature')
+router.register(r'layers/(?P<layer>[\d\w\-_]+)/features', views.CrudFeatureViewSet, base_name='feature')
 
 urlpatterns = [
     path('api/crud/', include(router.urls)),
