@@ -1,16 +1,13 @@
 from django.contrib import admin
+from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
 
-from geostore.admin import LayerAdmin, FeatureAdmin
 from geostore.models import Layer, Feature
 from reversion.admin import VersionAdmin
 
 from . import models
 from .jsoneditor import JSONEditorWidget
-
-admin.site.unregister(Layer)
-admin.site.unregister(Feature)
 
 
 @admin.register(models.CrudGroupView)
@@ -59,14 +56,21 @@ class CrudViewAdmin(VersionAdmin):
 
 
 @admin.register(Layer)
-class CrudLayerAdmin(VersionAdmin, LayerAdmin):
+class CrudLayerAdmin(VersionAdmin, admin.ModelAdmin):
+    list_display = ('pk', 'name', 'geom_type', 'layer_groups')
+    list_filter = ('geom_type', 'layer_groups')
+    search_fields = ('pk', 'name')
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget},
     }
 
 
 @admin.register(Feature)
-class CrudFeatureAdmin(VersionAdmin, FeatureAdmin):
+class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
+    list_max_show_all = 50
+    list_display = ('pk', 'identifier', 'layer', 'source', 'target')
+    list_filter = ('layer', )
+    search_fields = ('pk', 'identifier', )
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget},
     }

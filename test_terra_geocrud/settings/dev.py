@@ -5,7 +5,6 @@ TEST = False
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS += (
-    'drf_yasg',
     'debug_toolbar',
 )
 
