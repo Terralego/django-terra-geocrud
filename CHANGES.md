@@ -5,6 +5,10 @@ CHANGELOG
 0.3.17.dev0     (XXXX-XX-XX)
 ----------------------------
 
+News:
+
+* Admin is not longer activated by default. Please configure in your project
+
 
 0.3.16          (2019-10-15)
 ----------------------------

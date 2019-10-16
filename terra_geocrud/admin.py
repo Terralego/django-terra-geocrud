@@ -2,15 +2,11 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
-
-from geostore.models import Layer, Feature
 from reversion.admin import VersionAdmin
 
-from . import models
-from .jsoneditor import JSONEditorWidget
+from . import models, widgets
 
 
-@admin.register(models.CrudGroupView)
 class CrudGroupViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram']
 
@@ -29,7 +25,6 @@ class PropertyDisplayRenderingTabularInline(admin.TabularInline):
     extra = 0
 
 
-@admin.register(models.CrudView)
 class CrudViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
@@ -43,34 +38,25 @@ class CrudViewAdmin(VersionAdmin):
         ("Other settings", {'fields': (('map_style', 'settings'),)}),
     )
 
-    def get_readonly_fields(self, request, obj=None):
-        ro_fields = super().get_readonly_fields(request, obj=obj)
-        if obj and obj.pk:
-            ro_fields += ['layer']
-
-        return ro_fields
-
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
 
 
-@admin.register(Layer)
-class CrudLayerAdmin(VersionAdmin, admin.ModelAdmin):
+class CrudLayerAdmin(VersionAdmin):
     list_display = ('pk', 'name', 'geom_type', 'layer_groups')
     list_filter = ('geom_type', 'layer_groups')
     search_fields = ('pk', 'name')
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
 
 
-@admin.register(Feature)
 class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     list_max_show_all = 50
     list_display = ('pk', 'identifier', 'layer', 'source', 'target')
     list_filter = ('layer', )
     search_fields = ('pk', 'identifier', )
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }

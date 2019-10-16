@@ -41,11 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_json_widget',
-    'geostore',
-    'terra_geocrud',
     'template_model',
     'template_engines',
-    'reversion'
+    'geostore',
+    'terra_geocrud',
+    'test_terra_geocrud.test_app'
 ]
 
 MIDDLEWARE = [
