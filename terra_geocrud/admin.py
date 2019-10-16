@@ -12,6 +12,7 @@ class CrudGroupViewAdmin(VersionAdmin):
 
 
 class FeatureDisplayGroupTabularInline(admin.TabularInline):
+    classes = ('collapse', )
     verbose_name = _('Display group')
     verbose_name_plural = _('Display groups for feature property display and form.')
     model = models.FeaturePropertyDisplayGroup
@@ -19,6 +20,7 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
 
 
 class PropertyDisplayRenderingTabularInline(admin.TabularInline):
+    classes = ('collapse', )
     verbose_name = _('Custom widget')
     verbose_name_plural = _('Custom widgets for property content display rendering')
     model = models.PropertyDisplayRendering
@@ -32,15 +34,30 @@ class CrudViewAdmin(VersionAdmin):
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
-        ('Feature properties', {'fields': ('properties', 'default_list_properties', 'feature_title_property')}),
-        ("Document generation", {'fields': ('templates',)}),
-        ("Schema", {'fields': ('ui_schema',)}),
-        ("Other settings", {'fields': (('map_style', 'settings'),)}),
+        (_('UI schema & properties'), {
+            'fields': ('properties', 'default_list_properties', 'feature_title_property', 'ui_schema'),
+            'classes': ('collapse', )
+        }),
+        (_("Document generation"), {
+            'fields': ('templates',),
+            'classes': ('collapse', )
+        }),
+        (_("Other settings"), {
+            'fields': (('map_style', 'settings'),),
+            'classes': ('collapse', )
+        }),
     )
 
     formfield_overrides = {
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
+
+    def get_readonly_fields(self, request, obj=None):
+        ro_fields = super().get_readonly_fields(request, obj=obj)
+        if obj and obj.pk:
+            # dont change layer after creation
+            ro_fields.append('layer')
+        return ro_fields
 
 
 class CrudLayerAdmin(VersionAdmin):
