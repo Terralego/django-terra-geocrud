@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_json_widget',
     'template_model',
     'template_engines',
+    'reversion',
     'geostore',
     'terra_geocrud',
     'test_terra_geocrud.test_app'
