@@ -2,10 +2,16 @@
 CHANGELOG
 =========
 
-0.3.16.dev0          (2019-10-14)
+0.3.16          (2019-10-15)
 ----------------------------
 
+Fixes:
 
+* fix admin with custom geostore admin
+
+News:
+
+* Add french translations
 
 0.3.15          (2019-10-14)
 ----------------------------
