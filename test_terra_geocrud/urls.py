@@ -4,7 +4,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/crud/', include('terra_geocrud.urls')),
-    path('api/', include('geostore.urls')),
+    path('api/geostore/', include('geostore.urls')),
 ]
 
 try:

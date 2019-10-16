@@ -37,8 +37,8 @@ In your project :
     urlpatterns = [
         ...
         # some urls in geostore are required by geocrud
-        path('api/', include('geostore.urls')),
-        path('', include('terra_geocrud.urls', namespace='terra_geocrud')),
+        path('api/geostore/', include('geostore.urls')),
+        path('api/crud/', include('terra_geocrud.urls')),
         ...
     ]
 
