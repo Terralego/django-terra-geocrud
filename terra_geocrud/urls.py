@@ -11,9 +11,9 @@ router.register('views', views.CrudViewViewSet)
 router.register(r'layers/(?P<layer>[\d\w\-_]+)/features', views.CrudFeatureViewSet, base_name='feature')
 
 urlpatterns = [
-    path('api/crud/', include(router.urls)),
-    path('api/crud/settings/', views.CrudSettingsApiView.as_view(), name="settings"),
+    path('', include(router.urls)),
+    path('settings/', views.CrudSettingsApiView.as_view(), name="settings"),
     # template rendering
-    path('api/crud/template/<template_pk>/render/<pk>/',
+    path('template/<template_pk>/render/<pk>/',
          views.CrudRenderTemplateDetailView.as_view(), name='render-template'),
 ]
