@@ -1,0 +1,107 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-15 11:46+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Display group"
+msgstr ""
+
+msgid "Display groups for feature property display and form."
+msgstr ""
+
+msgid "Custom widget"
+msgstr ""
+
+msgid "Custom widgets for property content display rendering"
+msgstr ""
+
+msgid "Display name in left menu"
+msgstr ""
+
+msgid "Order entry in left menu"
+msgstr ""
+
+msgid "Picto displayed in left menu"
+msgstr ""
+
+msgid "Group"
+msgstr ""
+
+msgid "Groups"
+msgstr ""
+
+msgid "Group this entry in left menu"
+msgstr ""
+
+msgid "Available templates for layer features document generation"
+msgstr ""
+
+msgid "Custom mapbox style for this entry"
+msgstr ""
+
+msgid ""
+"Custom ui:schema style for this entry.\n"
+"                                         https://react-jsonschema-form."
+"readthedocs.io/en/latest/form-customization/"
+msgstr ""
+
+msgid "Schema property used to define feature title."
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+msgid "Views"
+msgstr ""
+
+msgid "Can create / edit / delete views / groups and associated layers."
+msgstr ""
+
+msgid "Can read feature detail."
+msgstr ""
+
+msgid "Can create feature"
+msgstr ""
+
+msgid "Can change feature"
+msgstr ""
+
+msgid "Can delete feature"
+msgstr ""
+
+msgid "Feature properties display group"
+msgstr ""
+
+msgid "Feature properties display groups"
+msgstr ""
+
+msgid "Custom feature property rendering"
+msgstr ""
+
+msgid "Custom feature properties rendering"
+msgstr ""
+
+msgid "Url endpoint for view's features"
+msgstr ""
+
+msgid ""
+"Available properties for feature datatable. Ordered, {name: {title, type}}"
+msgstr ""
+
+msgid "Unclassified"
+msgstr ""
