@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-15 11:46+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Display group"
+msgstr "Groupe d'affichage"
+
+msgid "Display groups for feature property display and form."
+msgstr "Group de propriété pour l'affichage / formulaire de features"
+
+msgid "Custom widget"
+msgstr "Rendu personnalisé"
+
+msgid "Custom widgets for property content display rendering"
+msgstr "Rendu personnalisé pour l'affichage des propriétés d'une feature"
+
+msgid "Display name in left menu"
+msgstr "Affiche le nom dans le menu de gauche"
+
+msgid "Order entry in left menu"
+msgstr "Ordonne l'entrée dans le menu de gauche"
+
+msgid "Picto displayed in left menu"
+msgstr "Image utilisée dans le menu de gauche"
+
+msgid "Group"
+msgstr "Groupe"
+
+msgid "Groups"
+msgstr "Groupes"
+
+msgid "Group this entry in left menu"
+msgstr "Grouper cette entrée dans le menu de gauche"
+
+msgid "Available templates for layer features document generation"
+msgstr "Gabarits disponible pour la génération de documents"
+
+msgid "Custom mapbox style for this entry"
+msgstr "Style mapbox personnalisé"
+
+msgid ""
+"Custom ui:schema style for this entry.\n"
+"                                         https://react-jsonschema-form."
+"readthedocs.io/en/latest/form-customization/"
+msgstr ""
+"ui:schema personnalisé.\n"
+"                                         https://react-jsonschema-form."
+"readthedocs.io/en/latest/form-customization/"
+
+msgid "Schema property used to define feature title."
+msgstr "Propriété du schema utilisée pour le titre de la feature"
+
+msgid "View"
+msgstr "Vue"
+
+msgid "Views"
+msgstr "Vues"
+
+msgid "Can create / edit / delete views / groups and associated layers."
+msgstr ""
+"Peut créer / éditier / supprimer les vues / groupes et layers associés."
+
+msgid "Can read feature detail."
+msgstr "Peut lire les détails d'une feature"
+
+msgid "Can create feature"
+msgstr "Peut créer des features"
+
+msgid "Can change feature"
+msgstr "Peut modifier une feature"
+
+msgid "Can delete feature"
+msgstr "Peut supprimer une feature"
+
+msgid "Feature properties display group"
+msgstr "Groupe d'affichage de propriétés"
+
+msgid "Feature properties display groups"
+msgstr "Groupes d'affichage de propriétés"
+
+msgid "Custom feature property rendering"
+msgstr "Rendu perssonalisé de propriété"
+
+msgid "Custom feature properties rendering"
+msgstr "Rendus personnalisés de propriétés"
+
+msgid "Url endpoint for view's features"
+msgstr "URL de la liste des features de la vue."
+
+msgid ""
+"Available properties for feature datatable. Ordered, {name: {title, type}}"
+msgstr "Propriétés disponibles pour la liste des features"
+
+msgid "Unclassified"
+msgstr "Non classé"
