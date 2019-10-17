@@ -28,9 +28,6 @@ install:
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
 - pip install codecov
-- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-- chmod +x ./cc-test-reporter
-- ./cc-test-reporter before-build
 
 before_script:
 - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U
@@ -47,8 +44,7 @@ script:
 - coverage run ./manage.py test --settings=test_terra_geocrud.settings
 
 after_script:
-  - coverage xml
-  - ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT
+  - codecov
 
 jobs:
   include:
