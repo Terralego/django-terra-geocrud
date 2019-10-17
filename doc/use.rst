@@ -1,19 +1,27 @@
 Example of use
 ==============
 
-- By default, api endpoints are available under
+- TERRA_GEOCRUD provide its own settings url to terralego apps via
 
+example:
 ::
 
-    /api/crud/
+  /api/settings
 
-- There are 4 endpoint:
+  {
+    'CRUD': '/api/crud/settings/'
+  }
+
+Settings provide default config values, and formatted list of crud group and views, ready to be displayed in frontend left menu.
+
+
+- There are 4 endpoint in GEOCRUD API:
 
 ::
-    /api/crud/settings/                     -> get ordered menu with views classified by group or not, and basic map settings
-    /api/crud/groups/                       -> manage groups of CRUD views
-    /api/crud/views/                        -> manage CRUD views (a view creation create its associated layer)
-    /api/crud/template/<template_pk>/render/<pk>/ -> fill a template with a feature
+    settings/                     -> get ordered menu with views classified by group or not, and basic map settings
+    groups/                       -> manage groups of CRUD views
+    views/                        -> manage CRUD views (a view creation create its associated layer)
+    template/<template_pk>/render/<pk>/ -> fill a template with a feature
 
 - A command is available to create default views for each existing layer
 
@@ -31,4 +39,5 @@ Example of use
 
 ## ADMIN
 
-* access to /admin/terra_geocrud/
+* Some classes are provided to help you to manage Crud views / groups / layers and feature through django admin.
+* You need to register your wanted ModelAdmin in your project

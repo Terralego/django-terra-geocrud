@@ -11,9 +11,12 @@ In your project :
     INSTALLED_APPS = [
         ...
         # apps required by CRUD
-        'geostore',
-        'template_model',
-        'template_engines',
+        'geostore',  # store geographic data
+        'template_model',  # store template in model
+        'template_engines',  # generate odt and docx templates
+        'rest_framework',  # if you want to try api HTML interface
+        'django_json_widget',  # if you want to use django admin
+        'reversion',  # used to store every change on data (run ./manage.py createinitialrevisions first)
         # CRUD app
         'terra_geocrud',
         ...
@@ -33,7 +36,9 @@ In your project :
 
     urlpatterns = [
         ...
-        path('', include('terra_geocrud.urls', namespace='terra_geocrud')),
+        # some urls in geostore are required by geocrud
+        path('api/geostore/', include('geostore.urls')),
+        path('api/crud/', include('terra_geocrud.urls')),
         ...
     ]
 
@@ -62,7 +67,32 @@ Settings should be overrided  with TERRA_GEOCRUD settings in your project settin
 
     ...
     TERRA_GEOCRUD = {
-        'EXTENT': [[-90.0, -180.0], [90.0, 180.0]],  # default value for map extent. API serialize this for layer extent if there is no features in it (as default)
-
+        # default value for map extent. API serialize this for layer extent if there is no features in it (as default)
+        'EXTENT': [-90.0, -180.0, 90.0, 180.0],
+        # default storage for file stored in json properties. It is recommended to configure a private web storage in your project (as S3Storage -> see django-storages)
+        'DATA_FILE_STORAGE_CLASS': 'django.core.files.storage.FileSystemStorage',
+        # default mapbox style provided by api if no custom style defined in crud view
+        'STYLES': {
+            'line': {
+                'type': 'line',
+                'paint': {
+                    'line-color': '#000',
+                    'line-width': 3
+                }
+            },
+            'point': {
+                'type': 'circle',
+                'paint': {
+                    'circle-color': '#000',
+                    'circle-radius': 8
+                }
+            },
+            'polygon': {
+                'type': 'fill',
+                'paint': {
+                    'fill-color': '#000'
+                }
+            },
+        }
     }
     ...
