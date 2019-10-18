@@ -184,22 +184,6 @@ class CrudSettingsViewTestCase(TestCase):
         data = self.response.json()
         self.assertEqual(len(data['menu']), models.CrudGroupView.objects.count() + 1)
 
-    def test_endpoint_config_without_settings(self):
-        """
-        Without extra settings, config section is empty
-        """
-        data = self.response.json()
-        self.assertDictEqual(data['config'], app_settings._DEFAULT_TERRA_GEOCRUD)
-
-    @override_settings(TERRA_GEOCRUD={"EXTENT": [[0, 90], [90, 180]]})
-    def test_endpoint_config_with_settings(self):
-        """
-        Extra TERRA_GEOCRUD settings are added to config section
-        """
-        self.response = self.client.get(reverse('terra_geocrud:settings'))
-        data = self.response.json()
-        self.assertEqual(data['config']['EXTENT'], [[0, 90], [90, 180]])
-
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudRenderTemplateDetailViewTestCase(APITestCase):

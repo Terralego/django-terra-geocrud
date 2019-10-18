@@ -27,6 +27,8 @@ _DEFAULT_TERRA_GEOCRUD = {
                 'fill-color': '#000'
             }
         },
+    },
+    "background_styles": {
     }
 }
 _DEFAULT_TERRA_GEOCRUD.update(getattr(settings, 'TERRA_GEOCRUD', {}))
