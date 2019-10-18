@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from pathlib import Path
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -107,6 +108,30 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
         return serializers.CrudFeatureListSerializer
+
+    @action(detail=True)
+    def pictures(self, request, *args, **kwargs):
+        pictures = self.get_object().pictures.all()
+        ids_categories = pictures.values_list('category_id', flat=True)
+        categories = models.AttachmentCategory.objects.filter(pk__in=ids_categories).distinct()
+        context = self.get_serializer_context()
+        context['pictures'] = pictures
+        serializer = serializers.FeaturePictureCategorySerializer(categories,
+                                                                  many=True,
+                                                                  context=context)
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def attachments(self, request, *args, **kwargs):
+        attachments = self.get_object().attachments.all()
+        ids_categories = attachments.values_list('category_id', flat=True)
+        categories = models.AttachmentCategory.objects.filter(pk__in=ids_categories).distinct()
+        context = self.get_serializer_context()
+        context['attachments'] = attachments
+        serializer = serializers.FeatureAttachmentCategorySerializer(categories,
+                                                                     many=True,
+                                                                     context=context)
+        return Response(serializer.data)
 
 
 class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):

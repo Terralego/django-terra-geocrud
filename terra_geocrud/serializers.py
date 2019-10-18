@@ -264,24 +264,12 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     pictures = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
-        pictures = obj.pictures.all()
-        ids_categories = pictures.values_list('category_id', flat=True)
-        categories = models.AttachmentCategory.objects.filter(pk__in=ids_categories).distinct()
-        serializer = FeaturePictureCategorySerializer(categories,
-                                                      many=True,
-                                                      context={'request': self.context.get('request'),
-                                                               'pictures': pictures})
-        return serializer.data
+        return reverse('terra_geocrud:feature-pictures', kwargs={'layer': obj.layer_id,
+                                                                 'identifier': obj.identifier})
 
     def get_attachments(self, obj):
-        attachments = obj.attachments.all()
-        ids_categories = attachments.values_list('category_id', flat=True)
-        categories = models.AttachmentCategory.objects.filter(pk__in=ids_categories).distinct()
-        serializer = FeatureAttachmentCategorySerializer(categories,
-                                                         many=True,
-                                                         context={'request': self.context.get('request'),
-                                                                  'attachments': attachments})
-        return serializer.data
+        return reverse('terra_geocrud:feature-attachments', kwargs={'layer': obj.layer_id,
+                                                                    'identifier': obj.identifier})
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
