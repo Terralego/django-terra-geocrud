@@ -21,7 +21,7 @@ class TerraCrudConfig(AppConfig):
         modules.update({
             'CRUD': {
                 "menu": reverse_lazy('terra_geocrud:settings'),
-                "attachment_pictures_categories": reverse_lazy('terra_geocrud:attachment-categories-list'),
+                "attachment_pictures_categories": reverse_lazy('terra_geocrud:attachmentcategory-list'),
                 "attachment_endpoint": reverse_lazy('terra_geocrud:attachment-list'),
                 "picture_endpoint": reverse_lazy('terra_geocrud:picture-list'),
                 "config": default_config
