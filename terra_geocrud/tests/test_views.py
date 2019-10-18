@@ -15,8 +15,9 @@ from rest_framework.test import APITestCase
 from geostore import GeometryTypes
 from geostore.models import Feature
 from terra_geocrud import settings as app_settings
-from terra_geocrud.models import FeaturePropertyDisplayGroup
+from terra_geocrud.models import FeaturePropertyDisplayGroup, PropertyDisplayRendering
 from terra_geocrud.tests import factories
+from .factories import FeaturePictureFactory, FeatureAttachmentFactory
 from .settings import (FEATURE_PROPERTIES, LAYER_COMPOSANTES_SCHEMA,
                        SNAPSHOT_PLAN_DE_GESTION)
 from .. import models
@@ -228,9 +229,19 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                                   properties=['age'])
         self.group_2 = FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
                                                                   properties=['name'])
+        self.display_rendering = PropertyDisplayRendering.objects.create(
+            crud_view=self.crud_view,
+            property='name',
+            widget='terra_geocrud.properties.widgets.DateFormatWidget'
+        )
         self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
-                                              properties={"age": 10, "name": "jec", "country": "slovenija"},
+                                              properties={
+                                                  "age": 10,
+                                                  "name": "2012-01-01",
+                                                  "country": "slovenija"},
                                               layer=self.crud_view.layer)
+        self.pictures = FeaturePictureFactory.create_batch(10, feature=self.feature)
+        self.attachments = FeatureAttachmentFactory.create_batch(10, feature=self.feature)
         self.template = factories.TemplateDocxFactory()
         self.crud_view.templates.add(self.template)
         self.user = User.objects.create(username='user')
@@ -284,3 +295,15 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         self.assertDictEqual(feature.properties, {"name": "toto",
                                                   "age": 10,
                                                   "country": "France"})
+
+    def test_attachment_endpoint(self):
+        response = self.client.get(reverse('terra_geocrud:feature-attachments',
+                                           args=(self.feature.layer_id,
+                                                 self.feature.identifier)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_picture_endpoint(self):
+        response = self.client.get(reverse('terra_geocrud:feature-pictures',
+                                           args=(self.feature.layer_id,
+                                                 self.feature.identifier)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

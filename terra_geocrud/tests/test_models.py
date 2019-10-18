@@ -6,9 +6,11 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
 from rest_framework import status
+from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
 
 from geostore.models import Feature
-from terra_geocrud.models import PropertyDisplayRendering
+from terra_geocrud.models import PropertyDisplayRendering, AttachmentCategory, AttachmentMixin, \
+    feature_attachment_directory_path, feature_picture_directory_path
 from terra_geocrud.tests import factories
 from .. import models
 
@@ -152,3 +154,43 @@ class PropertyDisplayRenderingTestCase(TestCase):
                 widget='terra_geocrud.properties.widgets.DataUrlToImgWidgetTestCase'
             )
             prop.clean()
+
+
+class AttachmentCategoryTestCase(TestCase):
+    def setUp(self) -> None:
+        self.category = AttachmentCategory.objects.create(name='cat test')
+
+    def test_str(self):
+        self.assertEqual(self.category.name, str(self.category))
+
+
+class AttachmentMixinTestCase(TestCase):
+    def setUp(self) -> None:
+        self.category = AttachmentCategory.objects.create(name='cat test')
+        self.mixin = AttachmentMixin(category=self.category, legend='test')
+
+    def test_str(self):
+        self.assertEqual(str(self.mixin), 'test - (cat test)')
+
+
+class AttachmentTestCase(TestCase):
+    def setUp(self) -> None:
+        self.crud_view = CrudViewFactory()
+        self.feature = Feature.objects.create(
+            layer=self.crud_view.layer,
+            properties={'name': 'toto'},
+            geom=Point(0, 0)
+        )
+        self.feature_picture = FeaturePictureFactory(feature=self.feature)
+
+    def test_feature_attachment_directory_path(self):
+        self.assertEqual(feature_attachment_directory_path(self.feature_picture, 'toto.jpg'),
+                         f'terra_geocrud/features/{self.feature.pk}/attachments/toto.jpg')
+
+    def test_feature_picture_directory_path(self):
+        self.assertEqual(feature_picture_directory_path(self.feature_picture, 'toto.jpg'),
+                         f'terra_geocrud/features/{self.feature.pk}/pictures/toto.jpg')
+
+    def test_picture_thumbnail(self):
+        thumbnail = self.feature_picture.thumbnail
+        self.assertIsNotNone(thumbnail)

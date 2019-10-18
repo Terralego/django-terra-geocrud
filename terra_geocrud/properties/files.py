@@ -45,12 +45,4 @@ def get_storage_file_url(prop, value, feature):
     storage = get_storage()
     file_info, file_content = get_info_content(value)
     storage_file_path = get_storage_file_path(prop, value, feature)
-
-    if storage_file_path:
-        if not storage.exists(storage_file_path):
-            # store it
-            store_data_file(storage, storage_file_path, file_content)
-
-        return storage.url(storage_file_path)
-    else:
-        return None
+    return storage.url(storage_file_path)

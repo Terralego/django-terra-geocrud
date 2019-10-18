@@ -49,6 +49,8 @@ setup(
         'djangorestframework-gis>=0.14'
         'django>=2.2',
         'django-json-widget>=0.2.0',
+        'pillow>=6',
+        'sorl-thumbnail',
     ],
     tests_require=tests_require,
     extras_require={

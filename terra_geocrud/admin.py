@@ -3,6 +3,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
+from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models, widgets
 
@@ -69,11 +70,33 @@ class CrudLayerAdmin(VersionAdmin):
     }
 
 
+class FeaturePictureInline(AdminInlineImageMixin, admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _('Picture')
+    verbose_name_plural = _('Pictures')
+    model = models.FeaturePicture
+    extra = 0
+
+
+class FeatureAttachmentInline(admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _('Attachment')
+    verbose_name_plural = _('Attachments')
+    model = models.FeatureAttachment
+    extra = 0
+
+
 class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     list_max_show_all = 50
     list_display = ('pk', 'identifier', 'layer', 'source', 'target')
     list_filter = ('layer', )
     search_fields = ('pk', 'identifier', )
+    inlines = (FeaturePictureInline, FeatureAttachmentInline)
     formfield_overrides = {
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
+
+
+class AttachmentCategoryAdmin(VersionAdmin):
+    list_display = ('pk', 'name', 'pictogram')
+    search_fields = ('pk', 'name', )

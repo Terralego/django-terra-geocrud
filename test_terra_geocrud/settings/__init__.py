@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'template_model',
     'template_engines',
     'reversion',
+    'sorl.thumbnail',
     'geostore',
     'terra_geocrud',
     'test_terra_geocrud.test_app'
