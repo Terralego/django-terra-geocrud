@@ -14,9 +14,7 @@ class TerraCrudConfig(AppConfig):
         # in terra lego context, we assume to render module url
         terra_settings = getattr(settings, 'TERRA_APPLIANCE_SETTINGS', {})
         modules = terra_settings.get('modules', {})
-        modules.update({
-            'CRUD': reverse_lazy('terra_geocrud:settings')
-        modules = terra_settings.get('modules', {})
+
         default_config = deepcopy(app_settings.TERRA_GEOCRUD)
         default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
 
@@ -27,5 +25,4 @@ class TerraCrudConfig(AppConfig):
             }
         })
         terra_settings.update({'modules': modules})
-        terra_settings.update(modules)
         setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
