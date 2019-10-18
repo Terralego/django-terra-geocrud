@@ -101,9 +101,24 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.select_related('layer').prefetch_related('layer__crud_view__templates')
+        return qs.prefetch_related('layer__crud_view__templates')
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
         return serializers.CrudFeatureListSerializer
+
+
+class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):
+    queryset = models.AttachmentCategory.objects.all()
+    serializer_class = serializers.AttachmentCategorySerializer
+
+
+class CrudFeatureAttachmentViewSet(ReversionMixin, viewsets.ModelViewSet):
+    queryset = models.FeatureAttachment.objects.all()
+    serializer_class = serializers.FeatureAttachmentSerializer
+
+
+class CrudFeaturePictureViewSet(ReversionMixin, viewsets.ModelViewSet):
+    queryset = models.FeaturePicture.objects.all()
+    serializer_class = serializers.FeaturePictureSerializer

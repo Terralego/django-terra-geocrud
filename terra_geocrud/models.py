@@ -7,9 +7,12 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from sorl.thumbnail import ImageField, get_thumbnail
 
-from terra_geocrud.properties.widgets import get_widgets_choices
+from geostore.mixins import BaseUpdatableModel
 from . import settings as app_settings
+from .properties.files import get_storage
+from .properties.widgets import get_widgets_choices
 
 
 class CrudModelMixin(models.Model):
@@ -229,4 +232,63 @@ class PropertyDisplayRendering(models.Model):
         ordering = ('crud_view', 'property',)
         unique_together = (
             ('crud_view', 'property'),
+        )
+
+
+class AttachmentCategory(models.Model):
+    name = models.CharField(unique=True, max_length=255)
+    pictogram = models.ImageField(upload_to='crud/attachments_category/pictograms', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Attachment category')
+        verbose_name_plural = _('Attachment categories')
+
+
+class AttachmentMixin(BaseUpdatableModel):
+    category = models.ForeignKey(AttachmentCategory, on_delete=models.PROTECT)
+    legend = models.CharField(max_length=250)
+
+    def __str__(self):
+        return f"{self.legend} - ({self.category})"
+
+    class Meta:
+        abstract = True
+
+
+def feature_attachment_directory_path(instance, filename):
+    return f'terra_geocrud/features/{instance.feature_id}/attachments/{filename}'
+
+
+def feature_picture_directory_path(instance, filename):
+    return f'terra_geocrud/features/{instance.feature_id}/pictures/{filename}'
+
+
+class FeatureAttachment(AttachmentMixin):
+    feature = models.ForeignKey('geostore.Feature', on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to=feature_attachment_directory_path, storage=get_storage())
+
+    class Meta:
+        verbose_name = _('Feature attachment')
+        verbose_name_plural = _('Feature attachments')
+        ordering = (
+            'feature', 'category', '-updated_at'
+        )
+
+
+class FeaturePicture(AttachmentMixin):
+    feature = models.ForeignKey('geostore.Feature', on_delete=models.CASCADE, related_name='pictures')
+    image = ImageField(upload_to=feature_picture_directory_path, storage=get_storage())
+
+    @cached_property
+    def thumbnail(self):
+        return get_thumbnail(self.image, '350x250', crop='noop', quality=90)
+
+    class Meta:
+        verbose_name = _('Feature picture')
+        verbose_name_plural = _('Feature pictures')
+        ordering = (
+            'feature', 'category', '-updated_at'
         )

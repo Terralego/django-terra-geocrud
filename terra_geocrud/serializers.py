@@ -1,17 +1,30 @@
 from collections import OrderedDict
 from copy import deepcopy
 
+from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
 from template_model.models import Template
+
 from geostore.serializers import LayerSerializer, FeatureSerializer
-from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
-from .properties.widgets import render_property_data
 from . import models
 from . import settings as app_settings
+from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
+from .properties.widgets import render_property_data
+
+
+class BaseUpdatableMixin(serializers.ModelSerializer):
+    created_at = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField()
+
+    def get_created_at(self, obj):
+        return date(obj.created_at, 'SHORT_DATETIME_FORMAT')
+
+    def get_updated_at(self, obj):
+        return date(obj.updated_at, 'SHORT_DATETIME_FORMAT')
 
 
 class LayerViewSerializer(LayerSerializer):
@@ -134,7 +147,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
         fields = ('title', 'slug', 'order', 'pictogram', 'properties')
 
 
-class CrudFeatureListSerializer(FeatureSerializer):
+class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
     geom = None
     detail_url = serializers.SerializerMethodField()
     extent = serializers.SerializerMethodField()
@@ -183,12 +196,92 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
         model = Template
 
 
-class CrudFeatureDetailSerializer(FeatureSerializer):
+class FeaturePictureSerializer(BaseUpdatableMixin):
+    thumbnail = serializers.ImageField()
+    action_url = serializers.SerializerMethodField()
+
+    def get_action_url(self, obj):
+        return reverse('terra_geocrud:picture-detail', args=(obj.pk, ))
+
+    class Meta:
+        model = models.FeaturePicture
+        fields = ('id', 'legend', 'image', 'thumbnail', 'action_url', 'created_at', 'updated_at')
+
+
+class FeatureAttachmentSerializer(BaseUpdatableMixin):
+    action_url = serializers.SerializerMethodField()
+
+    def get_action_url(self, obj):
+        return reverse('terra_geocrud:attachment-detail', args=(obj.pk, ))
+
+    class Meta:
+        model = models.FeatureAttachment
+        fields = ('id', 'legend', 'file', 'action_url', 'created_at', 'updated_at')
+
+
+class AttachmentCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AttachmentCategory
+        fields = '__all__'
+
+
+class FeatureAttachmentCategorySerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
+    create_url = None
+
+    def get_data(self, obj):
+        qs = self.context.get('attachments').filter(category=obj)
+        serializer = FeatureAttachmentSerializer(qs, many=True,
+                                                 context=self.context)
+        return serializer.data
+
+    class Meta:
+        model = models.AttachmentCategory
+        fields = '__all__'
+
+
+class FeaturePictureCategorySerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
+
+    def get_data(self, obj):
+        qs = self.context.get('pictures').filter(category=obj)
+        serializer = FeaturePictureSerializer(qs, many=True,
+                                              context=self.context)
+        return serializer.data
+
+    class Meta:
+        model = models.AttachmentCategory
+        fields = '__all__'
+
+
+class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     title = serializers.SerializerMethodField()
     geom = geo_serializers.GeometryField()
     documents = serializers.SerializerMethodField()
     display_properties = serializers.SerializerMethodField()
     properties = serializers.JSONField()
+    attachments = serializers.SerializerMethodField()
+    pictures = serializers.SerializerMethodField()
+
+    def get_pictures(self, obj):
+        pictures = obj.pictures.all()
+        ids_categories = pictures.values_list('category_id', flat=True)
+        categories = models.AttachmentCategory.objects.filter(pk__in=ids_categories).distinct()
+        serializer = FeaturePictureCategorySerializer(categories,
+                                                      many=True,
+                                                      context={'request': self.context.get('request'),
+                                                               'pictures': pictures})
+        return serializer.data
+
+    def get_attachments(self, obj):
+        attachments = obj.attachments.all()
+        ids_categories = attachments.values_list('category_id', flat=True)
+        categories = models.AttachmentCategory.objects.filter(pk__in=ids_categories).distinct()
+        serializer = FeatureAttachmentCategorySerializer(categories,
+                                                         many=True,
+                                                         context={'request': self.context.get('request'),
+                                                                  'attachments': attachments})
+        return serializer.data
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
