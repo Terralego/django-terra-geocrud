@@ -27,7 +27,7 @@ _DEFAULT_TERRA_GEOCRUD = {
                 'fill-color': '#000'
             }
         },
-    }
+    },
 }
 _DEFAULT_TERRA_GEOCRUD.update(getattr(settings, 'TERRA_GEOCRUD', {}))
 TERRA_GEOCRUD = deepcopy(_DEFAULT_TERRA_GEOCRUD)

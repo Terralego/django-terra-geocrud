@@ -1,8 +1,6 @@
 import mimetypes
-from copy import deepcopy
 
 import reversion
-from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
@@ -15,7 +13,7 @@ from rest_framework.views import APIView
 
 from geostore.models import Feature
 from geostore.views import FeatureViewSet
-from . import models, serializers, settings as app_settings
+from . import models, serializers
 
 
 def set_reversion_user(reversion, user):
@@ -48,11 +46,6 @@ class CrudViewViewSet(ReversionMixin, viewsets.ModelViewSet):
 
 
 class CrudSettingsApiView(APIView):
-    def get_config_section(self):
-        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
-        default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
-        return default_config
-
     def get_menu_section(self):
         groups = models.CrudGroupView.objects.prefetch_related('crud_views__layer',
                                                                'crud_views__feature_display_groups')
@@ -76,7 +69,6 @@ class CrudSettingsApiView(APIView):
     def get(self, request, *args, **kwargs):
         data = {
             "menu": self.get_menu_section(),
-            "config": self.get_config_section(),
         }
         return Response(data)
 
