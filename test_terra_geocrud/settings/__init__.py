@@ -136,15 +136,3 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
-
-
-TERRA_GEOCRUD = {
-    "base_layers": {
-        "accessToken": "pk.eyJ1IjoibWFraW5hY29ycHVzIiwiYSI6ImNqY3E4ZTNwcTFta3ozMm80d2xzY29wM2MifQ.Nwl_FHrWAIQ46s_lY0KNiQ",
-        "backgroundStyle": "mapbox://styles/makinacorpus/cjx4u80lx1lbr1clfcpadcqh3",
-        "center": [2,46],
-        "zoom": 5,
-        "maxZoom": 18,
-        "minZoom": 3
-    }
-}
