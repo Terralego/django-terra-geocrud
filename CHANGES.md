@@ -5,7 +5,7 @@ CHANGELOG
 0.3.18.dev0     (XXXX-XX-XX)
 ----------------------------
 
-* Imporve integration in terralego settings system
+* Improve integration in terralego settings system
 
 0.3.17          (2019-10-17)
 ----------------------------
