@@ -2,10 +2,12 @@
 CHANGELOG
 =========
 
-0.3.18.dev0     (XXXX-XX-XX)
+0.3.18          (2019-10-18)
 ----------------------------
 
 * Improve integration in terralego settings system
+* Manage attachments and pictures to features
+
 
 0.3.17          (2019-10-17)
 ----------------------------
