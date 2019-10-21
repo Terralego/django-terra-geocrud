@@ -2,8 +2,11 @@
 CHANGELOG
 =========
 
-0.3.19.dev0     (XXXX-XX-XX)
+0.3.19          (2019-10-21)
 ----------------------------
+
+* Picture and attachments are now behind feature
+* SPlit public / private settings
 
 
 0.3.18          (2019-10-18)
