@@ -28,7 +28,7 @@ install:
 - curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 - sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 - sudo apt-get update
-- sudo apt-get -y postgresql-11 postgresql-11-postgis-25 postgresql-11-pgrouting
+- sudo apt-get -y install postgresql-11 postgresql-11-postgis-25 postgresql-11-pgrouting
 #
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
