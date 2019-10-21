@@ -8,14 +8,15 @@ python:
 - '3.6'
 - '3.7'
 
-services:
-- postgresql
+## workaround for pgrouting
+#services:
+#- postgresql
 
-addons:
-  postgresql: '10'
-  apt:
-    packages:
-    - postgresql-10-postgis-2.4
+#addons:
+#  postgresql: '10'
+#  apt:
+#    packages:
+#    - postgresql-10-postgis-2.4
 
 stages:
 - lint
@@ -23,6 +24,12 @@ stages:
 - deploy
 
 install:
+# workaround for pgrouting
+- curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+- sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+- sudo apt-get update
+- sudo apt-get -y postgresql-11 postgresql-11-postgis-25 postgresql-11-pgrouting
+#
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
 - pip install codecov
@@ -33,7 +40,7 @@ before_script:
 - psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
 - psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
 - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
-#- psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
+- psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
 
 after_failure:
 - pip freeze
