@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.20.dev0     (XXXX-XX-XX)
+0.3.20          (2019-10-21)
 ----------------------------
 
 * Picture and attachments are not grouped anymore
