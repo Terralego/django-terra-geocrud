@@ -1,9 +1,6 @@
-from copy import deepcopy
-
 from django.apps import AppConfig
 from django.conf import settings
 from django.urls import reverse_lazy
-from . import settings as app_settings
 
 
 class TerraCrudConfig(AppConfig):
@@ -14,17 +11,9 @@ class TerraCrudConfig(AppConfig):
         # in terra lego context, we assume to render module url
         terra_settings = getattr(settings, 'TERRA_APPLIANCE_SETTINGS', {})
         modules = terra_settings.get('modules', {})
-
-        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
-        default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
-
         modules.update({
             'CRUD': {
-                "menu": reverse_lazy('terra_geocrud:settings'),
-                "attachment_pictures_categories": reverse_lazy('terra_geocrud:attachmentcategory-list'),
-                "attachment_endpoint": reverse_lazy('terra_geocrud:attachment-list'),
-                "picture_endpoint": reverse_lazy('terra_geocrud:picture-list'),
-                "config": default_config
+                "settings": reverse_lazy('terra_geocrud:settings'),
             }
         })
         terra_settings.update({'modules': modules})

@@ -1,20 +1,23 @@
 import mimetypes
+from copy import deepcopy
 
 import reversion
+from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from pathlib import Path
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from geostore.models import Feature
 from geostore.views import FeatureViewSet
-from . import models, serializers
+from . import models, serializers, settings as app_settings
 
 
 def set_reversion_user(reversion, user):
@@ -68,8 +71,15 @@ class CrudSettingsApiView(APIView):
         return data
 
     def get(self, request, *args, **kwargs):
+        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
+        default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
+
         data = {
             "menu": self.get_menu_section(),
+            "config": {
+                "default": default_config,
+                "attachment_categories": reverse('terra_geocrud:attachmentcategory-list'),
+            }
         }
         return Response(data)
 
@@ -139,11 +149,34 @@ class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):
     serializer_class = serializers.AttachmentCategorySerializer
 
 
-class CrudFeatureAttachmentViewSet(ReversionMixin, viewsets.ModelViewSet):
-    queryset = models.FeatureAttachment.objects.all()
+class BehindFeatureMixin:
+    """ Helper for Feature's related viewsets """
+    filter_backends = (filters.OrderingFilter, filters.SearchFilter)
+    search_fields = ('legend', 'image')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.feature = None
+
+    def get_feature(self):
+        uuid = self.kwargs.get('identifier')
+        if not self.feature and uuid:
+            self.feature = get_object_or_404(Feature, identifier=uuid) if uuid else self.feature
+        return self.feature
+
+    def perform_create(self, serializer):
+        serializer.save(feature=self.get_feature())
+
+
+class CrudFeaturePictureViewSet(ReversionMixin, BehindFeatureMixin, viewsets.ModelViewSet):
+    serializer_class = serializers.FeaturePictureSerializer
+
+    def get_queryset(self):
+        return self.get_feature().pictures.all()
+
+
+class CrudFeatureAttachmentViewSet(ReversionMixin, BehindFeatureMixin, viewsets.ModelViewSet):
     serializer_class = serializers.FeatureAttachmentSerializer
 
-
-class CrudFeaturePictureViewSet(ReversionMixin, viewsets.ModelViewSet):
-    queryset = models.FeaturePicture.objects.all()
-    serializer_class = serializers.FeaturePictureSerializer
+    def get_queryset(self):
+        return self.get_feature().attachments.all()

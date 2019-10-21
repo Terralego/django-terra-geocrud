@@ -197,26 +197,30 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
 
 
 class FeaturePictureSerializer(BaseUpdatableMixin):
-    thumbnail = serializers.ImageField()
+    thumbnail = serializers.ImageField(read_only=True)
     action_url = serializers.SerializerMethodField()
 
     def get_action_url(self, obj):
-        return reverse('terra_geocrud:picture-detail', args=(obj.pk, ))
+        return reverse('terra_geocrud:picture-detail', args=(obj.feature.identifier,
+                                                             obj.pk, ))
 
     class Meta:
         model = models.FeaturePicture
-        fields = ('id', 'legend', 'image', 'thumbnail', 'action_url', 'created_at', 'updated_at')
+        extra_kwargs = {
+        }
+        fields = ('id', 'category', 'legend', 'image', 'thumbnail', 'action_url', 'created_at', 'updated_at')
 
 
 class FeatureAttachmentSerializer(BaseUpdatableMixin):
     action_url = serializers.SerializerMethodField()
 
     def get_action_url(self, obj):
-        return reverse('terra_geocrud:attachment-detail', args=(obj.pk, ))
+        return reverse('terra_geocrud:attachment-detail', args=(obj.feature.identifier,
+                                                                obj.pk, ))
 
     class Meta:
         model = models.FeatureAttachment
-        fields = ('id', 'legend', 'file', 'action_url', 'created_at', 'updated_at')
+        fields = ('id', 'category', 'legend', 'file', 'action_url', 'created_at', 'updated_at')
 
 
 class AttachmentCategorySerializer(serializers.ModelSerializer):
@@ -226,6 +230,7 @@ class AttachmentCategorySerializer(serializers.ModelSerializer):
 
 
 class FeatureAttachmentCategorySerializer(serializers.ModelSerializer):
+    """ serialize a feature attachment category """
     data = serializers.SerializerMethodField()
     create_url = None
 
