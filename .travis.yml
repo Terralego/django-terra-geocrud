@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 
 sudo: required
 
@@ -8,36 +8,18 @@ python:
 - '3.6'
 - '3.7'
 
-## workaround for pgrouting
-#services:
-#- postgresql
-
-addons:
-  postgresql: '10'
-  apt:
-    packages:
-    - postgresql-10-postgis-2.4
-
 stages:
 - lint
 - test
 - deploy
 
 install:
-# workaround for pgrouting
-- sudo apt-get -y install --no-install-recommends postgresql-10-pgrouting
-#
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
 - pip install codecov
 
 before_script:
-- psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U
-  postgres
-- psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
-- psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
-- psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
-- psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
+- sudo docker-compose up postgres
 
 after_failure:
 - pip freeze
