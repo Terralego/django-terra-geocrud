@@ -5,12 +5,14 @@ CHANGELOG
 0.3.20.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Picture and attachments are not grouped anymore
+
 
 0.3.19          (2019-10-21)
 ----------------------------
 
 * Picture and attachments are now behind feature
-* SPlit public / private settings
+* Split public / private settings
 
 
 0.3.18          (2019-10-18)

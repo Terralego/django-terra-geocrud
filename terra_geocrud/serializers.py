@@ -229,36 +229,6 @@ class AttachmentCategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FeatureAttachmentCategorySerializer(serializers.ModelSerializer):
-    """ serialize a feature attachment category """
-    data = serializers.SerializerMethodField()
-    create_url = None
-
-    def get_data(self, obj):
-        qs = self.context.get('attachments').filter(category=obj)
-        serializer = FeatureAttachmentSerializer(qs, many=True,
-                                                 context=self.context)
-        return serializer.data
-
-    class Meta:
-        model = models.AttachmentCategory
-        fields = '__all__'
-
-
-class FeaturePictureCategorySerializer(serializers.ModelSerializer):
-    data = serializers.SerializerMethodField()
-
-    def get_data(self, obj):
-        qs = self.context.get('pictures').filter(category=obj)
-        serializer = FeaturePictureSerializer(qs, many=True,
-                                              context=self.context)
-        return serializer.data
-
-    class Meta:
-        model = models.AttachmentCategory
-        fields = '__all__'
-
-
 class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     title = serializers.SerializerMethodField()
     geom = geo_serializers.GeometryField()
@@ -269,12 +239,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     pictures = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
-        return reverse('terra_geocrud:feature-pictures', kwargs={'layer': obj.layer_id,
-                                                                 'identifier': obj.identifier})
+        return reverse('terra_geocrud:picture-list', kwargs={'identifier': obj.identifier})
 
     def get_attachments(self, obj):
-        return reverse('terra_geocrud:feature-attachments', kwargs={'layer': obj.layer_id,
-                                                                    'identifier': obj.identifier})
+        return reverse('terra_geocrud:attachment-list', kwargs={'identifier': obj.identifier})
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """

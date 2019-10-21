@@ -297,13 +297,11 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                   "country": "France"})
 
     def test_attachment_endpoint(self):
-        response = self.client.get(reverse('terra_geocrud:feature-attachments',
-                                           args=(self.feature.layer_id,
-                                                 self.feature.identifier)))
+        response = self.client.get(reverse('terra_geocrud:attachment-list',
+                                           args=(self.feature.identifier, )))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_picture_endpoint(self):
-        response = self.client.get(reverse('terra_geocrud:feature-pictures',
-                                           args=(self.feature.layer_id,
-                                                 self.feature.identifier)))
+        response = self.client.get(reverse('terra_geocrud:picture-list',
+                                           args=(self.feature.identifier, )))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
