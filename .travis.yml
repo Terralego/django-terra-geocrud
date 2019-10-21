@@ -19,7 +19,8 @@ install:
 - pip install codecov
 
 before_script:
-- sudo docker-compose up postgres
+- sudo docker-compose up postgres -d;
+- sleep 5s;
 
 after_failure:
 - pip freeze
