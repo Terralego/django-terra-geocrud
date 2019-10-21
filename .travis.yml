@@ -12,11 +12,11 @@ python:
 #services:
 #- postgresql
 
-#addons:
-#  postgresql: '10'
-#  apt:
-#    packages:
-#    - postgresql-10-postgis-2.4
+addons:
+  postgresql: '10'
+  apt:
+    packages:
+    - postgresql-10-postgis-2.4
 
 stages:
 - lint
@@ -25,7 +25,7 @@ stages:
 
 install:
 # workaround for pgrouting
-- sudo apt-get -y install postgresql-10 postgresql-10-postgis-2.4 postgresql-10-pgrouting
+- sudo apt-get -y install --no-install-recommends postgresql-10-pgrouting
 #
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
