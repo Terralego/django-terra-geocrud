@@ -33,7 +33,7 @@ before_script:
 - psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
 - psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
 - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
-- psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
+#- psql -d travis_ci_test -c 'CREATE EXTENSION pgrouting;'
 
 after_failure:
 - pip freeze
@@ -47,14 +47,18 @@ after_script:
 jobs:
   include:
   - stage: lint
+    before_script: skip
     install:
     - pip install flake8
     script:
     - flake8 terra_geocrud
+    after_script: skip
+    after_failure: skip
   - stage: deploy
     install: skip
     before_script: skip
     script: skip
+    after_script: skip
     deploy:
       stage: deploy
       provider: pypi
