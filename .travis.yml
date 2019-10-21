@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 
 sudo: required
 
@@ -16,7 +16,6 @@ addons:
   apt:
     packages:
     - postgresql-10-postgis-2.4
-    - postgresql-10-pgrouting
 
 stages:
 - lint
@@ -24,8 +23,6 @@ stages:
 - deploy
 
 install:
-- sudo apt-get update
-- sudo apt install postgresql-11-pgrouting
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
 - pip install codecov
