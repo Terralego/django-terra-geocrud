@@ -5,6 +5,8 @@ CHANGELOG
 0.3.21.dev0      (XXXX-XX-XX)
 ----------------------------
 
+* Add default widget to render array object as table
+
 
 0.3.20          (2019-10-21)
 ----------------------------

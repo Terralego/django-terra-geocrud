@@ -117,3 +117,58 @@ class DateFormatWidgetTestCase(TestCase):
         content = widget.render()
 
         self.assertEqual(content, '31/12/1999')
+
+
+class ArrayObjectTableWidgetTestCase(TestCase):
+    def setUp(self) -> None:
+        self.property_key = 'my_object'
+        self.feature = FeatureFactory(
+            layer__schema={
+                "properties": {
+                    "my_object": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "annee": {
+                                    "type": "string",
+                                    "title": "Année"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "title": "Description"
+                                },
+                            }
+                        }
+                    }
+                }
+            },
+            properties={
+                self.property_key: [
+                    {"annee": "2019", "description": "test"},
+                    {"annee": "2020", "description": "test2"},
+                ]
+            }
+        )
+
+    def test_rendering_without_args(self):
+        widget = widgets.ArrayObjectTableWidget(feature=self.feature, prop=self.property_key)
+        content = widget.render()
+
+        # should formatted as table
+        self.assertHTMLEqual(content,
+                             "<table><thead><tr><th>Année</th><th>Description</th></tr></thead>"
+                             "<tbody><tr><td>2019</td><td>test</td></tr>"
+                             "<tr><td>2020</td><td>test2</td></tr></tbody></table>")
+
+    def test_rendering_with_args(self):
+        widget = widgets.ArrayObjectTableWidget(feature=self.feature,
+                                                prop=self.property_key,
+                                                args={'attrs': {'class': 'details__table'}})
+        content = widget.render()
+
+        # should formatted as table
+        self.assertHTMLEqual(content,
+                             '<table class="details__table"><thead><tr><th>Année</th><th>Description</th></tr></thead>'
+                             '<tbody><tr><td>2019</td><td>test</td></tr>'
+                             '<tr><td>2020</td><td>test2</td></tr></tbody></table>')

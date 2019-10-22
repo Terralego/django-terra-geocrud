@@ -82,3 +82,33 @@ class DateFormatWidget(BaseWidget):
         if self.value:
             date_format = self.args.get('format', 'SHORT_DATE_FORMAT')
             return date_filter(parse_date(self.value), date_format)
+
+
+class ArrayObjectTableWidget(BaseWidget):
+    help = "Generate table with array objects"
+    widget = True
+
+    def render(self):
+        headers = ''
+        object_properties = self.feature.layer.schema['properties'].get(self.property)['items']['properties']
+        for prop, value in object_properties.items():
+            headers += '<th>{}</th>'.format(value.get('title', prop))
+
+        thead = '<thead><tr>{}</tr></thead>'.format(headers)
+        tbody = ''
+        if self.value:
+            tr = ''
+            for element in self.value:
+                td = ''
+                for prop in object_properties.keys():
+                    td += f'<td>{element.get(prop, "")}</td>'
+                tr += f'<tr>{td}</tr>'
+            tbody = f'<tbody>{tr}</tbody>'
+
+        # get html attrs
+        final_attrs = ''
+        attrs = self.args.get('attrs', {})
+        for key, v in attrs.items():
+            final_attrs += f' {key}="{v}"'
+
+        return f'<table{final_attrs}>{thead}{tbody}</table>'
