@@ -153,13 +153,6 @@ class CrudView(CrudModelMixin):
         verbose_name = _("View")
         verbose_name_plural = _("Views")
         ordering = ('order',)
-        permissions = [
-            ("can_manage_views", _("Can create / edit / delete views / groups and associated layers.")),
-            ("can_view_feature", _("Can read feature detail.")),
-            ("can_add_feature", _("Can create feature")),
-            ("can_change_feature", _("Can change feature")),
-            ("can_delete_feature", _("Can delete feature")),
-        ]
 
 
 class FeaturePropertyDisplayGroup(models.Model):

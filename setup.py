@@ -45,6 +45,7 @@ setup(
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.16',
         'django-geostore>=0.3.11',
+        'django-terra-accounts>=0.3.6',
         'djangorestframework>=3.10',
         'djangorestframework-gis>=0.14'
         'django>=2.2',
