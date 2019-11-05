@@ -73,10 +73,10 @@ class CrudViewSerializer(serializers.ModelSerializer):
     def get_exports(self, obj):
         return [{
             "name": "shapefile",
-            "url": reverse('geostore:layer-shapefile', args=[obj.layer_id, ])
+            "url": reverse('layer-shapefile', args=[obj.layer_id, ])
         }, {
             "name": "geojson",
-            "url": reverse('geostore:layer-geojson', args=[obj.layer_id, ])
+            "url": reverse('layer-geojson', args=[obj.layer_id, ])
         }]
 
     def get_extent(self, obj):
@@ -98,7 +98,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return OrderedDict(sorted(result.items(), key=lambda x: x[1]['title']))
 
     def get_feature_endpoint(self, obj):
-        return reverse('terra_geocrud:feature-list', args=(obj.layer_id,))
+        return reverse('feature-list', args=(obj.layer_id,))
 
     class Meta:
         model = models.CrudView
@@ -165,7 +165,7 @@ class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
         return geom.extent
 
     def get_detail_url(self, obj):
-        return reverse('terra_geocrud:feature-detail',
+        return reverse('feature-detail',
                        args=(obj.layer_id, obj.identifier))
 
     class Meta(FeatureSerializer.Meta):
@@ -186,7 +186,7 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
         return Path(obj.template_file.name).name
 
     def get_download_url(self, obj):
-        return reverse('terra_geocrud:render-template',
+        return reverse('render-template',
                        args=(obj.pk, self.context.get('feature').pk))
 
     class Meta:
@@ -201,8 +201,8 @@ class FeaturePictureSerializer(BaseUpdatableMixin):
     action_url = serializers.SerializerMethodField()
 
     def get_action_url(self, obj):
-        return reverse('terra_geocrud:picture-detail', args=(obj.feature.identifier,
-                                                             obj.pk, ))
+        return reverse('picture-detail', args=(obj.feature.identifier,
+                                               obj.pk, ))
 
     class Meta:
         model = models.FeaturePicture
@@ -215,8 +215,8 @@ class FeatureAttachmentSerializer(BaseUpdatableMixin):
     action_url = serializers.SerializerMethodField()
 
     def get_action_url(self, obj):
-        return reverse('terra_geocrud:attachment-detail', args=(obj.feature.identifier,
-                                                                obj.pk, ))
+        return reverse('attachment-detail', args=(obj.feature.identifier,
+                                                  obj.pk, ))
 
     class Meta:
         model = models.FeatureAttachment
@@ -239,10 +239,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     pictures = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
-        return reverse('terra_geocrud:picture-list', kwargs={'identifier': obj.identifier})
+        return reverse('picture-list', kwargs={'identifier': obj.identifier})
 
     def get_attachments(self, obj):
-        return reverse('terra_geocrud:attachment-list', kwargs={'identifier': obj.identifier})
+        return reverse('attachment-list', kwargs={'identifier': obj.identifier})
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """

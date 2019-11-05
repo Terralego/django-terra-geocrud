@@ -71,7 +71,7 @@ class CrudViewTestCase(TestCase):
         PropertyDisplayRendering.objects.create(crud_view=self.crud_view,
                                                 property='logo',
                                                 widget='terra_geocrud.properties.widgets.DataUrlToImgWidget')
-        response = self.client.get(reverse('terra_geocrud:feature-detail',
+        response = self.client.get(reverse('feature-detail',
                                            args=(self.feature.layer_id,
                                                  self.feature.identifier)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

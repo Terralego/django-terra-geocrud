@@ -13,7 +13,7 @@ class TerraCrudConfig(AppConfig):
         modules = terra_settings.get('modules', {})
         modules.update({
             'CRUD': {
-                "settings": reverse_lazy('terra_geocrud:settings'),
+                "settings": reverse_lazy('settings'),
             }
         })
         terra_settings.update({'modules': modules})

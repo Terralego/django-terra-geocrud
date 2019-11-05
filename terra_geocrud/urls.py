@@ -3,12 +3,11 @@ from rest_framework.routers import SimpleRouter
 
 from . import views
 
-app_name = 'terra_geocrud'
-
 router = SimpleRouter()
 router.register('groups', views.CrudGroupViewSet)
 router.register('views', views.CrudViewViewSet)
 router.register('attachment-categories', views.CrudAttachmentCategoryViewSet)
+router.register(r'layers', views.CrudLayerViewSet, base_name='layer')
 router.register(r'layers/(?P<layer>[\d\w\-_]+)/features', views.CrudFeatureViewSet, base_name='feature')
 router.register(r'features/(?P<identifier>[0-9a-f-]+)/pictures',
                 views.CrudFeaturePictureViewSet, base_name='picture')
