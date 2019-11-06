@@ -62,7 +62,7 @@ class StorageFunctionTestCase(APITestCase):
             }
         }
         response = self.client.put(
-            reverse('terra_geocrud:feature-detail',
+            reverse('feature-detail',
                     args=(self.feature_with_file_name.layer_id,
                           self.feature_with_file_name.identifier)),
             data=data,

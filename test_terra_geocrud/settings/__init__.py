@@ -46,12 +46,14 @@ INSTALLED_APPS = [
     'reversion',
     'sorl.thumbnail',
     'geostore',
+    'terra_accounts',
     'terra_geocrud',
     'test_terra_geocrud.test_app'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,6 +63,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'test_terra_geocrud.urls'
+AUTH_USER_MODEL = 'terra_accounts.TerraUser'
 
 TEMPLATES = [
     {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-16 15:57+0000\n"
+"POT-Creation-Date: 2019-11-05 15:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,6 +37,33 @@ msgid "Document generation"
 msgstr ""
 
 msgid "Other settings"
+msgstr ""
+
+msgid "Picture"
+msgstr ""
+
+msgid "Pictures"
+msgstr ""
+
+msgid "Attachment"
+msgstr ""
+
+msgid "Attachments"
+msgstr ""
+
+msgid "Can create / edit / delete views / groups and associated layers."
+msgstr ""
+
+msgid "Can read feature detail."
+msgstr ""
+
+msgid "Can create feature"
+msgstr ""
+
+msgid "Can change feature"
+msgstr ""
+
+msgid "Can delete feature"
 msgstr ""
 
 msgid "Display name in left menu"
@@ -78,21 +105,6 @@ msgstr ""
 msgid "Views"
 msgstr ""
 
-msgid "Can create / edit / delete views / groups and associated layers."
-msgstr ""
-
-msgid "Can read feature detail."
-msgstr ""
-
-msgid "Can create feature"
-msgstr ""
-
-msgid "Can change feature"
-msgstr ""
-
-msgid "Can delete feature"
-msgstr ""
-
 msgid "Feature properties display group"
 msgstr ""
 
@@ -103,6 +115,24 @@ msgid "Custom feature property rendering"
 msgstr ""
 
 msgid "Custom feature properties rendering"
+msgstr ""
+
+msgid "Attachment category"
+msgstr ""
+
+msgid "Attachment categories"
+msgstr ""
+
+msgid "Feature attachment"
+msgstr ""
+
+msgid "Feature attachments"
+msgstr ""
+
+msgid "Feature picture"
+msgstr ""
+
+msgid "Feature pictures"
 msgstr ""
 
 msgid "Url endpoint for view's features"

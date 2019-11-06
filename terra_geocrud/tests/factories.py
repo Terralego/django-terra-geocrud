@@ -4,12 +4,12 @@ from template_model.models import Template
 from geostore import GeometryTypes
 from geostore.tests.factories import LayerFactory
 from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment
-from terra_geocrud.tests.settings import DOCX_PLAN_DE_GESTION
+from terra_geocrud.tests.settings import DOCX_TEMPLATE
 
 
 class TemplateDocxFactory(factory.DjangoModelFactory):
-    name = "Plan de gestion"
-    template_file = factory.django.FileField(from_path=DOCX_PLAN_DE_GESTION)
+    name = "Complex template"
+    template_file = factory.django.FileField(from_path=DOCX_TEMPLATE)
 
     class Meta:
         model = Template

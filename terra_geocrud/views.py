@@ -15,7 +15,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from geostore.models import Feature
-from geostore.views import FeatureViewSet
+from geostore.views import FeatureViewSet, LayerViewSet
 from . import models, serializers, settings as app_settings
 
 
@@ -77,7 +77,7 @@ class CrudSettingsApiView(APIView):
             "menu": self.get_menu_section(),
             "config": {
                 "default": default_config,
-                "attachment_categories": reverse('terra_geocrud:attachmentcategory-list'),
+                "attachment_categories": reverse('attachmentcategory-list'),
             }
         }
         return Response(data)
@@ -104,6 +104,10 @@ class CrudRenderTemplateDetailView(DetailView):
             Path(self.template.template_file.name).name
         )
         return response
+
+
+class CrudLayerViewSet(LayerViewSet):
+    permission_classes = []
 
 
 class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):

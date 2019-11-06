@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-16 15:57+0000\n"
+"POT-Creation-Date: 2019-11-05 15:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,6 +38,34 @@ msgstr "Génération de douments (gabarits)"
 
 msgid "Other settings"
 msgstr "Autres réglages"
+
+msgid "Picture"
+msgstr ""
+
+msgid "Pictures"
+msgstr ""
+
+msgid "Attachment"
+msgstr ""
+
+msgid "Attachments"
+msgstr ""
+
+msgid "Can create / edit / delete views / groups and associated layers."
+msgstr ""
+"Peut créer / éditier / supprimer les vues / groupes et layers associés."
+
+msgid "Can read feature detail."
+msgstr "Peut lire les détails d'une feature"
+
+msgid "Can create feature"
+msgstr "Peut créer des features"
+
+msgid "Can change feature"
+msgstr "Peut modifier une feature"
+
+msgid "Can delete feature"
+msgstr "Peut supprimer une feature"
 
 msgid "Display name in left menu"
 msgstr "Affiche le nom dans le menu de gauche"
@@ -81,22 +109,6 @@ msgstr "Vue"
 msgid "Views"
 msgstr "Vues"
 
-msgid "Can create / edit / delete views / groups and associated layers."
-msgstr ""
-"Peut créer / éditier / supprimer les vues / groupes et layers associés."
-
-msgid "Can read feature detail."
-msgstr "Peut lire les détails d'une feature"
-
-msgid "Can create feature"
-msgstr "Peut créer des features"
-
-msgid "Can change feature"
-msgstr "Peut modifier une feature"
-
-msgid "Can delete feature"
-msgstr "Peut supprimer une feature"
-
 msgid "Feature properties display group"
 msgstr "Groupe d'affichage de propriétés"
 
@@ -108,6 +120,24 @@ msgstr "Rendu perssonalisé de propriété"
 
 msgid "Custom feature properties rendering"
 msgstr "Rendus personnalisés de propriétés"
+
+msgid "Attachment category"
+msgstr ""
+
+msgid "Attachment categories"
+msgstr ""
+
+msgid "Feature attachment"
+msgstr ""
+
+msgid "Feature attachments"
+msgstr ""
+
+msgid "Feature picture"
+msgstr ""
+
+msgid "Feature pictures"
+msgstr ""
 
 msgid "Url endpoint for view's features"
 msgstr "URL de la liste des features de la vue."
