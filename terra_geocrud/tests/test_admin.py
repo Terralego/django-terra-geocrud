@@ -1,20 +1,16 @@
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework import status
-
 from geostore.models import Layer
-from .. import models
+from rest_framework import status
+from terra_accounts.tests.factories import TerraUserFactory
 
-User = get_user_model()
+from .. import models
 
 
 class CrudGroupAdminTestCase(TestCase):
     def setUp(self):
-        self.user_admin = User.objects.create(email='admin',
-                                              is_active=True,
-                                              is_staff=True,
-                                              is_superuser=True)
+        self.user_admin = TerraUserFactory(is_staff=True,
+                                           is_superuser=True)
         self.group = models.CrudGroupView.objects.create(name="group", order=0)
         self.client.force_login(self.user_admin)
 
@@ -29,10 +25,8 @@ class CrudGroupAdminTestCase(TestCase):
 
 class CrudViewAdminTestCase(TestCase):
     def setUp(self):
-        self.user_admin = User.objects.create(email='admin',
-                                              is_active=True,
-                                              is_staff=True,
-                                              is_superuser=True)
+        self.user_admin = TerraUserFactory(is_staff=True,
+                                           is_superuser=True)
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
         self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
         self.view_1 = models.CrudView.objects.create(name="View 1", order=0, group=self.group_1,
