@@ -11,7 +11,7 @@ User = get_user_model()
 
 class CrudGroupAdminTestCase(TestCase):
     def setUp(self):
-        self.user_admin = User.objects.create(username='admin',
+        self.user_admin = User.objects.create(email='admin',
                                               is_active=True,
                                               is_staff=True,
                                               is_superuser=True)
@@ -29,7 +29,7 @@ class CrudGroupAdminTestCase(TestCase):
 
 class CrudViewAdminTestCase(TestCase):
     def setUp(self):
-        self.user_admin = User.objects.create(username='admin',
+        self.user_admin = User.objects.create(email='admin',
                                               is_active=True,
                                               is_staff=True,
                                               is_superuser=True)
