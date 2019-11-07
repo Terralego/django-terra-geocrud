@@ -7,9 +7,9 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from geostore.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail
 
-from geostore.mixins import BaseUpdatableModel
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices

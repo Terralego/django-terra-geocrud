@@ -1,5 +1,6 @@
 import mimetypes
 from copy import deepcopy
+from pathlib import Path
 
 import reversion
 from django.conf import settings
@@ -8,14 +9,13 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
-from pathlib import Path
+from geostore.models import Feature
+from geostore.views import FeatureViewSet, LayerViewSet
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
-from geostore.models import Feature
-from geostore.views import FeatureViewSet, LayerViewSet
 from . import models, serializers, settings as app_settings
 
 
