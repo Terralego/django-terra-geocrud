@@ -56,7 +56,8 @@ class CrudSettingsApiView(APIView):
         data = group_serializer.data
 
         # add non grouped views
-        ungrouped_views = models.CrudView.objects.filter(group__isnull=True)\
+        ungrouped_views = models.CrudView.objects.filter(group__isnull=True,
+                                                         visible=True)\
             .select_related('layer')\
             .prefetch_related('feature_display_groups')
         views_serializer = CrudViewViewSet.serializer_class(ungrouped_views, many=True)

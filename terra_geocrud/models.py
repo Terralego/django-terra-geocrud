@@ -59,6 +59,7 @@ class CrudView(CrudModelMixin):
     default_list_properties = ArrayField(models.CharField(max_length=250), default=list, blank=True)
     feature_title_property = models.CharField(help_text=_("Schema property used to define feature title."),
                                               max_length=250, blank=True, null=False, default="")
+    visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))
 
     def clean(self):
         # verify properties in default_list_properties exist
