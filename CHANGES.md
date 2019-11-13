@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.22.dev0     (XXXX-XX-XX)
+0.3.22          (2019-11-13)
 ----------------------------
 
 * ability to hide ungrouped views in config menu
