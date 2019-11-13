@@ -5,6 +5,7 @@ CHANGELOG
 0.3.22.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* ability to hide ungrouped views in config menu
 
 0.3.21          (2019-11-04)
 ----------------------------
