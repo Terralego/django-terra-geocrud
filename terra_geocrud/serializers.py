@@ -11,7 +11,6 @@ from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
-from . import settings as app_settings
 from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
 from .properties.widgets import render_property_data
 

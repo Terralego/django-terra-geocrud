@@ -80,7 +80,6 @@ class CrudView(CrudModelMixin):
         elif self.layer.is_polygon:
             response = style_settings.get('polygon')
         style = self.map_style
-        print(style)
         return style if style else response
 
     @cached_property

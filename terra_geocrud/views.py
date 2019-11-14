@@ -1,7 +1,6 @@
 import mimetypes
 from copy import deepcopy
 from pathlib import Path
-from requests import post
 from json import dumps, loads
 import math
 
@@ -147,12 +146,12 @@ class CrudRenderTemplateDetailView(DetailView):
         zoom = self.get_zoom(feature)
 
         context['style'] = {
-                'style': dumps(style),
-                'center': list(feature.geom.centroid.coords),
-                'zoom': zoom,
-                'width': 512,
-                'height': 256,
-            }
+            'style': dumps(style),
+            'center': list(feature.geom.centroid.coords),
+            'zoom': zoom,
+            'width': 512,
+            'height': 256,
+        }
         return context
 
 
