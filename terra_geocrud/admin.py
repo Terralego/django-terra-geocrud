@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
+from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
@@ -61,6 +62,11 @@ class CrudViewAdmin(VersionAdmin):
         return ro_fields
 
 
+class LayerExtraGeomInline(admin.TabularInline):
+    model = LayerExtraGeom
+    extra = 0
+
+
 class CrudLayerAdmin(VersionAdmin):
     list_display = ('pk', 'name', 'geom_type', 'layer_groups')
     list_filter = ('geom_type', 'layer_groups')
@@ -68,6 +74,7 @@ class CrudLayerAdmin(VersionAdmin):
     formfield_overrides = {
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
+    inlines = [LayerExtraGeomInline, ]
 
 
 class FeaturePictureInline(AdminInlineImageMixin, admin.TabularInline):
