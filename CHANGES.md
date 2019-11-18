@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.23.dev0     (XXXX-XX-XX)
+0.3.23          (2019-11-18)
 ----------------------------
 
 * add property to generated mapbox style
