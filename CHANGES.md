@@ -5,6 +5,8 @@ CHANGELOG
 0.3.23.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* add property to generated mapbox style
+
 
 0.3.22          (2019-11-13)
 ----------------------------
