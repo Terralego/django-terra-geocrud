@@ -1,6 +1,8 @@
 import mimetypes
 from copy import deepcopy
 from pathlib import Path
+from json import dumps, loads
+import math
 
 import reversion
 from django.conf import settings
@@ -105,6 +107,53 @@ class CrudRenderTemplateDetailView(DetailView):
             Path(self.template.template_file.name).name
         )
         return response
+
+    def get_zoom(self, feature):
+        extent = feature.geom.transform(3857, clone=True).extent
+        length = max(extent[2] - extent[0], extent[3] - extent[1])
+
+        max_zoom = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
+        zoom = app_settings.TERRA_GEOCRUD.get('ZOOM', 12)
+
+        if length:
+            hint_size = 256
+            length_per_tile = 512 * length / hint_size
+            RADIUS = 6378137
+            CIRCUM = 2 * math.pi * RADIUS
+            zoom = math.log(CIRCUM / 2 * length_per_tile, 2)
+
+        if zoom > max_zoom:
+            zoom = max_zoom
+        return zoom
+
+    def get_style(self, feature):
+        style_map = feature.layer.crud_view.mblg_renderer_style
+        geojson_id = 'primary'
+
+        primary_layer = feature.layer.crud_view.map_style_with_default
+        primary_layer['id'] = geojson_id
+        primary_layer['source'] = geojson_id
+
+        style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
+
+        style_map['layers'].append(primary_layer)
+
+        return style_map
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        feature = self.get_object()
+        style = self.get_style(feature)
+        zoom = self.get_zoom(feature)
+
+        context['style'] = {
+            'style': dumps(style),
+            'center': list(feature.geom.centroid.coords),
+            'zoom': zoom,
+            'width': 512,
+            'height': 256,
+        }
+        return context
 
 
 class CrudLayerViewSet(LayerViewSet):

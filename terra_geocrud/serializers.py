@@ -11,7 +11,6 @@ from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
-from . import settings as app_settings
 from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
 from .properties.widgets import render_property_data
 
@@ -47,28 +46,13 @@ class CrudViewSerializer(serializers.ModelSerializer):
     exports = serializers.SerializerMethodField()
     ui_schema = serializers.JSONField(source='grouped_ui_schema')
     form_schema = serializers.JSONField(source='grouped_form_schema')
-    map_style = serializers.SerializerMethodField()
+    map_style = serializers.JSONField(source='map_style_with_default')
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
     )
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: {title, type}}")
     )
-
-    def get_default_map_style(self, obj):
-        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
-        response = {}
-        if obj.layer.is_point:
-            response = style_settings.get('point')
-        elif obj.layer.is_linestring:
-            response = style_settings.get('line')
-        elif obj.layer.is_polygon:
-            response = style_settings.get('polygon')
-        return response
-
-    def get_map_style(self, obj):
-        style = obj.map_style
-        return style if style else self.get_default_map_style(obj)
 
     def get_exports(self, obj):
         return [{

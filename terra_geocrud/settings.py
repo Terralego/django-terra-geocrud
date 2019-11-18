@@ -6,6 +6,12 @@ _DEFAULT_TERRA_GEOCRUD = {
     # default extent to world
     'EXTENT': [-90.0, -180.0, 90.0, 180.0],
     'DATA_FILE_STORAGE_CLASS': 'django.core.files.storage.FileSystemStorage',
+    # We should automatically get the source of layers from a model
+    'TMP_MBGL_BASEMAP': {
+        "type": "raster",
+        "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+        "tileSize": 256
+    },
     'STYLES': {
         'line': {
             'type': 'line',
@@ -28,6 +34,8 @@ _DEFAULT_TERRA_GEOCRUD = {
             }
         },
     },
+    'MAX_ZOOM': 4,
+    'ZOOM': 10
 }
 _DEFAULT_TERRA_GEOCRUD.update(getattr(settings, 'TERRA_GEOCRUD', {}))
 TERRA_GEOCRUD = deepcopy(_DEFAULT_TERRA_GEOCRUD)

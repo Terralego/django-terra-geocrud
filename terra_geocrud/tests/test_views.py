@@ -1,10 +1,11 @@
 import json
+from json import dumps
 import os
 from io import BytesIO
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import LineString, Point
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -216,6 +217,74 @@ class CrudRenderTemplateDetailViewTestCase(APITestCase):
         with ZipFile(buffer) as archive:
             with archive.open(os.path.join('word', 'document.xml')) as reader:
                 self.assertEqual(reader.read(), content_xml)
+
+    def test_style_mblg_renderer_point(self):
+        response = self.client.get(
+            reverse(
+                'render-template',
+                kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+            )
+        )
+        dict_style = {
+            "version": 8,
+            "sources":
+                {"TMP_MBGL_BASEMAP": {"type": "raster",
+                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                      "tileSize": 256},
+                 "primary": {"type": "geojson",
+                             "data": {"type": "Point", "coordinates": [-0.246322800072846, 44.5562461167907]}}},
+            "layers": [
+                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP", "maxzoom": 4},
+                {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8}, "id": "primary",
+                 "source": "primary"}]
+        }
+        dict_style_post = {'style': dumps(dict_style),
+                           'center': [-0.246322800072846, 44.5562461167907],
+                           'zoom': 4,
+                           'width': 512,
+                           'height': 256}
+        self.assertDictEqual(dict_style_post, response.context['style'])
+
+    def test_style_mblg_renderer_line(self):
+        crud_view_line = factories.CrudViewFactory(name="Line", order=0,
+                                                   layer__schema=json.load(open(LAYER_SCHEMA)),
+                                                   layer__geom_type=GeometryTypes.LineString)
+
+        feature = Feature.objects.create(
+            layer=crud_view_line.layer,
+            geom=LineString((-0.246322800072846, 44.5562461167907), (0, 44)),
+            properties=json.load(open(FEATURE_PROPERTIES)),
+        )
+        self.crud_view.map_style = {}
+        self.crud_view.save()
+        crud_view_line.templates.add(self.template)
+
+        response = self.client.get(
+            reverse(
+                'render-template',
+                kwargs={'pk': feature.pk, 'template_pk': self.template.pk},
+            )
+        )
+        dict_style = {
+            "version": 8,
+            "sources":
+                {"TMP_MBGL_BASEMAP": {"type": "raster",
+                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                      "tileSize": 256},
+                 "primary": {"type": "geojson",
+                             "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
+                                                                            [0.0, 44.0]]}}},
+            "layers": [
+                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP", "maxzoom": 4},
+                {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
+                 "id": "primary", "source": "primary"}]
+        }
+        dict_style_post = {'style': dumps(dict_style),
+                           'center': [-0.12316140003642298, 44.27812305839535],
+                           'zoom': 4,
+                           'width': 512,
+                           'height': 256}
+        self.assertDictEqual(dict_style_post, response.context['style'])
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

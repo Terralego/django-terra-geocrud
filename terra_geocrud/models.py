@@ -71,6 +71,28 @@ class CrudView(CrudModelMixin):
             raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
 
     @cached_property
+    def map_style_with_default(self):
+        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+        response = {}
+        if self.layer.is_point:
+            response = style_settings.get('point')
+        elif self.layer.is_linestring:
+            response = style_settings.get('line')
+        elif self.layer.is_polygon:
+            response = style_settings.get('polygon')
+        style = self.map_style
+        return style if style else response
+
+    @cached_property
+    def mblg_renderer_style(self):
+        style = {'version': 8}
+        terra_geocrud_setting = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {})
+        max_zoom = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
+        style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
+        style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP", "maxzoom": max_zoom}]
+        return style
+
+    @cached_property
     def grouped_form_schema(self):
         original_schema = deepcopy(self.layer.schema)
         generated_schema = deepcopy(original_schema)
