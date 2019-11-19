@@ -279,7 +279,7 @@ class CrudRenderTemplateDetailViewTestCase(APITestCase):
                                                                             [0.0, 44.0]]}}},
             "layers": [
                 {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP",
-                 "maxzoom": 4},
+                 "maxzoom": 15},
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
