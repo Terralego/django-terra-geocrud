@@ -34,8 +34,7 @@ _DEFAULT_TERRA_GEOCRUD = {
             }
         },
     },
-    'MAX_ZOOM': 4,
-    'ZOOM': 10
+    'MAX_ZOOM': 15
 }
 _DEFAULT_TERRA_GEOCRUD.update(getattr(settings, 'TERRA_GEOCRUD', {}))
 TERRA_GEOCRUD = deepcopy(_DEFAULT_TERRA_GEOCRUD)
