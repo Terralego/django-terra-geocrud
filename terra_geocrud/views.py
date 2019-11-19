@@ -115,11 +115,9 @@ class CrudRenderTemplateDetailView(DetailView):
         final_zoom = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
 
         if length:
-            hint_size = 256
-            length_per_tile = 512 * length / hint_size
             RADIUS = 6378137
             CIRCUM = 2 * math.pi * RADIUS
-            zoom = math.log(CIRCUM / 2 * length_per_tile, 2)
+            zoom = math.log(CIRCUM / length, 2)
 
             final_zoom = zoom if zoom < final_zoom else final_zoom
 
@@ -149,8 +147,8 @@ class CrudRenderTemplateDetailView(DetailView):
             'style': dumps(style),
             'center': list(feature.geom.centroid.coords),
             'zoom': zoom,
-            'width': 512,
-            'height': 256,
+            'width': 1024,
+            'height': 512,
         }
         return context
 

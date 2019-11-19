@@ -185,10 +185,11 @@ class CrudSettingsViewTestCase(TestCase):
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
-class CrudRenderTemplateDetailViewTestCase(APITestCase):
+class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
     def setUp(self):
         self.crud_view = factories.CrudViewFactory(name="Composantes", order=0,
-                                                   layer__schema=json.load(open(LAYER_SCHEMA)))
+                                                   layer__schema=json.load(open(LAYER_SCHEMA)),
+                                                   layer__geom_type=GeometryTypes.Point)
 
         self.feature = Feature.objects.create(
             layer=self.crud_view.layer,
@@ -220,12 +221,15 @@ class CrudRenderTemplateDetailViewTestCase(APITestCase):
 
     def test_style_mblg_renderer_point(self):
         self.maxDiff = None
-        response = self.client.get(
-            reverse(
-                'render-template',
-                kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+        settings_terra = app_settings.TERRA_GEOCRUD
+        settings_terra['MAX_ZOOM'] = 20
+        with override_settings(TERRA_GEOCRUD=settings_terra):
+            response = self.client.get(
+                reverse(
+                    'render-template',
+                    kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+                )
             )
-        )
         dict_style = {
             "version": 8,
             "sources":
@@ -235,39 +239,45 @@ class CrudRenderTemplateDetailViewTestCase(APITestCase):
                  "primary": {"type": "geojson",
                              "data": {"type": "Point", "coordinates": [-0.246322800072846, 44.5562461167907]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP",
-                 "maxzoom": app_settings.TERRA_GEOCRUD['MAX_ZOOM']},
+                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
                 {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8}, "id": "primary",
                  "source": "primary"}]
         }
         dict_style_post = {'style': dumps(dict_style),
                            'center': [-0.246322800072846, 44.5562461167907],
                            'zoom': app_settings.TERRA_GEOCRUD['MAX_ZOOM'],
-                           'width': 512,
-                           'height': 256}
+                           'width': 1024,
+                           'height': 512}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
-    def test_style_mblg_renderer_line(self):
-        self.maxDiff = None
-        crud_view_line = factories.CrudViewFactory(name="Line", order=0,
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
+    def setUp(self):
+        self.crud_view = factories.CrudViewFactory(name="Line", order=0,
                                                    layer__schema=json.load(open(LAYER_SCHEMA)),
                                                    layer__geom_type=GeometryTypes.LineString)
 
-        feature = Feature.objects.create(
-            layer=crud_view_line.layer,
+        self.feature = Feature.objects.create(
+            layer=self.crud_view.layer,
             geom=LineString((-0.246322800072846, 44.5562461167907), (0, 44)),
             properties=json.load(open(FEATURE_PROPERTIES)),
         )
-        self.crud_view.map_style = {}
-        self.crud_view.save()
-        crud_view_line.templates.add(self.template)
-
-        response = self.client.get(
-            reverse(
-                'render-template',
-                kwargs={'pk': feature.pk, 'template_pk': self.template.pk},
-            )
+        self.template = factories.TemplateDocxFactory.create(
+            name='Template',
         )
+        self.crud_view.templates.add(self.template)
+
+    def test_style_mblg_renderer_line_zoom_lower(self):
+        settings_terra = app_settings.TERRA_GEOCRUD
+        settings_terra['MAX_ZOOM'] = 4
+        with override_settings(TERRA_GEOCRUD=settings_terra):
+            response = self.client.get(
+                reverse(
+                    'render-template',
+                    kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+                )
+            )
         dict_style = {
             "version": 8,
             "sources":
@@ -278,16 +288,46 @@ class CrudRenderTemplateDetailViewTestCase(APITestCase):
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP",
-                 "maxzoom": 15},
+                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': dumps(dict_style),
                            'center': [-0.12316140003642298, 44.27812305839535],
-                           'zoom': app_settings.TERRA_GEOCRUD['MAX_ZOOM'],
-                           'width': 512,
-                           'height': 256}
+                           'zoom': 4,
+                           'width': 1024,
+                           'height': 512}
+        self.assertDictEqual(dict_style_post, response.context['style'])
+
+    def test_style_mblg_renderer_line_zoom_higher(self):
+        settings_terra = app_settings.TERRA_GEOCRUD
+        settings_terra['MAX_ZOOM'] = 10
+        with override_settings(TERRA_GEOCRUD=settings_terra):
+            response = self.client.get(
+                reverse(
+                    'render-template',
+                    kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+                )
+            )
+        dict_style = {
+            "version": 8,
+            "sources":
+                {"TMP_MBGL_BASEMAP": {"type": "raster",
+                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                      "tileSize": 256},
+                 "primary": {"type": "geojson",
+                             "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
+                                                                            [0.0, 44.0]]}}},
+            "layers": [
+                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
+                 "id": "primary", "source": "primary"}]
+        }
+        dict_style_post = {'style': dumps(dict_style),
+                           'center': [-0.12316140003642298, 44.27812305839535],
+                           'zoom': 8.855990982027272,
+                           'width': 1024,
+                           'height': 512}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
 
