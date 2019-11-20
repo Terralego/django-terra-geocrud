@@ -293,8 +293,7 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': dumps(dict_style),
-                           'center': [-0.12316140003642298, 44.27812305839535],
-                           'zoom': 4,
+                           'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
                            'height': 512}
         self.assertDictEqual(dict_style_post, response.context['style'])
@@ -324,8 +323,7 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': dumps(dict_style),
-                           'center': [-0.12316140003642298, 44.27812305839535],
-                           'zoom': 8.855990982027272,
+                           'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
                            'height': 512}
         self.assertDictEqual(dict_style_post, response.context['style'])
