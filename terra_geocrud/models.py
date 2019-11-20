@@ -307,3 +307,29 @@ class FeaturePicture(AttachmentMixin):
         ordering = (
             'feature', 'category', '-updated_at'
         )
+
+
+class ExtraLayerStyle(models.Model):
+    crud_view = models.ForeignKey(CrudView, related_name='extra_layer_style', on_delete=models.CASCADE)
+    layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='style', on_delete=models.CASCADE)
+    map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
+
+    class Meta:
+        verbose_name = _('ExtraLayer style')
+        verbose_name_plural = _('ExtraLayer styles')
+        unique_together = (
+            ('crud_view', 'layer_extra_geom'),
+        )
+
+    @cached_property
+    def map_style_with_default(self):
+        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+        response = {}
+        if self.layer_extra_geom.is_point:
+            response = style_settings.get('point')
+        elif self.layer_extra_geom.is_linestring:
+            response = style_settings.get('line')
+        elif self.layer_extra_geom.is_polygon:
+            response = style_settings.get('polygon')
+        style = self.map_style
+        return style if style else response

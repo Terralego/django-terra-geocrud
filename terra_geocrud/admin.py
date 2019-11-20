@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
-from geostore.models import LayerExtraGeom
+from geostore.models import LayerExtraGeom, FeatureExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
@@ -21,6 +21,11 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
     extra = 0
 
 
+class ExtraLayerStyleInLine(admin.TabularInline):
+    model = models.ExtraLayerStyle
+    extra = 0
+
+
 class PropertyDisplayRenderingTabularInline(admin.TabularInline):
     classes = ('collapse', )
     verbose_name = _('Custom widget')
@@ -32,7 +37,7 @@ class PropertyDisplayRenderingTabularInline(admin.TabularInline):
 class CrudViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline]
+    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
