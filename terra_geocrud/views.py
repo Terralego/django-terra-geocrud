@@ -108,21 +108,6 @@ class CrudRenderTemplateDetailView(DetailView):
         )
         return response
 
-    def get_zoom(self, feature):
-        extent = feature.geom.transform(3857, clone=True).extent
-        length = max(extent[2] - extent[0], extent[3] - extent[1])
-
-        final_zoom = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
-
-        if length:
-            RADIUS = 6378137
-            CIRCUM = 2 * math.pi * RADIUS
-            zoom = math.log(CIRCUM / length, 2)
-
-            final_zoom = zoom if zoom < final_zoom else final_zoom
-
-        return final_zoom
-
     def get_style(self, feature):
         style_map = feature.layer.crud_view.mblg_renderer_style
         geojson_id = 'primary'
@@ -141,15 +126,16 @@ class CrudRenderTemplateDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         feature = self.get_object()
         style = self.get_style(feature)
-        zoom = self.get_zoom(feature)
-
         context['style'] = {
             'style': dumps(style),
-            'center': list(feature.geom.centroid.coords),
-            'zoom': zoom,
             'width': 1024,
             'height': 512,
         }
+        if feature.layer.is_point:
+            context['style']['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
+            context['style']['center'] = list(feature.geom.centroid)
+        else:
+            context['style']['bounds'] = ','.join(str(v) for v in feature.geom.extent)
         return context
 
 
