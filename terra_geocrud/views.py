@@ -2,7 +2,6 @@ import mimetypes
 from copy import deepcopy
 from pathlib import Path
 from json import dumps, loads
-import math
 
 import reversion
 from django.conf import settings
