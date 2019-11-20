@@ -118,7 +118,12 @@ class CrudRenderTemplateDetailView(DetailView):
         style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
 
         for i, extra_feature in enumerate(feature.extra_geometries.all()):
-            extra_layer = extra_feature.layer_extra_geom.style.get(crud_view=view).map_style_with_default
+            layer_extra_geom = extra_feature.layer_extra_geom
+            extra_style = extra_feature.layer_extra_geom.style.filter(crud_view=view)
+            if extra_style:
+                extra_layer = extra_style.first().map_style
+            else:
+                extra_layer = models.get_default_style(layer_extra_geom)
             extra_id = extra_feature.layer_extra_geom.name
             extra_layer['id'] = extra_id
             extra_layer['source'] = extra_id

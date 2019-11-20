@@ -15,24 +15,15 @@ from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
 
 
-class MapStyleMixin(object):
-    layer_attribute = None
-
-    def get_layer(self):
-        return getattr(self, self.layer_attribute)
-
-    @cached_property
-    def map_style_with_default(self):
-        layer = self.get_layer()
-        style = self.map_style
-        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
-        if layer.is_point:
-            style = style_settings.get('point')
-        elif layer.is_linestring:
-            style = style_settings.get('line')
-        elif layer.is_polygon:
-            style = style_settings.get('polygon')
-        return style
+def get_default_style(layer):
+    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+    if layer.is_point:
+        response = style_settings.get('point')
+    elif layer.is_linestring:
+        response = style_settings.get('line')
+    elif layer.is_polygon:
+        response = style_settings.get('polygon')
+    return response
 
 
 class CrudModelMixin(models.Model):
@@ -59,11 +50,10 @@ class CrudGroupView(CrudModelMixin):
         ordering = ('order', )
 
 
-class CrudView(MapStyleMixin, CrudModelMixin):
+class CrudView(CrudModelMixin):
     """
     Used to defined ad layer's view in CRUD
     """
-    layer_attribute = 'layer'
     group = models.ForeignKey(CrudGroupView, on_delete=models.SET_NULL, related_name='crud_views',
                               null=True, blank=True, help_text=_("Group this entry in left menu"))
     layer = models.OneToOneField('geostore.Layer', on_delete=models.CASCADE, related_name='crud_view')
@@ -98,6 +88,12 @@ class CrudView(MapStyleMixin, CrudModelMixin):
         style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
         style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
         return style
+
+    @cached_property
+    def map_style_with_default(self):
+        response = get_default_style(self.layer)
+        style = self.map_style
+        return style if style else response
 
     @cached_property
     def grouped_form_schema(self):
@@ -317,11 +313,10 @@ class FeaturePicture(AttachmentMixin):
         )
 
 
-class ExtraLayerStyle(MapStyleMixin, models.Model):
-    layer_attribute = 'layer_extra_geom'
+class ExtraLayerStyle(models.Model):
     crud_view = models.ForeignKey(CrudView, related_name='extra_layer_style', on_delete=models.CASCADE)
     layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='style', on_delete=models.CASCADE)
-    map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
+    map_style = JSONField(default=dict, help_text=_("Custom mapbox style for this entry"))
 
     class Meta:
         verbose_name = _('ExtraLayer style')
