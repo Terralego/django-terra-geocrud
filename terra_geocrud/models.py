@@ -87,7 +87,6 @@ class CrudView(CrudModelMixin):
     def mblg_renderer_style(self):
         style = {'version': 8}
         terra_geocrud_setting = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {})
-        max_zoom = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
         style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
         style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
         return style
