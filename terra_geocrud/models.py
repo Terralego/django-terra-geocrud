@@ -15,6 +15,20 @@ from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
 
 
+class MapStyleMixin(object):
+    def get_map_style_with_default(self, layer):
+        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+        response = {}
+        if layer.is_point:
+            response = style_settings.get('point')
+        elif layer.is_linestring:
+            response = style_settings.get('line')
+        elif layer.is_polygon:
+            response = style_settings.get('polygon')
+        style = self.map_style
+        return style if style else response
+
+
 class CrudModelMixin(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text=_("Display name in left menu"))
     order = models.PositiveSmallIntegerField(help_text=_("Order entry in left menu"), db_index=True)
@@ -39,7 +53,7 @@ class CrudGroupView(CrudModelMixin):
         ordering = ('order', )
 
 
-class CrudView(CrudModelMixin):
+class CrudView(MapStyleMixin, CrudModelMixin):
     """
     Used to defined ad layer's view in CRUD
     """
@@ -71,25 +85,16 @@ class CrudView(CrudModelMixin):
             raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
 
     @cached_property
-    def map_style_with_default(self):
-        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
-        response = {}
-        if self.layer.is_point:
-            response = style_settings.get('point')
-        elif self.layer.is_linestring:
-            response = style_settings.get('line')
-        elif self.layer.is_polygon:
-            response = style_settings.get('polygon')
-        style = self.map_style
-        return style if style else response
-
-    @cached_property
     def mblg_renderer_style(self):
         style = {'version': 8}
         terra_geocrud_setting = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {})
         style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
         style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
         return style
+
+    @cached_property
+    def map_style_with_default(self):
+        return super().get_map_style_with_default(self.layer)
 
     @cached_property
     def grouped_form_schema(self):
@@ -309,7 +314,7 @@ class FeaturePicture(AttachmentMixin):
         )
 
 
-class ExtraLayerStyle(models.Model):
+class ExtraLayerStyle(MapStyleMixin, models.Model):
     crud_view = models.ForeignKey(CrudView, related_name='extra_layer_style', on_delete=models.CASCADE)
     layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='style', on_delete=models.CASCADE)
     map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
@@ -323,13 +328,4 @@ class ExtraLayerStyle(models.Model):
 
     @cached_property
     def map_style_with_default(self):
-        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
-        response = {}
-        if self.layer_extra_geom.is_point:
-            response = style_settings.get('point')
-        elif self.layer_extra_geom.is_linestring:
-            response = style_settings.get('line')
-        elif self.layer_extra_geom.is_polygon:
-            response = style_settings.get('polygon')
-        style = self.map_style
-        return style if style else response
+        return super().get_map_style_with_default(self.layer_extra_geom)

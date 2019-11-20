@@ -119,7 +119,7 @@ class CrudRenderTemplateDetailView(DetailView):
 
         for i, extra_feature in enumerate(feature.extra_geometries.all()):
             extra_layer = extra_feature.layer_extra_geom.style.get(crud_view=view).map_style_with_default
-            extra_id = "extra_{0}".format(i)
+            extra_id = extra_feature.layer_extra_geom.name
             extra_layer['id'] = extra_id
             extra_layer['source'] = extra_id
             style_map['sources'].update({extra_id: {'type': 'geojson', 'data': loads(extra_feature.geom.geojson)}})
@@ -141,11 +141,11 @@ class CrudRenderTemplateDetailView(DetailView):
             'height': 512,
         }
 
-        if feature.layer.is_point and not feature.extra_geometries:
+        if feature.layer.is_point and not feature.extra_geometries.exists():
             context['style']['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
             context['style']['center'] = list(feature.geom.centroid)
         else:
-            geoms = [extra_feature.geom for extra_feature in feature.extra_geometries.all()]
+            geoms = feature.extra_geometries.values_list('geom', flat=True)
             collections = GeometryCollection(feature.geom, *geoms)
             context['style']['bounds'] = ','.join(str(v) for v in collections.extent)
         return context
