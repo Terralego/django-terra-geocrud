@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
-from geostore.models import LayerExtraGeom, FeatureExtraGeom
+from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
