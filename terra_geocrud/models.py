@@ -17,16 +17,16 @@ from .properties.widgets import get_widgets_choices
 
 class MapStyleMixin(object):
     def get_map_style_with_default(self, layer):
+        style = self.map_style
         style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
         response = {}
         if layer.is_point:
-            response = style_settings.get('point')
+            style = style_settings.get('point')
         elif layer.is_linestring:
-            response = style_settings.get('line')
+            style = style_settings.get('line')
         elif layer.is_polygon:
-            response = style_settings.get('polygon')
-        style = self.map_style
-        return style if style else response
+            style = style_settings.get('polygon')
+        return style
 
 
 class CrudModelMixin(models.Model):
