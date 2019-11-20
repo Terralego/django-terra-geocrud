@@ -235,7 +235,8 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
             "sources":
                 {"TMP_MBGL_BASEMAP": {"type": "raster",
                                       "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256},
+                                      "tileSize": 256,
+                                      "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "Point", "coordinates": [-0.246322800072846, 44.5562461167907]}}},
             "layers": [
@@ -283,7 +284,8 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
             "sources":
                 {"TMP_MBGL_BASEMAP": {"type": "raster",
                                       "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256},
+                                      "tileSize": 256,
+                                      "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}}},
@@ -313,7 +315,8 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
             "sources":
                 {"TMP_MBGL_BASEMAP": {"type": "raster",
                                       "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256},
+                                      "tileSize": 256,
+                                      "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}}},
