@@ -10,7 +10,8 @@ _DEFAULT_TERRA_GEOCRUD = {
     'TMP_MBGL_BASEMAP': {
         "type": "raster",
         "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        "tileSize": 256
+        "tileSize": 256,
+        "maxzoom": 18
     },
     'STYLES': {
         'line': {
