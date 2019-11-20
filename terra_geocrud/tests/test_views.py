@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature
+from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
@@ -269,7 +269,7 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
         )
         self.crud_view.templates.add(self.template)
 
-    def test_style_mblg_renderer_line_zoom_lower(self):
+    def test_style_mblg_renderer_line(self):
         settings_terra = app_settings.TERRA_GEOCRUD
         settings_terra['MAX_ZOOM'] = 4
         with override_settings(TERRA_GEOCRUD=settings_terra):
@@ -300,7 +300,11 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
                            'height': 512}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
-    def test_style_mblg_renderer_line_zoom_higher(self):
+    def test_style_mblg_renderer_line_with_extra_layers(self):
+        self.maxDiff = None
+        extra_layer = LayerExtraGeom.objects.create(layer=self.crud_view.layer)
+        FeatureExtraGeom.objects.create(feature=self.feature, layer_extra_geom=extra_layer,
+                                        geom=Point((-0.1, 44.2)))
         settings_terra = app_settings.TERRA_GEOCRUD
         settings_terra['MAX_ZOOM'] = 10
         with override_settings(TERRA_GEOCRUD=settings_terra):
@@ -319,9 +323,13 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
                                       "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
-                                                                            [0.0, 44.0]]}}},
+                                                                            [0.0, 44.0]]}},
+                 extra_layer.name: {"type": "geojson",
+                                    "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
             "layers": [
                 {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8},
+                 "id": extra_layer.name, "source": extra_layer.name},
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
