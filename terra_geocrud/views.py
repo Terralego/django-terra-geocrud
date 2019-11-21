@@ -120,7 +120,7 @@ class CrudRenderTemplateDetailView(DetailView):
         for i, extra_feature in enumerate(feature.extra_geometries.all()):
             layer_extra_geom = extra_feature.layer_extra_geom
             extra_style = extra_feature.layer_extra_geom.style.filter(crud_view=view)
-            if extra_style:
+            if extra_style and extra_style.first().map_style:
                 extra_layer = extra_style.first().map_style
             else:
                 extra_layer = models.get_default_style(layer_extra_geom)
