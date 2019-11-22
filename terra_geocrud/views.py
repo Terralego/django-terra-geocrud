@@ -108,54 +108,6 @@ class CrudRenderTemplateDetailView(DetailView):
         )
         return response
 
-    def get_style(self, feature):
-        style_map = feature.layer.crud_view.mblg_renderer_style
-        geojson_id = 'primary'
-        view = feature.layer.crud_view
-        primary_layer = view.map_style_with_default
-        primary_layer['id'] = geojson_id
-        primary_layer['source'] = geojson_id
-        style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
-
-        for i, extra_feature in enumerate(feature.extra_geometries.all()):
-            layer_extra_geom = extra_feature.layer_extra_geom
-            extra_style = extra_feature.layer_extra_geom.style.filter(crud_view=view)
-            if extra_style and extra_style.first().map_style:
-                extra_layer = extra_style.first().map_style
-            else:
-                extra_layer = models.get_default_style(layer_extra_geom)
-            extra_id = extra_feature.layer_extra_geom.name
-            extra_layer['id'] = extra_id
-            extra_layer['source'] = extra_id
-            style_map['sources'].update({extra_id: {'type': 'geojson', 'data': loads(extra_feature.geom.geojson)}})
-
-            style_map['layers'].append(extra_layer)
-
-        style_map['layers'].append(primary_layer)
-
-        return style_map
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        feature = self.get_object()
-        style = self.get_style(feature)
-        token = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {}).get('mapbox_access_token')
-        context['style'] = {
-            'style': dumps(style),
-            'width': 1024,
-            'height': 512,
-            'token': token
-        }
-
-        if feature.layer.is_point and not feature.extra_geometries.exists():
-            context['style']['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
-            context['style']['center'] = list(feature.geom.centroid)
-        else:
-            geoms = feature.extra_geometries.values_list('geom', flat=True)
-            collections = GeometryCollection(feature.geom, *geoms)
-            context['style']['bounds'] = ','.join(str(v) for v in collections.extent)
-        return context
-
 
 class CrudLayerViewSet(LayerViewSet):
     permission_classes = []

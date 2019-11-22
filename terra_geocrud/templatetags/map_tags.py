@@ -1,53 +1,54 @@
 from django import template
-from django.contrib.gis.geos import GeometryCollection
+from django.contrib.gis.geos import GeometryCollection, Point
 from json import dumps, loads
 from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
-from terra_geocrud import models, settings as app_settings
+from terra_geocrud import settings as app_settings
+from terra_geocrud.utils import get_default_style
 
 
 register = template.Library()
 
 
-@register.filter(is_safe=True)
-def filter_features(basic_style, args=()):
-    style = loads(basic_style['style'])
-    features = args.split(',')
-    for feature in features:
-        style["sources"].pop(feature, None)
-    basic_style['style'] = dumps(style)
-    return basic_style
-
-
 class MapImageLoaderNodeURL(ImageLoaderNodeURL):
+    def get_data(self, context):
+        final_data = self.data
+
+        feature_included = True if not final_data['feature_included'] else final_data['feature_included'].resolve(context)
+        extras_included = [] if not final_data['extra_features'] else final_data['extra_features'].resolve(
+            context).split(',')
+        feature = context['object']
+        style = self.get_style(feature, feature_included, extras_included)
+        token = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {}).get('mapbox_access_token')
+        final_style = {
+            'style': dumps(style),
+            'width': 1024,
+            'height': 512,
+            'token': token
+        }
+        geoms = []
+        if feature_included:
+            geoms.append(feature.geom)
+
+        for l in feature.layer.extra_geometries.filter(slug__in=extras_included):
+            geoms.append(l.features.first().geom)
+        collections = GeometryCollection(*geoms)
+        if len(collections) == 1 and isinstance(collections[0], Point):
+            final_style['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
+            final_style['center'] = list(feature.geom.centroid)
+        else:
+            final_style['bounds'] = ','.join(str(v) for v in collections.extent)
+
+        return final_style
+
     def get_value_context(self, context):
         final_max_width = None if not self.max_width else self.max_width.resolve(context)
         final_max_height = None if not self.max_height else self.max_height.resolve(context)
         final_anchor = "paragraph" if not self.anchor else self.anchor.resolve(context)
         final_url = self.url
         final_request = self.request
-        final_data = self.data
-        feature_included = final_data['feature_included'].resolve(context)
-        extras_included = [] if not final_data['extra_features'] else final_data['extra_features'].resolve(context).split(',')
-        feature = context['object']
-        style = self.get_style(feature, feature_included, extras_included)
-        final_style = {
-            'style': dumps(style),
-            'width': 1024,
-            'height': 512,
-        }
-
-        if feature.layer.is_point and not feature.extra_geometries.exists():
-            final_style['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
-            final_style['center'] = list(feature.geom.centroid)
-        else:
-            geoms = []
-            for l in feature.layer.extra_geometries.filter(slug__in=extras_included):
-                geoms.append(l.features.first().geom)
-            collections = GeometryCollection(feature.geom, *geoms)
-            final_style['bounds'] = ','.join(str(v) for v in collections.extent)
-
-        return final_url, final_request, final_max_width, final_max_height, final_anchor, final_style
+        final_data = self.get_data(context)
+        return final_url, final_request, final_max_width, final_max_height, final_anchor, final_data
 
     def get_style(self, feature, feature_included, extras_included):
         style_map = feature.layer.crud_view.mblg_renderer_style
@@ -59,22 +60,23 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             primary_layer['id'] = geojson_id
             primary_layer['source'] = geojson_id
             style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
-        for i, layer_extra_geom in enumerate(feature.layer.extra_geometries.filter(slug__in=extras_included)):
-            extra_style = layer_extra_geom.style.filter(crud_view=view)
-            if extra_style and extra_style.first().map_style:
-                extra_layer = extra_style.first().map_style
+
+        for layer_extra_geom in feature.layer.extra_geometries.filter(slug__in=extras_included):
+            extra_style = layer_extra_geom.style.first()
+            if extra_style and extra_style.map_style:
+                extra_layer = extra_style.map_style
             else:
-                extra_layer = models.get_default_style(layer_extra_geom)
+                extra_layer = get_default_style(layer_extra_geom)
             extra_id = layer_extra_geom.name
             extra_layer['id'] = extra_id
             extra_layer['source'] = extra_id
-            style_map['sources'].update({extra_id: {'type': 'geojson', 'data': loads(layer_extra_geom.features.first().geom.geojson)}})
-
+            style_map['sources'].update({extra_id: {'type': 'geojson',
+                                                    'data': loads(feature.extra_geometries.filter(
+                                                        layer_extra_geom=layer_extra_geom).first().geom.geojson)}})
             style_map['layers'].append(extra_layer)
 
         if primary_layer:
             style_map['layers'].append(primary_layer)
-
         return style_map
 
 
@@ -94,6 +96,6 @@ def map_image_url_loader(parser, token):
     if not all(key in ['max_width', 'max_height', 'feature_included', 'extra_features', 'anchor'] for key in kwargs.keys()):
         raise template.TemplateSyntaxError("Usage: %s" % usage)
     kwargs['request'] = 'POST'
-    kwargs['data'] = {'feature_included': kwargs.pop('feature_included', True),
-                      'extra_features': kwargs.pop('extra_features', [])}
+    kwargs['data'] = {'feature_included': kwargs.pop('feature_included', None),
+                      'extra_features': kwargs.pop('extra_features', None)}
     return MapImageLoaderNodeURL('http://mbglrenderer/render', **kwargs)
