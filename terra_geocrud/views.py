@@ -139,11 +139,12 @@ class CrudRenderTemplateDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         feature = self.get_object()
         style = self.get_style(feature)
-
+        token = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {}).get('mapbox_access_token')
         context['style'] = {
             'style': dumps(style),
             'width': 1024,
             'height': 512,
+            'token': token
         }
 
         if feature.layer.is_point and not feature.extra_geometries.exists():

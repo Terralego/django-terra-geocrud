@@ -248,7 +248,8 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
                            'center': [-0.246322800072846, 44.5562461167907],
                            'zoom': app_settings.TERRA_GEOCRUD['MAX_ZOOM'],
                            'width': 1024,
-                           'height': 512}
+                           'height': 512,
+                           'token': None}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
 
@@ -294,7 +295,8 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
         dict_style_post = {'style': dumps(dict_style),
                            'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
-                           'height': 512}
+                           'height': 512,
+                           'token': None}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
     def test_style_mblg_renderer_line_with_extra_layers(self):
@@ -333,7 +335,8 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
         dict_style_post = {'style': dumps(dict_style),
                            'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
-                           'height': 512}
+                           'height': 512,
+                           'token': None}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
     def test_style_mblg_renderer_line_with_extra_layers_with_style(self):
@@ -378,7 +381,8 @@ class CrudRenderLineTemplateDetailViewTestCase(APITestCase):
         dict_style_post = {'style': dumps(dict_style),
                            'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
-                           'height': 512}
+                           'height': 512,
+                           'token': None}
         self.assertDictEqual(dict_style_post, response.context['style'])
 
 
