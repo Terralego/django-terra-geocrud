@@ -45,6 +45,7 @@ setup(
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.22',
         'django-geostore@https://github.com/Terralego/django-geostore/archive/extra_features.tar.gz',
+        'django-terra-utils@https://github.com/Terralego/django-terra-utils/archive/add_custom_base_layers.tar.gz',
         'django-terra-accounts>=0.3.6',
         'djangorestframework>=3.10',
         'djangorestframework-gis>=0.14'

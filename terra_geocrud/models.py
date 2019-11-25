@@ -10,10 +10,11 @@ from django.utils.translation import gettext_lazy as _
 from geostore.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail
 
+from terra_utils.models import MapBaseLayer
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
-from .utils import get_default_style
+from .utils import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
 
 
 class CrudModelMixin(models.Model):
@@ -73,11 +74,11 @@ class CrudView(CrudModelMixin):
 
     @cached_property
     def mblg_renderer_style(self):
-        style = {'version': 8}
-        terra_geocrud_setting = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {})
-        style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
-        style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
-        return style
+        if MapBaseLayer.objects.exists():
+            map_base_layer = MapBaseLayer.objects.first()
+            return map_base_layer.tilejson
+        else:
+            return DEFAULT_MBGL_RENDERER_STYLE
 
     @cached_property
     def map_style_with_default(self):
