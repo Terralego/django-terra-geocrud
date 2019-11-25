@@ -41,3 +41,17 @@ Settings provide default config values, and formatted list of crud group and vie
 
 * Some classes are provided to help you to manage Crud views / groups / layers and feature through django admin.
 * You need to register your wanted ModelAdmin in your project
+
+
+## TEMPLATES
+
+* Check https://github.com/Terralego/django-template-engines to create your own template.
+* In addition to the ODTEngine and DocXEngine, for odt only, you can add maps of layers with features and extra_features.
+  Use :
+
+    ::
+
+        {% load map_tags %}
+        {% map_image_url_loader feature_included=True extra_features="Extra_feature_slug,Extra_feature_2_slug" %}
+
+  You can use like the other tags : width, heigth, anchor.

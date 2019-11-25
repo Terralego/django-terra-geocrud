@@ -96,3 +96,14 @@ Settings should be overrided  with TERRA_GEOCRUD settings in your project settin
         }
     }
     ...
+
+* If you want to generate map on your template with the geometry of your feature, and/or extra features, you should use
+  mbglrenderer.
+
+  Check https://github.com/consbio/mbgl-renderer.
+
+  Change the url in the settings to use your instance of mbglrenderer :
+
+::
+
+    MBGLRENDERER_URL = 'http://mbglrenderer'

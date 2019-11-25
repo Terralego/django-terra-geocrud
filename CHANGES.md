@@ -6,6 +6,8 @@ CHANGELOG
 ----------------------------
 
 * fix settings with only MAX_ZOOM for map style
+* Create map_tags allowing to send which feature will be used
+* Automatically use
 
 
 0.3.23          (2019-11-18)
