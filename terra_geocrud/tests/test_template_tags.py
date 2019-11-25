@@ -4,6 +4,7 @@ from unittest import mock
 from django.contrib.gis.geos import LineString, Point
 from django.template import Context, Template
 from django.template.base import FilterExpression, Parser
+from django.template.exceptions import TemplateSyntaxError
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -125,7 +126,9 @@ class MapImageUrlLoaderTestCase(TestCase):
 
     def test_get_value_context_line(self):
         self.maxDiff = None
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'feature_included': None,
+        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
+                                                                              'height': None,
+                                                                              'feature_included': None,
                                                                               'extra_features': None})
         style = self.node.get_data(Context({'object': self.line}))
         dict_style = {
@@ -154,7 +157,9 @@ class MapImageUrlLoaderTestCase(TestCase):
         self.maxDiff = None
         settings_terra = app_settings.TERRA_GEOCRUD
         settings_terra['MAX_ZOOM'] = 20
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'feature_included': None,
+        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
+                                                                              'height': None,
+                                                                              'feature_included': None,
                                                                               'extra_features': None})
 
         with override_settings(TERRA_GEOCRUD=settings_terra):
@@ -183,7 +188,9 @@ class MapImageUrlLoaderTestCase(TestCase):
 
     def test_get_value_context_line_with_extra_features(self):
         self.maxDiff = None
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'feature_included': None,
+        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
+                                                                              'height': None,
+                                                                              'feature_included': None,
                                                                               'extra_features': FilterExpression("'test'", Parser(''))})
         style = self.node.get_data(Context({'object': self.line}))
 
@@ -231,13 +238,7 @@ class MapImageUrlLoaderTestCase(TestCase):
     @mock.patch('secrets.token_hex', return_value='test')
     @mock.patch('requests.post')
     def test_map_image_url_loader_usage(self, mocked_post, token):
-        mocked_post.return_value.status_code = 200
-        mocked_post.return_value.content = open(SMALL_PICTURE, 'rb').read()
-        context = Context({'object': self.line})
-        template_to_render = Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
-
-        rendered_template = template_to_render.render(context)
-        self.assertEqual('<draw:frame draw:name="test" svg:width="16697.0" svg:height="16697.0" '
-                         'text:anchor-type="paragraph" draw:z-index="0">'
-                         '<draw:image xlink:href="Pictures/test" xlink:show="embed" xlink:actuate="onLoad"/>'
-                         '</draw:frame>', rendered_template)
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
+        self.assertEqual('Usage: {% map_image_url_loader width="5000" height="5000" feature_included=False '
+                         'extra_features="feature_1"anchor="as-char" %}', str(cm.exception))
