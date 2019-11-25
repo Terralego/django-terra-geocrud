@@ -1,7 +1,6 @@
 import mimetypes
 from copy import deepcopy
 from pathlib import Path
-from json import dumps, loads
 
 import reversion
 from django.conf import settings
@@ -106,36 +105,6 @@ class CrudRenderTemplateDetailView(DetailView):
             Path(self.template.template_file.name).name
         )
         return response
-
-    def get_style(self, feature):
-        style_map = feature.layer.crud_view.mblg_renderer_style
-        geojson_id = 'primary'
-
-        primary_layer = feature.layer.crud_view.map_style_with_default
-        primary_layer['id'] = geojson_id
-        primary_layer['source'] = geojson_id
-
-        style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
-
-        style_map['layers'].append(primary_layer)
-
-        return style_map
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        feature = self.get_object()
-        style = self.get_style(feature)
-        context['style'] = {
-            'style': dumps(style),
-            'width': 1024,
-            'height': 512,
-        }
-        if feature.layer.is_point:
-            context['style']['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
-            context['style']['center'] = list(feature.geom.centroid)
-        else:
-            context['style']['bounds'] = ','.join(str(v) for v in feature.geom.extent)
-        return context
 
 
 class CrudLayerViewSet(LayerViewSet):

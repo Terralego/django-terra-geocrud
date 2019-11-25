@@ -21,6 +21,11 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
     extra = 0
 
 
+class ExtraLayerStyleInLine(admin.TabularInline):
+    model = models.ExtraLayerStyle
+    extra = 0
+
+
 class PropertyDisplayRenderingTabularInline(admin.TabularInline):
     classes = ('collapse', )
     verbose_name = _('Custom widget')
@@ -32,7 +37,7 @@ class PropertyDisplayRenderingTabularInline(admin.TabularInline):
 class CrudViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline]
+    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
