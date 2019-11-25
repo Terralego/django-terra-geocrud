@@ -1,16 +1,15 @@
 import json
-from json import dumps
 import os
 from io import BytesIO
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import Point
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
+from geostore.models import Feature
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory

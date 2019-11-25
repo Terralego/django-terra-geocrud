@@ -1,11 +1,9 @@
 import mimetypes
 from copy import deepcopy
 from pathlib import Path
-from json import dumps, loads
 
 import reversion
 from django.conf import settings
-from django.contrib.gis.geos import GeometryCollection
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text

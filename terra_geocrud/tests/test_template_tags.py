@@ -80,8 +80,7 @@ class MapImageUrlLoaderTestCase(TestCase):
                                       "tileSize": 256,
                                       "maxzoom": 18}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}
-            ]
+                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
         }
         self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['']))
 
@@ -199,7 +198,7 @@ class MapImageUrlLoaderTestCase(TestCase):
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}},
                  self.extra_layer.name: {"type": "geojson",
-                                         "data": {"type": "Point",  "coordinates": [-0.1, 44.2]}}},
+                                         "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
             "layers": [
                 {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
                 {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8}, "id": self.extra_layer.name,
