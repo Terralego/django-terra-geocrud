@@ -99,4 +99,4 @@ def map_image_url_loader(parser, token):
     kwargs['request'] = 'POST'
     kwargs['data'] = {'feature_included': kwargs.pop('feature_included', None),
                       'extra_features': kwargs.pop('extra_features', None)}
-    return MapImageLoaderNodeURL('http://mbglrenderer/render', **kwargs)
+    return MapImageLoaderNodeURL(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)

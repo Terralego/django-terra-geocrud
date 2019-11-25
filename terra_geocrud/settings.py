@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 
 from django.conf import settings
@@ -6,6 +7,8 @@ _DEFAULT_TERRA_GEOCRUD = {
     # default extent to world
     'EXTENT': [-90.0, -180.0, 90.0, 180.0],
     'DATA_FILE_STORAGE_CLASS': 'django.core.files.storage.FileSystemStorage',
+    # Do not finish the url with a slash
+    'MBGLRENDERER_URL':  os.getenv('MBGLRENDERER_URL', 'http://mbglrenderer'),
     # We should automatically get the source of layers from a model
     'TMP_MBGL_BASEMAP': {
         "type": "raster",
