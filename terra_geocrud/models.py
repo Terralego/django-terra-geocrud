@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from geostore.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail
 
-from terra_utils.models import MapBaseLayer
+from mapbox_baselayer.models import MapBaseLayer
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
