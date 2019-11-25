@@ -227,3 +227,17 @@ class MapImageUrlLoaderTestCase(TestCase):
                          'text:anchor-type="paragraph" draw:z-index="0">'
                          '<draw:image xlink:href="Pictures/test" xlink:show="embed" xlink:actuate="onLoad"/>'
                          '</draw:frame>', rendered_template)
+
+    @mock.patch('secrets.token_hex', return_value='test')
+    @mock.patch('requests.post')
+    def test_map_image_url_loader_usage(self, mocked_post, token):
+        mocked_post.return_value.status_code = 200
+        mocked_post.return_value.content = open(SMALL_PICTURE, 'rb').read()
+        context = Context({'object': self.line})
+        template_to_render = Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
+
+        rendered_template = template_to_render.render(context)
+        self.assertEqual('<draw:frame draw:name="test" svg:width="16697.0" svg:height="16697.0" '
+                         'text:anchor-type="paragraph" draw:z-index="0">'
+                         '<draw:image xlink:href="Pictures/test" xlink:show="embed" xlink:actuate="onLoad"/>'
+                         '</draw:frame>', rendered_template)
