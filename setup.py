@@ -43,7 +43,7 @@ setup(
     install_requires=[
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
-        'django-template-engines>=1.2.21',
+        'django-template-engines>=1.2.22',
         'django-geostore@https://github.com/Terralego/django-geostore/archive/extra_features.tar.gz',
         'django-terra-accounts>=0.3.6',
         'djangorestframework>=3.10',
