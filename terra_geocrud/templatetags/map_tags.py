@@ -14,6 +14,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
     def get_data(self, context):
         final_data = self.data
 
+        width = 1024 if not final_data['width'] else final_data['width'].resolve(context)
+        height = 512 if not final_data['height'] else final_data['height'].resolve(context)
         feature_included = True if not final_data['feature_included'] else final_data['feature_included'].resolve(context)
         extras_included = [] if not final_data['extra_features'] else final_data['extra_features'].resolve(
             context).split(',')
@@ -22,8 +24,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         token = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {}).get('mapbox_access_token')
         final_style = {
             'style': dumps(style),
-            'width': 1024,
-            'height': 512,
+            'width': width,
+            'height': height,
             'token': token
         }
         geoms = []
@@ -42,13 +44,11 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         return final_style
 
     def get_value_context(self, context):
-        final_max_width = None if not self.max_width else self.max_width.resolve(context)
-        final_max_height = None if not self.max_height else self.max_height.resolve(context)
         final_anchor = "paragraph" if not self.anchor else self.anchor.resolve(context)
         final_url = self.url
         final_request = self.request
         final_data = self.get_data(context)
-        return final_url, final_request, final_max_width, final_max_height, final_anchor, final_data
+        return final_url, final_request, None, None, final_anchor, final_data
 
     def get_style(self, feature, feature_included, extras_included):
         style_map = feature.layer.crud_view.mblg_renderer_style
@@ -87,16 +87,18 @@ def map_image_url_loader(parser, token):
     Optional keys : data, max_width, max_height, request
     - feature_included : Primary feature will be shown
     - extra_features : List of the extra feature you wan to add on your map
-    - max_width : Width of the picture rendered
-    - max_heigth : Height of the picture rendered
+    - width : Width of the picture rendered
+    - heigth : Height of the picture rendered
     - anchor : Type of anchor, paragraph, as-char, char, frame, page
     """
     tag_name, args, kwargs = parse_tag(token, parser)
-    usage = '{{% {tag_name} max_width="5000" max_height="5000" feature_included=False extra_features="feature_1"' \
+    usage = '{{% {tag_name} width="5000" height="5000" feature_included=False extra_features="feature_1"' \
             'anchor="as-char" %}}'.format(tag_name=tag_name)
-    if not all(key in ['max_width', 'max_height', 'feature_included', 'extra_features', 'anchor'] for key in kwargs.keys()):
+    if not all(key in ['width', 'height', 'feature_included', 'extra_features', 'anchor'] for key in kwargs.keys()):
         raise template.TemplateSyntaxError("Usage: %s" % usage)
     kwargs['request'] = 'POST'
     kwargs['data'] = {'feature_included': kwargs.pop('feature_included', None),
-                      'extra_features': kwargs.pop('extra_features', None)}
+                      'extra_features': kwargs.pop('extra_features', None),
+                      'width': kwargs.pop('width', None),
+                      'height': kwargs.pop('height', None)}
     return MapImageLoaderNodeURL(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)
