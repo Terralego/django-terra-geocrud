@@ -1,6 +1,9 @@
+from json import dumps, loads
+import secrets
+
 from django import template
 from django.contrib.gis.geos import GeometryCollection, Point
-from json import dumps, loads
+
 from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
 from terra_geocrud import settings as app_settings
@@ -55,7 +58,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         view = feature.layer.crud_view
         primary_layer = {}
         if feature_included:
-            geojson_id = 'primary'
+            geojson_id = secrets.token_hex(15)
             primary_layer = view.map_style_with_default
             primary_layer['id'] = geojson_id
             primary_layer['source'] = geojson_id
@@ -67,7 +70,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
                 extra_layer = extra_style.map_style
             else:
                 extra_layer = get_default_style(layer_extra_geom)
-            extra_id = layer_extra_geom.name
+            extra_id = secrets.token_hex(15)
             extra_layer['id'] = extra_id
             extra_layer['source'] = extra_id
             style_map['sources'].update({extra_id: {'type': 'geojson',

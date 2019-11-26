@@ -19,6 +19,7 @@ from terra_geocrud.templatetags.map_tags import MapImageLoaderNodeURL
 from terra_geocrud import settings as app_settings
 
 
+@mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
 class MapImageUrlLoaderTestCase(TestCase):
     def setUp(self):
         self.crud_view_line = factories.CrudViewFactory(name="Line", order=0,
@@ -52,58 +53,61 @@ class MapImageUrlLoaderTestCase(TestCase):
 
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render')
 
-    def test_get_style_default(self):
+        self.token_mapbox = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
+
+    def test_get_style_default(self, token):
         self.maxDiff = None
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"},
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
         self.assertDictEqual(dict_style, self.node.get_style(self.line, True, ['']))
 
-    def test_get_style_no_feature(self):
+    def test_get_style_no_feature(self, token):
         self.maxDiff = None
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18}},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"}]
         }
+
         self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['']))
 
-    def test_get_style_no_feature_extra_feature(self):
+    def test_get_style_no_feature_extra_feature(self, token):
         self.maxDiff = None
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18},
-                 self.extra_layer.name: {"type": "geojson",
-                                         "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18},
+                 'primary': {"type": "geojson",
+                             "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"},
                 {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8},
-                 "id": self.extra_layer.name, "source": self.extra_layer.name}]
+                 "id": "primary", "source": "primary"}]
         }
         self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['test']))
 
-    def test_get_style_no_feature_extra_feature_custom_style(self):
+    def test_get_style_no_feature_extra_feature_custom_style(self, token):
         self.maxDiff = None
         custom_style = {"type": "circle", "paint": {"circle-color": "#fff", "circle-radius": 8}}
         ExtraLayerStyle.objects.create(layer_extra_geom=self.extra_layer, crud_view=self.crud_view_line,
@@ -111,20 +115,20 @@ class MapImageUrlLoaderTestCase(TestCase):
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18},
-                 self.extra_layer.name: {"type": "geojson",
-                                         "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18},
+                 "primary": {"type": "geojson",
+                             "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"},
                 {"type": "circle", "paint": {"circle-color": "#fff", "circle-radius": 8},
-                 "id": self.extra_layer.name, "source": self.extra_layer.name}]
+                 "id": "primary", "source": "primary"}]
         }
         self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['test']))
 
-    def test_get_value_context_line(self):
+    def test_get_value_context_line(self, token):
         self.maxDiff = None
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
                                                                               'height': None,
@@ -134,15 +138,15 @@ class MapImageUrlLoaderTestCase(TestCase):
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"},
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
@@ -150,10 +154,10 @@ class MapImageUrlLoaderTestCase(TestCase):
                            'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
                            'height': 512,
-                           'token': None}
+                           'token': self.token_mapbox}
         self.assertDictEqual(dict_style_post, style)
 
-    def test_get_value_context_point(self):
+    def test_get_value_context_point(self, token):
         self.maxDiff = None
         settings_terra = app_settings.TERRA_GEOCRUD
         settings_terra['MAX_ZOOM'] = 20
@@ -167,14 +171,14 @@ class MapImageUrlLoaderTestCase(TestCase):
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "Point", "coordinates": [-0.246322800072846, 44.5562461167907]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"},
                 {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8}, "id": "primary",
                  "source": "primary"}]
         }
@@ -183,10 +187,10 @@ class MapImageUrlLoaderTestCase(TestCase):
                            'zoom': app_settings.TERRA_GEOCRUD['MAX_ZOOM'],
                            'width': 1024,
                            'height': 512,
-                           'token': None}
+                           'token': self.token_mapbox}
         self.assertDictEqual(dict_style_post, style)
 
-    def test_get_value_context_line_with_extra_features(self):
+    def test_get_value_context_line_with_extra_features(self, token):
         self.maxDiff = None
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
                                                                               'height': None,
@@ -197,19 +201,19 @@ class MapImageUrlLoaderTestCase(TestCase):
         dict_style = {
             "version": 8,
             "sources":
-                {"TMP_MBGL_BASEMAP": {"type": "raster",
-                                      "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                                      "tileSize": 256,
-                                      "maxzoom": 18},
+                {"DEFAULT_MBGL_RENDERER_STYLE": {"type": "raster",
+                                                 "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                                                 "tileSize": 256,
+                                                 "maxzoom": 18},
                  "primary": {"type": "geojson",
                              "data": {"type": "LineString", "coordinates": [[-0.246322800072846, 44.5562461167907],
                                                                             [0.0, 44.0]]}},
-                 self.extra_layer.name: {"type": "geojson",
-                                         "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
+                 "test": {"type": "geojson",
+                          "data": {"type": "Point", "coordinates": [-0.1, 44.2]}}},
             "layers": [
-                {"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"},
-                {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8}, "id": self.extra_layer.name,
-                 "source": self.extra_layer.name},
+                {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"},
+                {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8}, "id": "test",
+                 "source": "test"},
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
@@ -217,11 +221,10 @@ class MapImageUrlLoaderTestCase(TestCase):
                            'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
                            'width': 1024,
                            'height': 512,
-                           'token': None}
+                           'token': self.token_mapbox}
 
         self.assertDictEqual(dict_style_post, style)
 
-    @mock.patch('secrets.token_hex', return_value='test')
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
         mocked_post.return_value.status_code = 200
@@ -235,7 +238,6 @@ class MapImageUrlLoaderTestCase(TestCase):
                          '<draw:image xlink:href="Pictures/test" xlink:show="embed" xlink:actuate="onLoad"/>'
                          '</draw:frame>', rendered_template)
 
-    @mock.patch('secrets.token_hex', return_value='test')
     @mock.patch('requests.post')
     def test_map_image_url_loader_usage(self, mocked_post, token):
         with self.assertRaises(TemplateSyntaxError) as cm:
