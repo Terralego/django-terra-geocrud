@@ -83,6 +83,8 @@ class CrudView(CrudModelMixin):
                                         params={"access_token": app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')})
                 if response.status_code == 200:
                     return response.json()
+            else:
+                return map_base_layer.tilejson
         return deepcopy(DEFAULT_MBGL_RENDERER_STYLE)
 
     @cached_property

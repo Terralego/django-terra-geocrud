@@ -14,6 +14,7 @@ from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA, SMALL_PICTURE
 from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
 from geostore import GeometryTypes
 
+from mapbox_baselayer.models import BaseLayerTile, MapBaseLayer
 from terra_geocrud.models import ExtraLayerStyle
 from terra_geocrud.templatetags.map_tags import MapImageLoaderNodeURL
 from terra_geocrud import settings as app_settings
@@ -224,6 +225,35 @@ class MapImageUrlLoaderTestCase(TestCase):
                            'token': self.token_mapbox}
 
         self.assertDictEqual(dict_style_post, style)
+
+    def test_get_style_no_feature_from_baselayer(self, token):
+        self.maxDiff = None
+        layer = MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="raster")
+        BaseLayerTile.objects.create(url="test.test", base_layer=layer)
+        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+
+        dict_style = {
+            "version": 8,
+            "sources":
+                {"baselayercustom": {"type": "raster",
+                                                "tiles": ["test.test"],
+                                                "minzoom": 0,
+                                                "maxzoom": 22}},
+            "layers": [
+                {"id": "baselayercustom-background", "type": "raster", "source": "baselayercustom"}]
+        }
+
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['']))
+
+    @mock.patch('requests.get')
+    def test_get_style_no_feature_from_mapbox_baselayer(self, mocked_get, token):
+        mocked_get.return_value.status_code = 200
+        mocked_get.return_value.json.return_value = {"custom": "style"}
+        self.maxDiff = None
+        MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="mapbox", map_box_url="test.com")
+        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+
+        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['']))
 
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
