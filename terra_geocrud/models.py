@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.mixins import BaseUpdatableModel
+import requests
 from sorl.thumbnail import ImageField, get_thumbnail
 
 from mapbox_baselayer.models import MapBaseLayer
@@ -76,10 +77,12 @@ class CrudView(CrudModelMixin):
     def mblg_renderer_style(self):
         if MapBaseLayer.objects.exists():
             map_base_layer = MapBaseLayer.objects.first()
-            tile_json = map_base_layer.tilejson
-            for key in tile_json['sources'].keys():
-                if tile_json['sources'][key]['type'] != "mapbox":
-                    return map_base_layer.tilejson
+            if map_base_layer.base_layer_type == 'mapbox':
+                response = requests.get(map_base_layer.map_box_url.replace("mapbox://styles",
+                                                                           "https://api.mapbox.com/styles/v1"),
+                                        params={"access_token": app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')})
+                if response.status_code == 200:
+                    return response.json()
         return DEFAULT_MBGL_RENDERER_STYLE
 
     @cached_property

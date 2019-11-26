@@ -21,7 +21,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             context).split(',')
         feature = context['object']
         style = self.get_style(feature, feature_included, extras_included)
-        token = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {}).get('mapbox_access_token')
+        token = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
         final_style = {
             'style': dumps(style),
             'width': width,
