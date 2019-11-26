@@ -46,7 +46,7 @@ setup(
         'django-template-engines>=1.2.22',
         'django-mapbox-baselayer>=0.0.1',
         'django-geostore@https://github.com/Terralego/django-geostore/archive/extra_features.tar.gz',
-        'django-terra-accounts>=0.3.6',
+        'django-terra-accounts>=0.3.7.1',
         'djangorestframework>=3.10',
         'djangorestframework-gis>=0.14'
         'django>=2.2',
