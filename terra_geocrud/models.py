@@ -76,9 +76,11 @@ class CrudView(CrudModelMixin):
     def mblg_renderer_style(self):
         if MapBaseLayer.objects.exists():
             map_base_layer = MapBaseLayer.objects.first()
-            return map_base_layer.tilejson
-        else:
-            return DEFAULT_MBGL_RENDERER_STYLE
+            tile_json = map_base_layer.tilejson
+            for key in tile_json['sources'].keys():
+                if tile_json['sources'][key]['type'] != "mapbox":
+                    return map_base_layer.tilejson
+        return DEFAULT_MBGL_RENDERER_STYLE
 
     @cached_property
     def map_style_with_default(self):
