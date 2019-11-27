@@ -48,9 +48,6 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
 
         return final_style
 
-    def no_content(self, *args):
-        return ""
-
     def get_value_context(self, context):
         final_anchor = "paragraph" if not self.anchor else self.anchor.resolve(context)
         final_url = self.url
