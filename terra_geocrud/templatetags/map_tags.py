@@ -40,8 +40,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         if feature_included:
             geoms.append(feature.geom)
 
-        for l in feature.layer.extra_geometries.filter(slug__in=extras_included):
-            geoms.append(l.features.first().geom)
+        for l in feature.extra_geometries.filter(layer_extra_geom__slug__in=extras_included):
+            geoms.append(l.geom)
         collections = GeometryCollection(*geoms)
         if not collections:
             return final_style

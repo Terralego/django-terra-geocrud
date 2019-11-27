@@ -41,6 +41,8 @@ class MapImageUrlLoaderTestCase(TestCase):
         )
 
         self.extra_layer = LayerExtraGeom.objects.create(layer=self.crud_view_line.layer, title='test')
+        FeatureExtraGeom.objects.create(feature=self.point, layer_extra_geom=self.extra_layer,
+                                        geom=Point((-0.5, 45.2)))
         FeatureExtraGeom.objects.create(feature=self.line, layer_extra_geom=self.extra_layer,
                                         geom=Point((-0.1, 44.2)))
 
