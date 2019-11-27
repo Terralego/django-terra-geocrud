@@ -255,6 +255,17 @@ class MapImageUrlLoaderTestCase(TestCase):
 
         self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['']))
 
+    @mock.patch('requests.get')
+    def test_get_style_extra_layer_no_extra_feature(self, mocked_get, token):
+        mocked_get.return_value.status_code = 200
+        mocked_get.return_value.json.return_value = {"custom": "style"}
+        self.extra_layer.features.all().delete()
+        self.maxDiff = None
+        MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="mapbox", map_box_url="test.com")
+        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+
+        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['test']))
+
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
         mocked_post.return_value.status_code = 200
