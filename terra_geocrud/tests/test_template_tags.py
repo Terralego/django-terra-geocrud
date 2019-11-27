@@ -20,7 +20,6 @@ from terra_geocrud.templatetags.map_tags import MapImageLoaderNodeURL
 from terra_geocrud import settings as app_settings
 
 
-@mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
 class MapImageUrlLoaderTestCase(TestCase):
     def setUp(self):
         self.crud_view_line = factories.CrudViewFactory(name="Line", order=0,
@@ -42,6 +41,8 @@ class MapImageUrlLoaderTestCase(TestCase):
         )
 
         self.extra_layer = LayerExtraGeom.objects.create(layer=self.crud_view_line.layer, title='test')
+        FeatureExtraGeom.objects.create(feature=self.point, layer_extra_geom=self.extra_layer,
+                                        geom=Point((-0.5, 45.2)))
         FeatureExtraGeom.objects.create(feature=self.line, layer_extra_geom=self.extra_layer,
                                         geom=Point((-0.1, 44.2)))
 
@@ -56,6 +57,9 @@ class MapImageUrlLoaderTestCase(TestCase):
 
         self.token_mapbox = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
 
+
+@mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
+class StyleMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
     def test_get_style_default(self, token):
         self.maxDiff = None
         dict_style = {
@@ -73,7 +77,7 @@ class MapImageUrlLoaderTestCase(TestCase):
                 {"type": "line", "paint": {"line-color": "#000", "line-width": 3},
                  "id": "primary", "source": "primary"}]
         }
-        self.assertDictEqual(dict_style, self.node.get_style(self.line, True, ['']))
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, True, [''], None))
 
     def test_get_style_no_feature(self, token):
         self.maxDiff = None
@@ -88,7 +92,7 @@ class MapImageUrlLoaderTestCase(TestCase):
                 {"id": "DEFAULT_MBGL_RENDERER_STYLE", "type": "raster", "source": "DEFAULT_MBGL_RENDERER_STYLE"}]
         }
 
-        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['']))
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, [''], None))
 
     def test_get_style_no_feature_extra_feature(self, token):
         self.maxDiff = None
@@ -106,7 +110,7 @@ class MapImageUrlLoaderTestCase(TestCase):
                 {"type": "circle", "paint": {"circle-color": "#000", "circle-radius": 8},
                  "id": "primary", "source": "primary"}]
         }
-        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['test']))
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['test'], None))
 
     def test_get_style_no_feature_extra_feature_custom_style(self, token):
         self.maxDiff = None
@@ -127,14 +131,66 @@ class MapImageUrlLoaderTestCase(TestCase):
                 {"type": "circle", "paint": {"circle-color": "#fff", "circle-radius": 8},
                  "id": "primary", "source": "primary"}]
         }
-        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['test']))
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['test'], None))
 
+    def test_get_style_no_feature_from_baselayer(self, token):
+        self.maxDiff = None
+        layer = MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="raster")
+        BaseLayerTile.objects.create(url="test.test", base_layer=layer)
+        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+
+        dict_style = {
+            "version": 8,
+            "sources":
+                {"baselayercustom": {"type": "raster",
+                                     "tiles": ["test.test"],
+                                     "minzoom": 0,
+                                     "maxzoom": 22}},
+            "layers": [
+                {"id": "baselayercustom-background", "type": "raster", "source": "baselayercustom"}]
+        }
+
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, [''], None))
+
+    def test_get_style_chosen_baselayer(self, token):
+        self.maxDiff = None
+        MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="raster")
+        layer = MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+        BaseLayerTile.objects.create(url="test.test", base_layer=layer)
+
+        dict_style = {
+            "version": 8,
+            "sources":
+                {"otherlayercustom": {"type": "raster",
+                                      "tiles": ["test.test"],
+                                      "minzoom": 0,
+                                      "maxzoom": 22}},
+            "layers": [
+                {"id": "otherlayercustom-background", "type": "raster", "source": "otherlayercustom"}]
+        }
+
+        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, [''], 'otherlayercustom'))
+
+    @mock.patch('requests.get')
+    def test_get_style_no_feature_from_mapbox_baselayer(self, mocked_get, token):
+        mocked_get.return_value.status_code = 200
+        mocked_get.return_value.json.return_value = {"custom": "style"}
+        self.maxDiff = None
+        MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="mapbox", map_box_url="test.com")
+        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+
+        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, [''], None))
+
+
+@mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
+class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
     def test_get_value_context_line(self, token):
         self.maxDiff = None
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
                                                                               'height': None,
                                                                               'feature_included': None,
-                                                                              'extra_features': None})
+                                                                              'extra_features': None,
+                                                                              'base_layer': None})
         style = self.node.get_data(Context({'object': self.line}))
         dict_style = {
             "version": 8,
@@ -165,7 +221,8 @@ class MapImageUrlLoaderTestCase(TestCase):
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
                                                                               'height': None,
                                                                               'feature_included': None,
-                                                                              'extra_features': None})
+                                                                              'extra_features': None,
+                                                                              'base_layer': None})
 
         with override_settings(TERRA_GEOCRUD=settings_terra):
             style = self.node.get_data(Context({'object': self.point}))
@@ -196,6 +253,7 @@ class MapImageUrlLoaderTestCase(TestCase):
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
                                                                               'height': None,
                                                                               'feature_included': None,
+                                                                              'base_layer': None,
                                                                               'extra_features': FilterExpression("'test'", Parser(''))})
         style = self.node.get_data(Context({'object': self.line}))
 
@@ -226,35 +284,6 @@ class MapImageUrlLoaderTestCase(TestCase):
 
         self.assertDictEqual(dict_style_post, style)
 
-    def test_get_style_no_feature_from_baselayer(self, token):
-        self.maxDiff = None
-        layer = MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="raster")
-        BaseLayerTile.objects.create(url="test.test", base_layer=layer)
-        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
-
-        dict_style = {
-            "version": 8,
-            "sources":
-                {"baselayercustom": {"type": "raster",
-                                             "tiles": ["test.test"],
-                                             "minzoom": 0,
-                                             "maxzoom": 22}},
-            "layers": [
-                {"id": "baselayercustom-background", "type": "raster", "source": "baselayercustom"}]
-        }
-
-        self.assertDictEqual(dict_style, self.node.get_style(self.line, False, ['']))
-
-    @mock.patch('requests.get')
-    def test_get_style_no_feature_from_mapbox_baselayer(self, mocked_get, token):
-        mocked_get.return_value.status_code = 200
-        mocked_get.return_value.json.return_value = {"custom": "style"}
-        self.maxDiff = None
-        MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="mapbox", map_box_url="test.com")
-        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
-
-        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['']))
-
     @mock.patch('requests.get')
     def test_get_style_extra_layer_no_extra_feature(self, mocked_get, token):
         mocked_get.return_value.status_code = 200
@@ -264,8 +293,11 @@ class MapImageUrlLoaderTestCase(TestCase):
         MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="mapbox", map_box_url="test.com")
         MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
 
-        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['test']))
+        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['test'], None))
 
+
+@mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
+class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
         mocked_post.return_value.status_code = 200
@@ -284,7 +316,7 @@ class MapImageUrlLoaderTestCase(TestCase):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
         self.assertEqual('Usage: {% map_image_url_loader width="5000" height="5000" feature_included=False '
-                         'extra_features="feature_1"anchor="as-char" %}', str(cm.exception))
+                         'extra_features="feature_1" base_layer="mapbaselayer_1" anchor="as-char" %}', str(cm.exception))
 
     def test_image_url_loader_no_object(self, token):
         context = Context({'object': self.line})

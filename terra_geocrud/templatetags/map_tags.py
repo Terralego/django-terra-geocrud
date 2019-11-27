@@ -1,13 +1,16 @@
+from copy import deepcopy
 from json import dumps, loads
+import requests
 import secrets
 
 from django import template
 from django.contrib.gis.geos import GeometryCollection, Point
 
+from mapbox_baselayer.models import MapBaseLayer
 from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
 from terra_geocrud import settings as app_settings
-from terra_geocrud.utils import get_default_style
+from terra_geocrud.utils import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
 
 
 register = template.Library()
@@ -22,8 +25,10 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         feature_included = True if not final_data['feature_included'] else final_data['feature_included'].resolve(context)
         extras_included = [] if not final_data['extra_features'] else final_data['extra_features'].resolve(
             context).split(',')
+        base_layer = None if not final_data['extra_features'] else final_data['extra_features'].resolve(context)
+
         feature = context['object']
-        style = self.get_style(feature, feature_included, extras_included)
+        style = self.get_style(feature, feature_included, extras_included, base_layer)
         token = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
         final_style = {
             'style': dumps(style),
@@ -35,8 +40,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         if feature_included:
             geoms.append(feature.geom)
 
-        for l in feature.layer.extra_geometries.filter(slug__in=extras_included):
-            geoms.append(l.features.first().geom)
+        for l in feature.extra_geometries.filter(layer_extra_geom__slug__in=extras_included):
+            geoms.append(l.geom)
         collections = GeometryCollection(*geoms)
         if not collections:
             return final_style
@@ -55,8 +60,26 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         final_data = self.get_data(context)
         return final_url, final_request, None, None, final_anchor, final_data
 
-    def get_style(self, feature, feature_included, extras_included):
-        style_map = feature.layer.crud_view.mblg_renderer_style
+    def get_style_base_layer(self, base_layer):
+        try:
+            map_base_layer = MapBaseLayer.objects.get(slug=base_layer)
+        except MapBaseLayer.DoesNotExist:
+            map_base_layer = MapBaseLayer.objects.first()
+
+        if map_base_layer:
+            if map_base_layer.base_layer_type == 'mapbox':
+                response = requests.get(map_base_layer.map_box_url.replace("mapbox://styles",
+                                                                           "https://api.mapbox.com/styles/v1"),
+                                        params={"access_token": app_settings.TERRA_GEOCRUD.get('map', {}).get(
+                                            'mapbox_access_token')})
+                if response.status_code == 200:
+                    return response.json()
+            else:
+                return map_base_layer.tilejson
+        return deepcopy(DEFAULT_MBGL_RENDERER_STYLE)
+
+    def get_style(self, feature, feature_included, extras_included, base_layer):
+        style_map = self.get_style_base_layer(base_layer)
         view = feature.layer.crud_view
         primary_layer = {}
         if feature_included:
@@ -100,13 +123,15 @@ def map_image_url_loader(parser, token):
     - anchor : Type of anchor, paragraph, as-char, char, frame, page
     """
     tag_name, args, kwargs = parse_tag(token, parser)
-    usage = '{{% {tag_name} width="5000" height="5000" feature_included=False extra_features="feature_1"' \
-            'anchor="as-char" %}}'.format(tag_name=tag_name)
-    if not all(key in ['width', 'height', 'feature_included', 'extra_features', 'anchor'] for key in kwargs.keys()):
+    usage = '{{% {tag_name} width="5000" height="5000" feature_included=False extra_features="feature_1" ' \
+            'base_layer="mapbaselayer_1" anchor="as-char" %}}'.format(tag_name=tag_name)
+    if not all(key in ['width', 'height', 'feature_included',
+                       'extra_features', 'anchor', 'base_layer'] for key in kwargs.keys()):
         raise template.TemplateSyntaxError("Usage: %s" % usage)
     kwargs['request'] = 'POST'
     kwargs['data'] = {'feature_included': kwargs.pop('feature_included', None),
                       'extra_features': kwargs.pop('extra_features', None),
                       'width': kwargs.pop('width', None),
-                      'height': kwargs.pop('height', None)}
+                      'height': kwargs.pop('height', None),
+                      'base_layer': kwargs.pop('base_layer', None)}
     return MapImageLoaderNodeURL(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)

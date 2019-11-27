@@ -6,9 +6,7 @@ CHANGELOG
 ----------------------------
 
 * fix settings with only MAX_ZOOM for map style
-* Create map_tags allowing to send which feature will be used
-* Automatically use
-
+* Add map_image_url_loader tag  allowing to add map with style, extra_features
 
 0.3.23          (2019-11-18)
 ----------------------------

@@ -52,6 +52,7 @@ Settings provide default config values, and formatted list of crud group and vie
     ::
 
         {% load map_tags %}
-        {% map_image_url_loader feature_included=True extra_features="Extra_feature_slug,Extra_feature_2_slug" %}
+        {% map_image_url_loader feature_included=True extra_features="Extra_feature_slug,Extra_feature_2_slug"
+         base_layer="mapbox_baselayer_slug" %}
 
-  You can use like the other tags : width, heigth, anchor.
+  You can use the other tags : width, height, anchor.

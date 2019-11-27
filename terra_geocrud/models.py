@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import requests
 from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
@@ -9,13 +8,12 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.mixins import BaseUpdatableModel
-from mapbox_baselayer.models import MapBaseLayer
 from sorl.thumbnail import ImageField, get_thumbnail
 
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
-from .utils import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
+from .utils import get_default_style
 
 
 class CrudModelMixin(models.Model):
@@ -72,20 +70,6 @@ class CrudView(CrudModelMixin):
         # verify feature_title_property exists
         if self.feature_title_property and self.feature_title_property not in self.properties:
             raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
-
-    @cached_property
-    def mblg_renderer_style(self):
-        if MapBaseLayer.objects.exists():
-            map_base_layer = MapBaseLayer.objects.first()
-            if map_base_layer.base_layer_type == 'mapbox':
-                response = requests.get(map_base_layer.map_box_url.replace("mapbox://styles",
-                                                                           "https://api.mapbox.com/styles/v1"),
-                                        params={"access_token": app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')})
-                if response.status_code == 200:
-                    return response.json()
-            else:
-                return map_base_layer.tilejson
-        return deepcopy(DEFAULT_MBGL_RENDERER_STYLE)
 
     @cached_property
     def map_style_with_default(self):
