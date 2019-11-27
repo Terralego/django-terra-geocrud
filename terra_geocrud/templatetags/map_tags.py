@@ -61,10 +61,11 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         return final_url, final_request, None, None, final_anchor, final_data
 
     def get_style_base_layer(self, base_layer):
-        if not base_layer:
+        try:
+            map_base_layer = MapBaseLayer.objects.get(slug=base_layer)
+        except MapBaseLayer.DoesNotExist:
             map_base_layer = MapBaseLayer.objects.first()
-        else:
-            map_base_layer = MapBaseLayer.objects.filter(base_layer)
+
         if map_base_layer:
             if map_base_layer.base_layer_type == 'mapbox':
                 response = requests.get(map_base_layer.map_box_url.replace("mapbox://styles",
@@ -73,8 +74,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
                                             'mapbox_access_token')})
                 if response.status_code == 200:
                     return response.json()
-        else:
-            return map_base_layer.tilejson
+            else:
+                return map_base_layer.tilejson
         return deepcopy(DEFAULT_MBGL_RENDERER_STYLE)
 
     def get_style(self, feature, feature_included, extras_included, base_layer):
