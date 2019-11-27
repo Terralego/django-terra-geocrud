@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+import requests
 from django.contrib.gis.db.models import Extent
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.exceptions import ValidationError
@@ -8,10 +9,9 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.mixins import BaseUpdatableModel
-import requests
+from mapbox_baselayer.models import MapBaseLayer
 from sorl.thumbnail import ImageField, get_thumbnail
 
-from mapbox_baselayer.models import MapBaseLayer
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
@@ -91,7 +91,7 @@ class CrudView(CrudModelMixin):
     def map_style_with_default(self):
         response = get_default_style(self.layer)
         style = self.map_style
-        return style if style else response
+        return deepcopy(style) if style else response
 
     @cached_property
     def grouped_form_schema(self):
