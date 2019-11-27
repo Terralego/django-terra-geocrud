@@ -255,6 +255,17 @@ class MapImageUrlLoaderTestCase(TestCase):
 
         self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['']))
 
+    @mock.patch('requests.get')
+    def test_get_style_extra_layer_no_extra_feature(self, mocked_get, token):
+        mocked_get.return_value.status_code = 200
+        mocked_get.return_value.json.return_value = {"custom": "style"}
+        self.extra_layer.features.all().delete()
+        self.maxDiff = None
+        MapBaseLayer.objects.create(name="BaseLayerCustom", order=0, base_layer_type="mapbox", map_box_url="test.com")
+        MapBaseLayer.objects.create(name="OtherLayerCustom", order=1, base_layer_type="raster")
+
+        self.assertDictEqual({"custom": "style"}, self.node.get_style(self.line, False, ['test']))
+
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
         mocked_post.return_value.status_code = 200
@@ -274,3 +285,10 @@ class MapImageUrlLoaderTestCase(TestCase):
             Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
         self.assertEqual('Usage: {% map_image_url_loader width="5000" height="5000" feature_included=False '
                          'extra_features="feature_1"anchor="as-char" %}', str(cm.exception))
+
+    def test_image_url_loader_no_object(self, token):
+        context = Context({'object': self.line})
+        template_to_render = Template('{% load map_tags %}{% map_image_url_loader feature_included=False %}')
+
+        rendered_template = template_to_render.render(context)
+        self.assertEqual('', rendered_template)

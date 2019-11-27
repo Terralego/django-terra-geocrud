@@ -38,7 +38,9 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         for l in feature.layer.extra_geometries.filter(slug__in=extras_included):
             geoms.append(l.features.first().geom)
         collections = GeometryCollection(*geoms)
-        if len(collections) == 1 and isinstance(collections[0], Point):
+        if not collections:
+            return final_style
+        elif len(collections) == 1 and isinstance(collections[0], Point):
             final_style['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
             final_style['center'] = list(feature.geom.centroid)
         else:
@@ -65,6 +67,10 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
 
         for layer_extra_geom in feature.layer.extra_geometries.filter(slug__in=extras_included):
+            extra_feature = feature.extra_geometries.filter(layer_extra_geom=layer_extra_geom).first()
+            if not extra_feature:
+                continue
+
             extra_style = layer_extra_geom.style.first()
             if extra_style and extra_style.map_style:
                 extra_layer = extra_style.map_style
@@ -74,8 +80,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             extra_layer['id'] = extra_id
             extra_layer['source'] = extra_id
             style_map['sources'].update({extra_id: {'type': 'geojson',
-                                                    'data': loads(feature.extra_geometries.filter(
-                                                        layer_extra_geom=layer_extra_geom).first().geom.geojson)}})
+                                                    'data': loads(extra_feature.geom.geojson)}})
             style_map['layers'].append(extra_layer)
 
         if primary_layer:
