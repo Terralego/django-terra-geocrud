@@ -285,3 +285,13 @@ class MapImageUrlLoaderTestCase(TestCase):
             Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
         self.assertEqual('Usage: {% map_image_url_loader width="5000" height="5000" feature_included=False '
                          'extra_features="feature_1"anchor="as-char" %}', str(cm.exception))
+
+    @mock.patch('requests.post')
+    def test_image_url_loader__no_object(self, mocked_post, token):
+        mocked_post.return_value.status_code = 200
+        mocked_post.return_value.content = open(SMALL_PICTURE, 'rb').read()
+        context = Context({'object': self.line})
+        template_to_render = Template('{% load map_tags %}{% map_image_url_loader feature_included=False %}')
+
+        rendered_template = template_to_render.render(context)
+        self.assertEqual('', rendered_template)
