@@ -11,7 +11,8 @@ DEFAULT_MBGL_RENDERER_STYLE = {'version': 8,
 
 
 def get_default_style(layer):
-    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
+    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {}).deepcopy()
+    response = {}
     if layer.is_point:
         response = style_settings.get('point')
     elif layer.is_linestring:
