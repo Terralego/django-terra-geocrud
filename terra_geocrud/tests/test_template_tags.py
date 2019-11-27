@@ -236,9 +236,9 @@ class MapImageUrlLoaderTestCase(TestCase):
             "version": 8,
             "sources":
                 {"baselayercustom": {"type": "raster",
-                                                "tiles": ["test.test"],
-                                                "minzoom": 0,
-                                                "maxzoom": 22}},
+                                             "tiles": ["test.test"],
+                                             "minzoom": 0,
+                                             "maxzoom": 22}},
             "layers": [
                 {"id": "baselayercustom-background", "type": "raster", "source": "baselayercustom"}]
         }
