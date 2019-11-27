@@ -8,12 +8,14 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.mixins import BaseUpdatableModel
+import requests
 from sorl.thumbnail import ImageField, get_thumbnail
 
+from mapbox_baselayer.models import MapBaseLayer
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
-from .utils import get_default_style
+from .utils import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
 
 
 class CrudModelMixin(models.Model):
@@ -73,11 +75,17 @@ class CrudView(CrudModelMixin):
 
     @cached_property
     def mblg_renderer_style(self):
-        style = {'version': 8}
-        terra_geocrud_setting = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {})
-        style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
-        style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
-        return style
+        if MapBaseLayer.objects.exists():
+            map_base_layer = MapBaseLayer.objects.first()
+            if map_base_layer.base_layer_type == 'mapbox':
+                response = requests.get(map_base_layer.map_box_url.replace("mapbox://styles",
+                                                                           "https://api.mapbox.com/styles/v1"),
+                                        params={"access_token": app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')})
+                if response.status_code == 200:
+                    return response.json()
+            else:
+                return map_base_layer.tilejson
+        return deepcopy(DEFAULT_MBGL_RENDERER_STYLE)
 
     @cached_property
     def map_style_with_default(self):
