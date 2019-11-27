@@ -1,5 +1,4 @@
 from json import dumps, loads
-import types
 import secrets
 
 from django import template
@@ -40,8 +39,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             geoms.append(l.features.first().geom)
         collections = GeometryCollection(*geoms)
         if not collections:
-            return None
-        if len(collections) == 1 and isinstance(collections[0], Point):
+            return final_style
+        elif len(collections) == 1 and isinstance(collections[0], Point):
             final_style['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
             final_style['center'] = list(feature.geom.centroid)
         else:
@@ -57,8 +56,6 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         final_url = self.url
         final_request = self.request
         final_data = self.get_data(context)
-        if not final_data:
-            self.get_content_url = types.MethodType(self.no_content, MapImageLoaderNodeURL)
         return final_url, final_request, None, None, final_anchor, final_data
 
     def get_style(self, feature, feature_included, extras_included):
