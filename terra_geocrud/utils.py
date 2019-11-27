@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from . import settings as app_settings
 
 DEFAULT_MBGL_RENDERER_STYLE = {'version': 8,
@@ -11,7 +13,7 @@ DEFAULT_MBGL_RENDERER_STYLE = {'version': 8,
 
 
 def get_default_style(layer):
-    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {}).deepcopy()
+    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
     response = {}
     if layer.is_point:
         response = style_settings.get('point')
@@ -19,4 +21,4 @@ def get_default_style(layer):
         response = style_settings.get('line')
     elif layer.is_polygon:
         response = style_settings.get('polygon')
-    return response
+    return deepcopy(response)
