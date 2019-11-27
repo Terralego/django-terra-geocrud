@@ -11,7 +11,6 @@ from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from geostore.models import Feature
 from geostore.views import FeatureViewSet, LayerViewSet
-from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -79,12 +78,6 @@ class CrudSettingsApiView(APIView):
             "menu": self.get_menu_section(),
             "config": {
                 "default": default_config,
-                'BASE_LAYERS': [
-                    {base_layer.name: {
-                        'id': base_layer.pk,
-                        'url': base_layer.url, }}
-                    for base_layer in MapBaseLayer.objects.all()
-                ],
                 "attachment_categories": reverse('attachmentcategory-list'),
             }
         }

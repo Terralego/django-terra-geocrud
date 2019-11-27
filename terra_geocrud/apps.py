@@ -26,5 +26,14 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
                 "settings": reverse_lazy('settings'),
             }
         })
-        terra_settings.update({'modules': modules})
+        # then we add base layers in settings
+        MapBaseLayer = self.apps.get_model('mapbox_baselayer.MapBaseLayer')
+        base_layers = [
+            {base_layer.name: {
+                'id': base_layer.pk,
+                'url': base_layer.url, }}
+            for base_layer in MapBaseLayer.objects.all()
+        ]
+        terra_settings.update({'modules': modules,
+                               'BASE_LAYERS': base_layers})
         setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
