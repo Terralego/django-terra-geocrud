@@ -1,7 +1,7 @@
 import json
 from unittest import mock
 
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import GeometryCollection, LineString, Point
 from django.template import Context, Template
 from django.template.base import FilterExpression, Parser
 from django.template.exceptions import TemplateSyntaxError
@@ -208,7 +208,8 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': json.dumps(dict_style),
-                           'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
+                           'center': [-0.12316140003642298, 44.27812305839535],
+                           'zoom': 8,
                            'width': 1024,
                            'height': 512,
                            'token': self.token_mapbox}
@@ -277,7 +278,8 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': json.dumps(dict_style),
-                           'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
+                           'center': [-0.12316140003642298, 44.27812305839535],
+                           'zoom': 8,
                            'width': 1024,
                            'height': 512,
                            'token': self.token_mapbox}
@@ -324,3 +326,20 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
         rendered_template = template_to_render.render(context)
         self.assertEqual('', rendered_template)
+
+
+class ZoomLineMapImageUrlLoaderTestCase(TestCase):
+    def test_get_zoom(self):
+        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        collection = GeometryCollection(LineString([[-180, -85.06], [180, 85.06]]), srid=4326)
+        self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
+
+    def test_get_zoom_no_width(self):
+        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        collection = GeometryCollection(LineString([[0, -85.06], [0, 85.06]]), srid=4326)
+        self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
+
+    def test_get_zoom_no_height(self):
+        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        collection = GeometryCollection(LineString([[-180, 0], [180, 0]]), srid=4326)
+        self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
