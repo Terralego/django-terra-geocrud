@@ -208,7 +208,8 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': json.dumps(dict_style),
-                           'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
+                           'center': [-0.12316140003642298, 44.27812305839535],
+                           'zoom': 8,
                            'width': 1024,
                            'height': 512,
                            'token': self.token_mapbox}
@@ -277,7 +278,8 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
                  "id": "primary", "source": "primary"}]
         }
         dict_style_post = {'style': json.dumps(dict_style),
-                           'bounds': '-0.246322800072846,44.0,0.0,44.5562461167907',
+                           'center': [-0.12316140003642298, 44.27812305839535],
+                           'zoom': 8,
                            'width': 1024,
                            'height': 512,
                            'token': self.token_mapbox}
