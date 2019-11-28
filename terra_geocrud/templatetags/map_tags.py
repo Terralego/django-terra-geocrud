@@ -7,6 +7,7 @@ import secrets
 from django import template
 from django.contrib.gis.geos import GeometryCollection, Point
 
+from geostore.settings import INTERNAL_GEOMETRY_SRID
 from mapbox_baselayer.models import MapBaseLayer
 from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
@@ -43,7 +44,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
 
         for l in feature.extra_geometries.filter(layer_extra_geom__slug__in=extras_included):
             geoms.append(l.geom)
-        collections = GeometryCollection(*geoms, srid=4326)
+        collections = GeometryCollection(*geoms, srid=INTERNAL_GEOMETRY_SRID)
         if not collections:
             return final_style
         elif len(collections) == 1 and isinstance(collections[0], Point):
