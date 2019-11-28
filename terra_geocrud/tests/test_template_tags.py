@@ -1,7 +1,7 @@
 import json
 from unittest import mock
 
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import GeometryCollection, LineString, Point
 from django.template import Context, Template
 from django.template.base import FilterExpression, Parser
 from django.template.exceptions import TemplateSyntaxError
@@ -324,3 +324,20 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
         rendered_template = template_to_render.render(context)
         self.assertEqual('', rendered_template)
+
+
+class ZoomLineMapImageUrlLoaderTestCase(TestCase):
+    def test_get_zoom(self):
+        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        collection = GeometryCollection(LineString([[-180, -85.06], [180, 85.06]]), srid=4326)
+        self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
+
+    def test_get_zoom_no_width(self):
+        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        collection = GeometryCollection(LineString([[0, -85.06], [0, 85.06]]), srid=4326)
+        self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
+
+    def test_get_zoom_no_height(self):
+        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        collection = GeometryCollection(LineString([[-180, 0], [180, 0]]), srid=4326)
+        self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))

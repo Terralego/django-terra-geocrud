@@ -1,5 +1,6 @@
 from copy import deepcopy
 from json import dumps, loads
+import math
 import requests
 import secrets
 
@@ -42,16 +43,36 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
 
         for l in feature.extra_geometries.filter(layer_extra_geom__slug__in=extras_included):
             geoms.append(l.geom)
-        collections = GeometryCollection(*geoms)
+        collections = GeometryCollection(*geoms, srid=4326)
         if not collections:
             return final_style
         elif len(collections) == 1 and isinstance(collections[0], Point):
             final_style['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
             final_style['center'] = list(feature.geom.centroid)
         else:
-            final_style['bounds'] = ','.join(str(v) for v in collections.extent)
+            final_style['center'] = list(collections.centroid)
+            zoom = self.get_zoom_bounds(width, height, collections)
+            final_style['zoom'] = zoom
 
         return final_style
+
+    def get_zoom_bounds(self, width, height, collection):
+        collection = collection.transform('3857', clone=True)
+        extent = collection.extent
+        length_x = (extent[2] - extent[0])
+        length_y = (extent[3] - extent[1])
+        length_per_tile_width = 512 * length_x / width
+        length_per_tile_height = 512 * length_y / height
+        RADIUS = 6378137
+        CIRCUM = 2 * math.pi * RADIUS
+        # Max zoom in most of the maps is 22.
+        zoom_width = 22
+        zoom_height = 22
+        if length_per_tile_width:
+            zoom_width = math.log(CIRCUM / length_per_tile_width, 2)
+        if length_per_tile_height:
+            zoom_height = math.log(CIRCUM / length_per_tile_height, 2)
+        return math.floor(min(zoom_width, zoom_height))
 
     def get_value_context(self, context):
         final_anchor = "paragraph" if not self.anchor else self.anchor.resolve(context)
