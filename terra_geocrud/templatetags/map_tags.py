@@ -28,7 +28,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         feature_included = True if not final_data['feature_included'] else final_data['feature_included'].resolve(context)
         extras_included = [] if not final_data['extra_features'] else final_data['extra_features'].resolve(
             context).split(',')
-        base_layer = None if not final_data['extra_features'] else final_data['extra_features'].resolve(context)
+        base_layer = None if not final_data['base_layer'] else final_data['base_layer'].resolve(context)
 
         feature = context['object']
         style = self.get_style(feature, feature_included, extras_included, base_layer)
