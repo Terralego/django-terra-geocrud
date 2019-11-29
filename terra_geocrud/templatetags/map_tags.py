@@ -1,20 +1,21 @@
+import logging
+import math
+import secrets
 from copy import deepcopy
 from json import dumps, loads
-import math
-import requests
-import secrets
 
+import requests
 from django import template
 from django.contrib.gis.geos import GeometryCollection, Point
-
 from geostore.settings import INTERNAL_GEOMETRY_SRID
 from mapbox_baselayer.models import MapBaseLayer
 from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
+
 from terra_geocrud import settings as app_settings
 from terra_geocrud.utils import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
 
-
+logger = logging.getLogger(__name__)
 register = template.Library()
 
 
@@ -42,8 +43,8 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         if feature_included:
             geoms.append(feature.geom)
 
-        for l in feature.extra_geometries.filter(layer_extra_geom__slug__in=extras_included):
-            geoms.append(l.geom)
+        for feat in feature.extra_geometries.filter(layer_extra_geom__slug__in=extras_included):
+            geoms.append(feat.geom)
         collections = GeometryCollection(*geoms, srid=INTERNAL_GEOMETRY_SRID)
         if not collections:
             return final_style
@@ -86,6 +87,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         try:
             map_base_layer = MapBaseLayer.objects.get(slug=base_layer)
         except MapBaseLayer.DoesNotExist:
+            logger.warning(f"MapBaseLayer with slug '{base_layer}' was not found. Try to get another map base layer.")
             map_base_layer = MapBaseLayer.objects.first()
 
         if map_base_layer:
