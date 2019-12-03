@@ -39,6 +39,8 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Framework :: Django',
+        'Framework :: Django :: 2.2',
     ],
     install_requires=[
         'django>=2.2,<3.0',  # 3.0 blocked by solr-thumbnail and django-restframework-gis
