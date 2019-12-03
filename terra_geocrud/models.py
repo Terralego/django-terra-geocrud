@@ -13,6 +13,7 @@ from sorl.thumbnail import ImageField, get_thumbnail
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
+from .utils import get_default_style
 
 
 class CrudModelMixin(models.Model):
@@ -72,24 +73,9 @@ class CrudView(CrudModelMixin):
 
     @cached_property
     def map_style_with_default(self):
-        style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
-        response = {}
-        if self.layer.is_point:
-            response = style_settings.get('point')
-        elif self.layer.is_linestring:
-            response = style_settings.get('line')
-        elif self.layer.is_polygon:
-            response = style_settings.get('polygon')
+        response = get_default_style(self.layer)
         style = self.map_style
-        return style if style else response
-
-    @cached_property
-    def mblg_renderer_style(self):
-        style = {'version': 8}
-        terra_geocrud_setting = app_settings.TERRA_GEOCRUD.get('TMP_MBGL_BASEMAP', {})
-        style['sources'] = {'TMP_MBGL_BASEMAP': terra_geocrud_setting}
-        style['layers'] = [{"id": "TMP_MBGL_BASEMAP", "type": "raster", "source": "TMP_MBGL_BASEMAP"}]
-        return style
+        return deepcopy(style) if style else response
 
     @cached_property
     def grouped_form_schema(self):
@@ -306,4 +292,17 @@ class FeaturePicture(AttachmentMixin):
         verbose_name_plural = _('Feature pictures')
         ordering = (
             'feature', 'category', '-updated_at'
+        )
+
+
+class ExtraLayerStyle(models.Model):
+    crud_view = models.ForeignKey(CrudView, related_name='extra_layer_style', on_delete=models.CASCADE)
+    layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='style', on_delete=models.CASCADE)
+    map_style = JSONField(help_text=_("Custom mapbox style for this entry"))
+
+    class Meta:
+        verbose_name = _('ExtraLayer style')
+        verbose_name_plural = _('ExtraLayer styles')
+        unique_together = (
+            ('crud_view', 'layer_extra_geom'),
         )

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
+from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
@@ -20,6 +21,11 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
     extra = 0
 
 
+class ExtraLayerStyleInLine(admin.TabularInline):
+    model = models.ExtraLayerStyle
+    extra = 0
+
+
 class PropertyDisplayRenderingTabularInline(admin.TabularInline):
     classes = ('collapse', )
     verbose_name = _('Custom widget')
@@ -31,7 +37,7 @@ class PropertyDisplayRenderingTabularInline(admin.TabularInline):
 class CrudViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline]
+    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
@@ -61,6 +67,11 @@ class CrudViewAdmin(VersionAdmin):
         return ro_fields
 
 
+class LayerExtraGeomInline(admin.TabularInline):
+    model = LayerExtraGeom
+    extra = 0
+
+
 class CrudLayerAdmin(VersionAdmin):
     list_display = ('pk', 'name', 'geom_type', 'layer_groups')
     list_filter = ('geom_type', 'layer_groups')
@@ -68,6 +79,7 @@ class CrudLayerAdmin(VersionAdmin):
     formfield_overrides = {
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
+    inlines = [LayerExtraGeomInline, ]
 
 
 class FeaturePictureInline(AdminInlineImageMixin, admin.TabularInline):

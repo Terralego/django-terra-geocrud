@@ -1,7 +1,6 @@
 import mimetypes
 from copy import deepcopy
 from pathlib import Path
-from json import dumps, loads
 
 import reversion
 from django.conf import settings
@@ -12,6 +11,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from geostore.models import Feature
 from geostore.views import FeatureViewSet, LayerViewSet
+from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -79,6 +79,12 @@ class CrudSettingsApiView(APIView):
             "menu": self.get_menu_section(),
             "config": {
                 "default": default_config,
+                'BASE_LAYERS': [
+                    {base_layer.name: {
+                        'id': base_layer.pk,
+                        'url': base_layer.url, }}
+                    for base_layer in MapBaseLayer.objects.all()
+                ],
                 "attachment_categories": reverse('attachmentcategory-list'),
             }
         }
@@ -106,36 +112,6 @@ class CrudRenderTemplateDetailView(DetailView):
             Path(self.template.template_file.name).name
         )
         return response
-
-    def get_style(self, feature):
-        style_map = feature.layer.crud_view.mblg_renderer_style
-        geojson_id = 'primary'
-
-        primary_layer = feature.layer.crud_view.map_style_with_default
-        primary_layer['id'] = geojson_id
-        primary_layer['source'] = geojson_id
-
-        style_map['sources'].update({geojson_id: {'type': 'geojson', 'data': loads(feature.geom.geojson)}})
-
-        style_map['layers'].append(primary_layer)
-
-        return style_map
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        feature = self.get_object()
-        style = self.get_style(feature)
-        context['style'] = {
-            'style': dumps(style),
-            'width': 1024,
-            'height': 512,
-        }
-        if feature.layer.is_point:
-            context['style']['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
-            context['style']['center'] = list(feature.geom.centroid)
-        else:
-            context['style']['bounds'] = ','.join(str(v) for v in feature.geom.extent)
-        return context
 
 
 class CrudLayerViewSet(LayerViewSet):

@@ -7,6 +7,13 @@ language: python
 python:
 - '3.6'
 - '3.7'
+#- '3.8' disable until fiona works with 3.8
+
+env:
+  matrix:
+    - DJANGO_VERSION=2.2.*
+    #- DJANGO_VERSION=3.0.* disable until solr.thumbnail / drf-gis works with django 3.0
+    #- DJANGO_VERSION=dev
 
 services:
 - postgresql
@@ -27,10 +34,14 @@ install:
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
 - pip install codecov
+- if [[ $DJANGO_VERSION == dev ]]; then
+  pip install -e git+https://github.com/django/django@master#egg=django;
+  else
+  pip install Django==$DJANGO_VERSION -U;
+  fi
 
 before_script:
-- psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U
-  postgres
+- psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
 - psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
 - psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
 - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
@@ -46,6 +57,9 @@ after_script:
   - codecov
 
 jobs:
+  allow_failures:
+    - env: DJANGO_VERSION=dev
+
   include:
   - stage: lint
     install:
@@ -55,13 +69,14 @@ jobs:
     - flake8 terra_geocrud
 
   - stage: deploy
-    install: skip
+    install: pip install -e .
     before_script: skip
-    script: skip
+    script: ./manage.py compilemessages
     after_script: skip
 
     deploy:
       stage: deploy
+      skip_cleanup: true
       provider: pypi
       user: __token__
       password:

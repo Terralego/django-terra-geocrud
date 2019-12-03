@@ -6,12 +6,11 @@ _DEFAULT_TERRA_GEOCRUD = {
     # default extent to world
     'EXTENT': [-90.0, -180.0, 90.0, 180.0],
     'DATA_FILE_STORAGE_CLASS': 'django.core.files.storage.FileSystemStorage',
+    # Do not finish the url with a slash
+    'MBGLRENDERER_URL': 'http://mbglrenderer',
     # We should automatically get the source of layers from a model
-    'TMP_MBGL_BASEMAP': {
-        "type": "raster",
-        "tiles": ["http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        "tileSize": 256,
-        "maxzoom": 18
+    'map': {
+        "mapbox_access_token": None,
     },
     'STYLES': {
         'line': {
