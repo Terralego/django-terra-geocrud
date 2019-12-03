@@ -8,6 +8,12 @@ python:
 - '3.6'
 - '3.7'
 
+env:
+  matrix:
+    - DJANGO_VERSION=2.2.*
+    - DJANGO_VERSION=3.0.*
+    - DJANGO_VERSION=dev
+
 services:
 - postgresql
 
@@ -27,6 +33,11 @@ install:
 - sudo apt-get -y install libproj-dev binutils gdal-bin
 - pip install -e .[dev]
 - pip install codecov
+- if [[ $DJANGO_VERSION == dev ]]; then
+  pip install -e git+https://github.com/django/django@master#egg=django;
+  else
+  pip install Django==$DJANGO_VERSION -U;
+  fi
 
 before_script:
 - psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
@@ -45,6 +56,12 @@ after_script:
   - codecov
 
 jobs:
+  allow_failures:
+    - python: 3.6
+      env: DJANGO_VERSION=dev
+    - python: 3.7
+      env: DJANGO_VERSION=dev
+
   include:
   - stage: lint
     install:
