@@ -69,7 +69,7 @@ jobs:
     - flake8 terra_geocrud
 
   - stage: deploy
-    install: python setup.py install
+    install: pip install -e .
     before_script: skip
     script: ./manage.py compilemessages
     after_script: skip
