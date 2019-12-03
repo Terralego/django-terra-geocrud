@@ -2,15 +2,11 @@
 CHANGELOG
 =========
 
-0.3.24          (2019-12-03)
+0.3.23          (2019-12-03)
 ----------------------------
 
 * fix settings with only MAX_ZOOM for map style
 * Add map_image_url_loader tag  allowing to add map with style, extra_features
-
-0.3.23          (2019-11-18)
-----------------------------
-
 * add property to generated mapbox style
 
 
