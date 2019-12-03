@@ -29,8 +29,7 @@ install:
 - pip install codecov
 
 before_script:
-- psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U
-  postgres
+- psql -c "CREATE USER travis_ci_test WITH ENCRYPTED PASSWORD 'travis_ci_test';" -U postgres
 - psql -c "ALTER USER travis_ci_test WITH SUPERUSER;" -U postgres
 - psql -c 'CREATE DATABASE travis_ci_test WITH OWNER travis_ci_test;' -U postgres
 - psql -d travis_ci_test -c 'CREATE EXTENSION postgis;'
@@ -55,13 +54,14 @@ jobs:
     - flake8 terra_geocrud
 
   - stage: deploy
-    install: skip
+    install: pip install django
     before_script: skip
-    script: skip
+    script: ./manage.py compilemessages
     after_script: skip
 
     deploy:
       stage: deploy
+      skip_cleanup: true
       provider: pypi
       user: __token__
       password:

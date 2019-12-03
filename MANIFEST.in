@@ -1,4 +1,6 @@
 include *.md
 recursive-include terra_geocrud *.md
 recursive-include terra_geocrud *.py
+recursive-include terra_geocrud *.po
+recursive-include terra_geocrud *.mo
 recursive-exclude test_terra_geocrud *
