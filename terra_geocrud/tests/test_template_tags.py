@@ -144,8 +144,10 @@ class StyleMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
             "sources":
                 {"baselayercustom": {"type": "raster",
                                      "tiles": ["test.test"],
+                                     'attribution': '',
+                                     'tileSize': 512,
                                      "minzoom": 0,
-                                     "maxzoom": 22}},
+                                     "maxzoom": 22,}},
             "layers": [
                 {"id": "baselayercustom-background", "type": "raster", "source": "baselayercustom"}]
         }
@@ -162,6 +164,8 @@ class StyleMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
             "version": 8,
             "sources":
                 {"otherlayercustom": {"type": "raster",
+                                      "attribution": "",
+                                      "tileSize": 512,
                                       "tiles": ["test.test"],
                                       "minzoom": 0,
                                       "maxzoom": 22}},
@@ -308,7 +312,7 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
         template_to_render = Template('{% load map_tags %}{% map_image_url_loader %}')
 
         rendered_template = template_to_render.render(context)
-        self.assertEqual('<draw:frame draw:name="test" svg:width="16697.0" svg:height="16697.0" '
+        self.assertEqual('<draw:frame draw:name="test.png" svg:width="15.0" svg:height="15.0" '
                          'text:anchor-type="paragraph" draw:z-index="0">'
                          '<draw:image xlink:href="Pictures/test" xlink:show="embed" xlink:actuate="onLoad"/>'
                          '</draw:frame>', rendered_template)

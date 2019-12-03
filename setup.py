@@ -41,6 +41,7 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
+        'django>=2.2,<3.0',  # 3.0 blocked by solr-thumbnail and django-restframework-gis
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',
@@ -48,11 +49,10 @@ setup(
         'django-geostore@https://github.com/Terralego/django-geostore/archive/extra_features.tar.gz',
         'django-terra-accounts>=0.3.7.1',
         'djangorestframework>=3.10',
-        'djangorestframework-gis>=0.14'
-        'django>=2.2',
+        'djangorestframework-gis>=0.14',
         'requests',
         'django-json-widget>=0.2.0',
-        'pillow>=6',
+        'pillow',
         'sorl-thumbnail',
     ],
     tests_require=tests_require,
