@@ -69,7 +69,7 @@ jobs:
     - flake8 terra_geocrud
 
   - stage: deploy
-    install: pip install django
+    install: python setup.py install
     before_script: skip
     script: ./manage.py compilemessages
     after_script: skip
