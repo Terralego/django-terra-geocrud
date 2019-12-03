@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.24.dev0     (XXXX-XX-XX)
+0.3.24          (2019-12-03)
 ----------------------------
 
 * fix settings with only MAX_ZOOM for map style
