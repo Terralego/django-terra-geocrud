@@ -1,8 +1,5 @@
 import json
-import os
-from io import BytesIO
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile
 
 from django.contrib.gis.geos import Point
 from django.test import TestCase
@@ -15,8 +12,7 @@ from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
 
 from . import factories
-from .settings import (FEATURE_PROPERTIES, LAYER_SCHEMA,
-                       XML_RENDERED_FILE)
+from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA
 from .. import models, settings as app_settings
 
 
@@ -211,12 +207,6 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
         self.assertEqual(
             response._headers['content-type'][-1],
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-        with open(XML_RENDERED_FILE) as reader:
-            content_xml = reader.read().encode('utf-8')
-        buffer = BytesIO(response.content)
-        with ZipFile(buffer) as archive:
-            with archive.open(os.path.join('word', 'document.xml')) as reader:
-                self.assertEqual(reader.read(), content_xml)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

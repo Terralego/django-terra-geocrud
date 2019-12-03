@@ -11,8 +11,5 @@ LAYER_SCHEMA = os.path.join(JSON_PATH, 'layer_schema.json')
 FEATURE_PROPERTIES = os.path.join(JSON_PATH, 'feature_properties.json')
 
 DOCX_TEMPLATE = os.path.join(TEMPLATES_PATH, 'complex_template.docx')
-ODT_TEMPLATE = os.path.join(TEMPLATES_PATH, 'template.odt')
-
-XML_RENDERED_FILE = os.path.join(SNAPSHOTS_PATH, 'rendered_file.xml')
 
 SMALL_PICTURE = os.path.join(PICTURES_PATH, 'small_picture.png')
