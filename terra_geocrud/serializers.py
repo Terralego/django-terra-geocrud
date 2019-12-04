@@ -47,12 +47,30 @@ class CrudViewSerializer(serializers.ModelSerializer):
     ui_schema = serializers.JSONField(source='grouped_ui_schema')
     form_schema = serializers.JSONField(source='grouped_form_schema')
     map_style = serializers.JSONField(source='map_style_with_default')
+    map_layers = serializers.SerializerMethodField(help_text=_("VT styles and definitions"))
     feature_endpoint = serializers.SerializerMethodField(
         help_text=_("Url endpoint for view's features")
     )
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: {title, type}}")
     )
+
+    def get_map_layers(self, obj):
+        data = [{
+            'title': obj.name,
+            'id_layer_vt': obj.layer.name,
+            'style': obj.map_style_with_default,
+            'main': True
+        }]
+        # add extra_layer styles
+        for extra_layer in obj.layer.extra_geometries.all():
+            data.append({
+                'title': extra_layer.title,
+                'id_layer_vt': extra_layer.name,
+                'style': extra_layer.map_style_with_default,
+                'main': False
+            })
+        return data
 
     def get_exports(self, obj):
         return [{
@@ -90,7 +108,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
             'id', 'name', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
             'feature_endpoint', 'extent', 'exports',
-            'feature_list_properties',
+            'feature_list_properties', 'map_layers'
         )
 
 
