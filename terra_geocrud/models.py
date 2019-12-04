@@ -11,9 +11,10 @@ from geostore.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail
 
 from . import settings as app_settings
+from .form_schema import FormSchemaMixin
+from .map_styles import MapStyleModelMixin
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
-from .utils import get_default_style
 
 
 class CrudModelMixin(models.Model):
@@ -40,7 +41,7 @@ class CrudGroupView(CrudModelMixin):
         ordering = ('order', )
 
 
-class CrudView(CrudModelMixin):
+class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     """
     Used to defined ad layer's view in CRUD
     """
@@ -62,93 +63,6 @@ class CrudView(CrudModelMixin):
                                               max_length=250, blank=True, null=False, default="")
     visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))
 
-    def clean(self):
-        # verify properties in default_list_properties exist
-        unexpected_properties = list(set(self.default_list_properties) - set(self.list_available_properties))
-        if unexpected_properties:
-            raise ValidationError(f'Properties should exists for feature list : {unexpected_properties}')
-        # verify feature_title_property exists
-        if self.feature_title_property and self.feature_title_property not in self.properties:
-            raise ValidationError(f'Property should exists for feature title : {self.feature_title_property}')
-
-    @cached_property
-    def map_style_with_default(self):
-        response = get_default_style(self.layer)
-        style = self.map_style
-        return deepcopy(style) if style else response
-
-    @cached_property
-    def grouped_form_schema(self):
-        original_schema = deepcopy(self.layer.schema)
-        generated_schema = deepcopy(original_schema)
-        groups = self.feature_display_groups.all()
-        processed_properties = []
-        generated_schema['properties'] = {}
-
-        for group in groups:
-            # group properties by sub object, then add other properties
-            generated_schema['properties'][group.slug] = group.form_schema
-            processed_properties += list(group.properties)
-            for prop in group.properties:
-                try:
-                    generated_schema.get('required', []).remove(prop)
-                except ValueError:
-                    pass
-        # add default other properties
-        remained_properties = list(set(self.properties) - set(processed_properties))
-        for prop in remained_properties:
-            generated_schema['properties'][prop] = original_schema['properties'][prop]
-
-        return generated_schema
-
-    @cached_property
-    def grouped_ui_schema(self):
-        """
-        Original ui_schema is recomposed with grouped properties
-        """
-        ui_schema = deepcopy(self.ui_schema)
-
-        groups = self.feature_display_groups.all()
-        for group in groups:
-            # each field defined in ui schema should be placed in group key
-            ui_schema[group.slug] = {'ui:order': []}
-
-            for prop in group.properties:
-                # get original definition
-                original_def = ui_schema.pop(prop, None)
-                if original_def:
-                    ui_schema[group.slug][prop] = original_def
-
-                # if original prop in ui:order
-                if prop in ui_schema.get('ui:order', []):
-                    ui_schema.get('ui:order').remove(prop)
-                    ui_schema[group.slug]['ui:order'] += [prop]
-
-            # finish by adding '*' in all cases (security)
-            ui_schema[group.slug]['ui:order'] += ['*']
-        if groups:
-            ui_schema['ui:order'] = list(groups.values_list('slug', flat=True)) + ['*']
-        return ui_schema
-
-    @cached_property
-    def properties(self):
-        return sorted(list(self.layer.layer_properties.keys())) if self.layer else []
-
-    @cached_property
-    def list_available_properties(self):
-        """ exclude some properties in list (some arrays, data-url, html fields)"""
-        properties = []
-
-        for prop in self.properties:
-            # exclude format 'data-url', array if final data is object, and textarea / rte fields
-            if (self.layer.schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
-                    self.layer.schema.get('properties', {}).get(prop).get('type') != 'array'
-                    or self.layer.schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object')\
-                    and (self.ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
-                         and self.ui_schema.get(prop, {}).get('ui:field') != 'rte'):
-                properties.append(prop)
-        return properties
-
     @cached_property
     def extent(self):
         features_extent = self.layer.features.aggregate(extent=Extent('geom'))
@@ -156,6 +70,9 @@ class CrudView(CrudModelMixin):
         # get extent in settings if no features
 
         return extent if extent else app_settings.TERRA_GEOCRUD['EXTENT']
+
+    def get_layer(self):
+        return self.layer
 
     class Meta:
         verbose_name = _("View")
@@ -295,10 +212,13 @@ class FeaturePicture(AttachmentMixin):
         )
 
 
-class ExtraLayerStyle(models.Model):
+class ExtraLayerStyle(MapStyleModelMixin, models.Model):
     crud_view = models.ForeignKey(CrudView, related_name='extra_layer_style', on_delete=models.CASCADE)
-    layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='style', on_delete=models.CASCADE)
+    layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='styles', on_delete=models.CASCADE)
     map_style = JSONField(help_text=_("Custom mapbox style for this entry"))
+
+    def get_layer(self):
+        return self.layer_extra_geom
 
     class Meta:
         verbose_name = _('ExtraLayer style')

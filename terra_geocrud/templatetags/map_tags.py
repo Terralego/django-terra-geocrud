@@ -13,7 +13,7 @@ from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
 
 from terra_geocrud import settings as app_settings
-from terra_geocrud.utils import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
+from terra_geocrud.map_styles import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
 
 logger = logging.getLogger(__name__)
 register = template.Library()
@@ -118,7 +118,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             if not extra_feature:
                 continue
 
-            extra_style = layer_extra_geom.style.first()
+            extra_style = layer_extra_geom.styles.first()
             if extra_style and extra_style.map_style:
                 extra_layer = extra_style.map_style
             else:

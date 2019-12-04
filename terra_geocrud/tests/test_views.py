@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature
+from geostore.models import Feature, LayerExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
@@ -185,6 +185,9 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
         self.crud_view = factories.CrudViewFactory(name="Composantes", order=0,
                                                    layer__schema=json.load(open(LAYER_SCHEMA)),
                                                    layer__geom_type=GeometryTypes.Point)
+        self.extra_layer = LayerExtraGeom.objects.create(geom_type=GeometryTypes.MultiPolygon,
+                                                         title='extra geom 1',
+                                                         layer=self.crud_view.layer)
 
         self.feature = Feature.objects.create(
             layer=self.crud_view.layer,
