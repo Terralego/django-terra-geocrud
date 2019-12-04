@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.24.dev0     (XXXX-XX-XX)
+0.3.24          (2019-12-04)
 ----------------------------
 
 * add crud view property to describe available layers for layer / feature (extra) geometries
