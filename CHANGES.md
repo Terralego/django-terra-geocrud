@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.25.dev0     (XXXX-XX-XX)
+0.3.25          (2019-12-04)
 ----------------------------
 
 * HotFix custom styles management
