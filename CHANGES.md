@@ -5,6 +5,8 @@ CHANGELOG
 0.3.25.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* HotFix custom styles management
+
 
 0.3.24          (2019-12-04)
 ----------------------------

@@ -214,7 +214,7 @@ class FeaturePicture(AttachmentMixin):
 
 class ExtraLayerStyle(MapStyleModelMixin, models.Model):
     crud_view = models.ForeignKey(CrudView, related_name='extra_layer_style', on_delete=models.CASCADE)
-    layer_extra_geom = models.ForeignKey('geostore.LayerExtraGeom', related_name='styles', on_delete=models.CASCADE)
+    layer_extra_geom = models.OneToOneField('geostore.LayerExtraGeom', related_name='style', on_delete=models.CASCADE)
     map_style = JSONField(help_text=_("Custom mapbox style for this entry"))
 
     def get_layer(self):

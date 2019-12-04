@@ -4,6 +4,8 @@ from copy import deepcopy
 from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
+
+from geostore.models import LayerExtraGeom
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
@@ -11,6 +13,7 @@ from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
+from .map_styles import get_default_style
 from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
 from .properties.widgets import render_property_data
 
@@ -64,10 +67,16 @@ class CrudViewSerializer(serializers.ModelSerializer):
         }]
         # add extra_layer styles
         for extra_layer in obj.layer.extra_geometries.all():
+            # get final style
+            try:
+                style = extra_layer.style.map_style_with_default
+            except LayerExtraGeom.style.RelatedObjectDoesNotExist:
+                style = get_default_style(extra_layer)
+
             data.append({
                 'title': extra_layer.title,
                 'id_layer_vt': extra_layer.name,
-                'style': extra_layer.map_style_with_default,
+                'style': style,
                 'main': False
             })
         return data

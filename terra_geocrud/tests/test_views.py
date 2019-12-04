@@ -45,6 +45,9 @@ class CrudViewViewSetTestCase(APITestCase):
         self.view_1 = factories.CrudViewFactory(name="View 1", order=0, group=self.group_1)
         self.view_2 = factories.CrudViewFactory(name="View 2", order=0, group=self.group_2)
         self.view_3 = factories.CrudViewFactory(name="View 3", order=1, group=self.group_2)
+        self.extra_layer = LayerExtraGeom.objects.create(geom_type=GeometryTypes.MultiPolygon,
+                                                         title='extra geom 1',
+                                                         layer=self.view_1.layer)
 
     def test_list_endpoint(self):
         response = self.client.get(reverse('crudview-list'))

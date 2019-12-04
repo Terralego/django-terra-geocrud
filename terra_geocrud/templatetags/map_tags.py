@@ -7,6 +7,7 @@ from json import dumps, loads
 import requests
 from django import template
 from django.contrib.gis.geos import GeometryCollection, Point
+from geostore.models import LayerExtraGeom
 from geostore.settings import INTERNAL_GEOMETRY_SRID
 from mapbox_baselayer.models import MapBaseLayer
 from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
@@ -118,11 +119,12 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             if not extra_feature:
                 continue
 
-            extra_style = layer_extra_geom.styles.first()
-            if extra_style and extra_style.map_style:
-                extra_layer = extra_style.map_style
-            else:
+            # get final style
+            try:
+                extra_layer = layer_extra_geom.style.map_style_with_default
+            except LayerExtraGeom.style.RelatedObjectDoesNotExist:
                 extra_layer = get_default_style(layer_extra_geom)
+
             extra_id = secrets.token_hex(15)
             extra_layer['id'] = extra_id
             extra_layer['source'] = extra_id
