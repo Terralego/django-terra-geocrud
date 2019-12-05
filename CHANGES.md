@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.26.dev0     (XXXX-XX-XX)
+0.3.26          (2019-12-05)
 ----------------------------
 
 * add extra geometries identifiers in feature detail endpoint
