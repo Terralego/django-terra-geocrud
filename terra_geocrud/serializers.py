@@ -248,6 +248,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     properties = serializers.JSONField()
     attachments = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
+    extra_geometries = serializers.SlugRelatedField(slug_field='identifier', many=True, read_only=True)
 
     def get_pictures(self, obj):
         return reverse('picture-list', kwargs={'identifier': obj.identifier})
