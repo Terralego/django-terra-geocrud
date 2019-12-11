@@ -7,6 +7,7 @@ CHANGELOG
 
 * Fake data-url content to decrease feature json property size
 
+
 0.3.26          (2019-12-05)
 ----------------------------
 
