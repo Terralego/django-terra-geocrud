@@ -5,6 +5,7 @@ CHANGELOG
 0.3.27.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Fake data-url content to decrease feature json property size
 
 0.3.26          (2019-12-05)
 ----------------------------
