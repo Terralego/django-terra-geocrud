@@ -13,7 +13,7 @@ from template_model.models import Template
 
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
-from .map_styles import get_default_style
+from .map.styles import get_default_style
 from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
 from .properties.widgets import render_property_data
 
@@ -165,7 +165,7 @@ class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
     properties = serializers.SerializerMethodField()
 
     def get_properties(self, obj):
-        """ Keep only properties that can be shonwed in list """
+        """ Keep only properties that can be shown in list """
         list_available_properties = list(obj.layer.crud_view.list_available_properties)
         return {
             key: value for key, value in obj.properties.items() if key in list_available_properties
@@ -347,10 +347,11 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                     storage_file_path = get_storage_file_path(file_prop, value, self.instance)
                     file_info, file_content = get_info_content(value)
                     store_data_file(storage, storage_file_path, file_content)
+                    self.instance.properties[file_prop] = f'{file_info};base64,{storage_file_path}'
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
         self._store_files()
+        super().save(*args, **kwargs)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
