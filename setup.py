@@ -49,7 +49,7 @@ setup(
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',
         'django-mapbox-baselayer>=0.0.3',
-        'django-geostore>=0.3.12',
+        'django-geostore>=0.3.14',
         'django-terra-accounts>=0.3.7.1',
         'djangorestframework>=3.10',
         'djangorestframework-gis>=0.14',
