@@ -11,8 +11,8 @@ from geostore.db.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail
 
 from . import settings as app_settings
-from .form_schema import FormSchemaMixin
-from .map_styles import MapStyleModelMixin
+from .properties.schema import FormSchemaMixin
+from terra_geocrud.map.styles import MapStyleModelMixin
 from .properties.files import get_storage
 from .properties.widgets import get_widgets_choices
 
@@ -77,7 +77,7 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     class Meta:
         verbose_name = _("View")
         verbose_name_plural = _("Views")
-        ordering = ('order',)
+        ordering = ('group', 'order')
 
 
 class FeaturePropertyDisplayGroup(models.Model):

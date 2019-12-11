@@ -44,7 +44,7 @@ setup(
         'Framework :: Django :: 2.2',
     ],
     install_requires=[
-        'django>=2.2,<3.0',  # 3.0 blocked by solr-thumbnail and django-restframework-gis
+        'django>=2.2,<3.0',  # 3.0 blocked by django-restframework-gis
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',

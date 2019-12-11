@@ -14,7 +14,7 @@ from template_engines.templatetags.odt_tags import ImageLoaderNodeURL
 from template_engines.templatetags.utils import parse_tag
 
 from terra_geocrud import settings as app_settings
-from terra_geocrud.map_styles import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
+from terra_geocrud.map.styles import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
 
 logger = logging.getLogger(__name__)
 register = template.Library()
