@@ -346,12 +346,15 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                 if value:
                     storage_file_path = get_storage_file_path(file_prop, value, self.instance)
                     file_info, file_content = get_info_content(value)
-                    store_data_file(storage, storage_file_path, file_content)
-                    self.instance.properties[file_prop] = f'{file_info};base64,{storage_file_path}'
+                    # check if file has been saved in storage
+                    if file_content != storage_file_path:
+                        store_data_file(storage, storage_file_path, file_content)
+                        self.instance.properties[file_prop] = f'{file_info};base64,{storage_file_path}'
+                        self.instance.save()
 
     def save(self, *args, **kwargs):
-        self._store_files()
         super().save(*args, **kwargs)
+        self._store_files()
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
