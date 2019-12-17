@@ -115,8 +115,8 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
-            return serializers.CrudFeatureDetailSerializer
-        return serializers.CrudFeatureListSerializer
+            return self.transform_serializer_geojson(serializers.CrudFeatureDetailSerializer)
+        return self.transform_serializer_geojson(serializers.CrudFeatureListSerializer)
 
     @action(detail=True, methods=['get'], permission_classes=[],
             url_path=r'generate-template/(?P<id_template>\d+)', url_name='generate-template')
