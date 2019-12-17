@@ -6,7 +6,7 @@ from terra_utils.pagination import PagePagination
 
 class GeoJsonPagination(PagePagination):
     def get_paginated_response(self, data):
-        if self.request.kwargs.get('format', 'json') == 'geojson':
+        if self.kwargs.get('format', 'json') == 'geojson':
             return Response(OrderedDict([
                 ('type', 'FeatureCollection'),
                 ('count', self.page.paginator.count),
