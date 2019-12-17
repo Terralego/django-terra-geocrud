@@ -2,10 +2,11 @@
 CHANGELOG
 =========
 
-0.3.28.dev0     (XXXX-XX-XX)
+0.3.28          (2019-12-17)
 ----------------------------
 
 * Django Rest Framework 3.11 compatibility
+* Python 3.8 compatibility
 
 
 0.3.27          (2019-12-11)
