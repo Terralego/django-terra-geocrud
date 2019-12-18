@@ -9,14 +9,15 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils import formats, timezone
 from django.utils.module_loading import import_string
+from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
+from django.views.generic.detail import DetailView
+from geostore import models as geostore_models
 from geostore import settings as geostore_settings
-from geostore.models import Feature
-from geostore.views import FeatureViewSet
+from geostore.views import FeatureViewSet, LayerViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
@@ -148,6 +149,29 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         return response
 
 
+class CrudRenderTemplateDetailView(DetailView):
+    model = geostore_models.Feature
+    pk_template_field = 'pk'
+    pk_template_kwargs = 'template_pk'
+
+    def get_template_names(self):
+        return self.template.template_file.name
+
+    def get_template_object(self):
+        return get_object_or_404(self.get_object().layer.crud_view.templates,
+                                 **{self.pk_template_field:
+                                    self.kwargs.get(self.pk_template_kwargs)})
+
+    def render_to_response(self, context, **response_kwargs):
+        self.template = self.get_template_object()
+        self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
+        response = super().render_to_response(context, **response_kwargs)
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(
+            Path(self.template.template_file.name).name
+        )
+        return response
+
+
 class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):
     queryset = models.AttachmentCategory.objects.all()
     serializer_class = serializers.AttachmentCategorySerializer
@@ -165,7 +189,8 @@ class BehindFeatureMixin:
     def get_feature(self):
         uuid = self.kwargs.get('identifier')
         if not self.feature and uuid:
-            self.feature = get_object_or_404(Feature, identifier=uuid) if uuid else self.feature
+            self.feature = get_object_or_404(geostore_models.Feature,
+                                             identifier=uuid) if uuid else self.feature
         return self.feature
 
     def perform_create(self, serializer):
