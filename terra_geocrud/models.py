@@ -172,7 +172,6 @@ class FeaturePropertyDisplayGroup(models.Model):
     def save(self, *args, **kwargs):
         # generate slug
         self.slug = slugify(self.label)
-
         super().save(*args, **kwargs)
 
 
