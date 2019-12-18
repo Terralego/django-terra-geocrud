@@ -184,7 +184,6 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
 
 
 class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
-    geom = None
     detail_url = serializers.SerializerMethodField()
     extent = serializers.SerializerMethodField()
     properties = serializers.SerializerMethodField()
@@ -205,7 +204,7 @@ class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
                        args=(obj.layer_id, obj.identifier))
 
     class Meta(FeatureSerializer.Meta):
-        exclude = ('source', 'target', 'layer', 'geom')
+        exclude = ('source', 'target', 'layer')
         fields = None
 
 
