@@ -336,7 +336,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         # add relations
         relations = obj.layer.relations_as_origin.all()
         results['Relations'] = {
-            "title": "",
+            "title": "Relations",
             "pictogram": None,
             "order": 10000,
             "properties": {
