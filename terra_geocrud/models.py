@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
@@ -123,6 +124,21 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
         data = feature.properties.get(self.feature_title_property.key, '')\
             if self.feature_title_property else feature.identifier
         return data or feature.identifier
+
+    @property
+    def feature_list_properties(self):
+        # TODO: keep default properties at first, then order by property title
+        default_list = list(self.default_list_properties or self.list_available_properties[:8])
+        result = {
+            prop: {
+                "title": self.layer.get_property_title(prop),
+                "selected": True if prop in default_list else False,
+                "type": self.layer.get_property_type(prop)
+            }
+            for prop in self.list_available_properties
+        }
+        # order by title
+        return OrderedDict(sorted(result.items(), key=lambda x: x[1]['title']))
 
     class Meta:
         verbose_name = _("View")
