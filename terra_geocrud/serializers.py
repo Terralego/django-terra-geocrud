@@ -358,8 +358,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             "order": 10000,
             "properties": {
                 relation.name: CrudFeatureListSerializer(
-                    Feature.objects.filter(pk__in=obj.relations_as_origin.filter(relation=relation)
-                                                                         .values_list('destination_id', flat=True)),
+                    obj.get_stored_relation_qs(relation.pk),
                     many=True).data for relation in relations
             }
         }
