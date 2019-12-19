@@ -340,9 +340,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             "pictogram": None,
             "order": 10000,
             "properties": {
-                relation.name: CrudFeatureListSerializer(
-                    obj.get_stored_relation_qs(relation.pk),
-                    many=True).data for relation in relations
+                relation.name: render_relation(relation, obj.get_stored_relation_qs(relation.pk))
+                for relation in relations
             }
         }
 
