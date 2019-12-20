@@ -10,8 +10,6 @@ from terra_geocrud.properties.files import get_storage_file_url
 
 def render_relation(relation, qs):
     # get property displayed list
-    properties = relation.destination.crud_view.feature_list_properties
-    head = ""
     body = ""
 
     head = f'<th style="width: 90%;">Nom</th><th style="width: 10%;">Lien</th>'
