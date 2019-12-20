@@ -14,15 +14,10 @@ def render_relation(relation, qs):
     head = ""
     body = ""
 
-    for prop, data in properties.items():
-        head = f"{head}<th>{relation.destination.crud_view.layer.get_property_title(prop)}</th>"
-    # add url
-    head = f"{head}<th>Lien</th>"
+    head = f"<th>Nom</th><th>Lien</th>"
 
     for obj in qs:
-        line = ""
-        for prop, data in properties.items():
-            line = f"{line}<td>{obj.properties.get(prop, '')}</td>"
+        line = f"<td>{obj.properties.get('name', obj.identifier)}</td>"
         # add url
         line = f'{line}<td><a href="/CRUD/map/{relation.destination.name}/{obj.identifier}/">lien</a></td>'
         body = f"{body}<tr>{line}</tr>"
