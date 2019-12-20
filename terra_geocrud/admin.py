@@ -145,11 +145,15 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin, NestedMod
 
 
 class LayerExtraGeomInline(admin.TabularInline):
+    verbose_name = _("Extra geometry")
+    verbose_name_plural = _("Extra geometries")
     model = LayerExtraGeom
     extra = 0
 
 
 class LayerRelationInline(admin.TabularInline):
+    verbose_name = _("Relation")
+    verbose_name_plural = _("Relations")
     model = LayerRelation
     fk_name = 'origin'
     extra = 0
