@@ -14,7 +14,7 @@ def render_relation(relation, qs):
     head = ""
     body = ""
 
-    head = f"<th>Nom</th><th>Lien</th>"
+    head = f'<th style="width: 90%;">Nom</th><th style="width: 10%;">Lien</th>'
 
     for obj in qs:
         line = f"<td>{obj.properties.get('name', obj.identifier)}</td>"
@@ -22,7 +22,7 @@ def render_relation(relation, qs):
         line = f'{line}<td><a href="/CRUD/map/{relation.destination.name}/{obj.identifier}/">lien</a></td>'
         body = f"{body}<tr>{line}</tr>"
 
-    return f"<table><thead>{head}</thead><tbody>{body}</tbody></table>"
+    return f'<table style="width: 100%;"><thead>{head}</thead><tbody>{body}</tbody></table>' if qs else None
 
 
 def render_property_data(feature, property_renderer):
