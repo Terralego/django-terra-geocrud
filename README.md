@@ -13,9 +13,8 @@ CRUD views definition for django-geostore in terra apps
 
 ## Requirements
 
-* django-geostore >= 0.3.1
-* django-template-models
-* django-template-engines
+* django 2.2 / 3.0
+* geodjango enabled with postgres 10+ / postgis 2.4+ / pgrouting database
 
 ## DEVELOPMENT
 
