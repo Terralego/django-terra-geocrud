@@ -12,7 +12,7 @@ python:
 env:
   matrix:
     - DJANGO_VERSION=2.2.*
-    #- DJANGO_VERSION=3.0.* disable until solr.thumbnail / drf-gis works with django 3.0
+    - DJANGO_VERSION=3.0.*
     #- DJANGO_VERSION=dev
 
 services:
