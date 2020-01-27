@@ -6,6 +6,7 @@ CHANGELOG
 ----------------------------
 
 * Support Django 3.0
+* Compatibility with geostore 0.3.16
 
 
 0.3.28          (2019-12-17)
