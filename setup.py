@@ -44,7 +44,7 @@ setup(
         'Framework :: Django :: 2.2',
     ],
     install_requires=[
-        'django>=2.2',
+        'django>=2.2,<3.0',  # wait for > 12.6.0 release on pypi
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',
@@ -56,8 +56,7 @@ setup(
         'requests',
         'django-json-widget>=0.2.0',
         'pillow',
-        # wait for > 12.6.0 release on pypi
-        'sorl-thumbnail@https://github.com/jazzband/sorl-thumbnail/archive/12.6.0.tar.gz',
+        'sorl-thumbnail>',
     ],
     tests_require=tests_require,
     extras_require={
