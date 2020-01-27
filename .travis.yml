@@ -58,7 +58,7 @@ after_script:
 
 jobs:
   allow_failures:
-    - env: DJANGO_VERSION=dev
+    - env: DJANGO_VERSION=3.0.*
 
   include:
   - stage: lint
