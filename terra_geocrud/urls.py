@@ -1,9 +1,9 @@
 from django.urls import include, path
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
-router = SimpleRouter()
+router = DefaultRouter()
 router.register('groups', views.CrudGroupViewSet)
 router.register('views', views.CrudViewViewSet)
 router.register('attachment-categories', views.CrudAttachmentCategoryViewSet)
