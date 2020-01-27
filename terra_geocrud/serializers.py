@@ -87,7 +87,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
             "url": reverse('layer-shapefile', args=[obj.layer_id, ])
         }, {
             "name": "geojson",
-            "url": reverse('layer-geojson', kwargs={'layer': obj.layer_id, 'format': 'geojson'})
+            "url": reverse('feature-list', kwargs={'layer': obj.layer_id, 'format': 'geojson'})
         }]
 
     def get_extent(self, obj):
