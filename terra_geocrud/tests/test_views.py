@@ -6,13 +6,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature, LayerExtraGeom
+from geostore.models import Feature, LayerExtraGeom, LayerSchemaProperty
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
 
 from . import factories
-from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA
+from .settings import FEATURE_PROPERTIES
 from .. import models, settings as app_settings
 
 
@@ -186,8 +186,16 @@ class CrudSettingsViewTestCase(TestCase):
 class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
     def setUp(self):
         self.crud_view = factories.CrudViewFactory(name="Composantes", order=0,
-                                                   layer__schema=json.load(open(LAYER_SCHEMA)),
                                                    layer__geom_type=GeometryTypes.Point)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Number", layer=self.crud_view.layer)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Context", layer=self.crud_view.layer)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Perimeter", layer=self.crud_view.layer)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Conservation", layer=self.crud_view.layer)
+
         self.extra_layer = LayerExtraGeom.objects.create(geom_type=GeometryTypes.MultiPolygon,
                                                          title='extra geom 1',
                                                          layer=self.crud_view.layer)

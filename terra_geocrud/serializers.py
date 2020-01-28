@@ -337,8 +337,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     def _store_files(self):
         FAKE_CONTENT = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
         files_properties = [
-            key for key, value in self.instance.layer.schema['properties'].items()
-            if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
+            key for key, value in self.instance.layer.generated_schema['properties'].items()
+            if self.instance.layer.generated_schema['properties'][key].get('format') == 'data-url'
         ]
         if files_properties:
             storage = get_storage()

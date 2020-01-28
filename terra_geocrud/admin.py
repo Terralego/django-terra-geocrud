@@ -2,11 +2,26 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
-from geostore.models import LayerExtraGeom
+from geostore.models import LayerExtraGeom, LayerSchemaProperty, ArrayObjectProperty
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models, widgets
+
+
+class ArrayObjectPropertyAdminInline(admin.TabularInline):
+    model = ArrayObjectProperty
+    extra = 1
+
+
+class LayerSchemaPropertyAdmin(admin.ModelAdmin):
+    inlines = [ArrayObjectPropertyAdminInline, ]
+    extra = 1
+
+
+class LayerSchemaPropertyAdminInline(admin.TabularInline):
+    model = LayerSchemaProperty
+    extra = 1
 
 
 class CrudGroupViewAdmin(VersionAdmin):
@@ -59,6 +74,31 @@ class CrudViewAdmin(VersionAdmin):
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
 
+    def add_view(self, request, form_url='', extra_context=None):
+        self.obj = None
+        return self.changeform_view(request, None, form_url, extra_context)
+
+    def get_object(self, request, object_id, from_field=None):
+        # Hook obj for use in formfield_for_manytomany and formfield_for_foreignkey
+        self.obj = super(CrudViewAdmin, self).get_object(request, object_id)
+        return self.obj
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "feature_title_property":
+            if self.obj:
+                kwargs["queryset"] = LayerSchemaProperty.objects.filter(layer=self.obj.layer)
+            else:
+                kwargs["queryset"] = LayerSchemaProperty.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "default_list_properties":
+            if self.obj:
+                kwargs["queryset"] = LayerSchemaProperty.objects.filter(layer=self.obj.layer)
+            else:
+                kwargs["queryset"] = LayerSchemaProperty.objects.none()
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
     def get_readonly_fields(self, request, obj=None):
         ro_fields = super().get_readonly_fields(request, obj=obj)
         if obj and obj.pk:
@@ -72,14 +112,14 @@ class LayerExtraGeomInline(admin.TabularInline):
     extra = 0
 
 
-class CrudLayerAdmin(VersionAdmin):
+class CrudLayerAdmin(VersionAdmin, admin.ModelAdmin):
     list_display = ('pk', 'name', 'geom_type', 'layer_groups')
     list_filter = ('geom_type', 'layer_groups')
     search_fields = ('pk', 'name')
     formfield_overrides = {
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
-    inlines = [LayerExtraGeomInline, ]
+    inlines = [LayerExtraGeomInline, LayerSchemaPropertyAdminInline]
 
 
 class FeaturePictureInline(AdminInlineImageMixin, admin.TabularInline):

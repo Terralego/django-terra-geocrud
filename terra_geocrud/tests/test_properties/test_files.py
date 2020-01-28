@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from geostore.tests.factories import FeatureFactory
+from geostore.tests.factories import FeatureFactory, LayerSchemaProperty
 
 from terra_geocrud.properties.files import get_info_content, get_storage_file_path, get_storage
 from terra_geocrud.tests import factories
@@ -25,16 +25,11 @@ class StorageFunctionTestCase(APITestCase):
                 self.property_key: None
             }
         )
-        self.crud_view = factories.CrudViewFactory(
-            layer__schema={
-                'properties': {
-                    self.property_key: {
-                        "type": "string",
-                        "format": 'data-url',
-                    }
-                }
-            }
-        )
+        self.crud_view = factories.CrudViewFactory()
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title=self.property_key, layer=self.crud_view.layer,
+                                           options={"format": 'data-url'})
+
 
         self.feature_with_file_name = FeatureFactory(
             layer=self.crud_view.layer,
@@ -58,6 +53,7 @@ class StorageFunctionTestCase(APITestCase):
         data = {
             "geom": "POINT(0 0)",
             "properties": {
+                'name': 'Send File',
                 self.property_key: 'data:image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         }

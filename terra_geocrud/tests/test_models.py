@@ -8,7 +8,8 @@ from django.urls import reverse
 from rest_framework import status
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
 
-from geostore.models import Feature
+from geostore.models import Feature, LayerSchemaProperty
+from geostore.tests.factories import LayerFactory
 from terra_geocrud.models import PropertyDisplayRendering, AttachmentCategory, AttachmentMixin, \
     feature_attachment_directory_path, feature_picture_directory_path
 from terra_geocrud.tests import factories
@@ -26,31 +27,14 @@ class CrudModelMixinTestCase(TestCase):
 
 class CrudViewTestCase(TestCase):
     def setUp(self) -> None:
-        self.crud_view = factories.CrudViewFactory(
-            layer__schema={
-                "type": "object",
-                "required": ["name", ],
-                "properties": {
-                    "name": {
-                        'type': "string",
-                        "title": "Name"
-                    },
-                    "logo": {
-                        'type': "string",
-                        "title": "Logo",
-                        "format": "data-url"
-                    },
-                    "age": {
-                        'type': "integer",
-                        "title": "Age",
-                    },
-                    "country": {
-                        'type': "string",
-                        "title": "Country"
-                    },
-                }
-            }
-        )
+        self.other_layer = LayerFactory()
+        self.crud_view = factories.CrudViewFactory()
+        LayerSchemaProperty.objects.create(required=False, prop_type="string", title="Logo",
+                                           layer=self.crud_view.layer)
+        self.other_schema_property = LayerSchemaProperty.objects.create(required=False,
+                                                                        prop_type="string",
+                                                                        title="Country",
+                                                                        layer=self.other_layer)
 
     def test_clean_default_list_properties(self):
         with self.assertRaises(ValidationError):

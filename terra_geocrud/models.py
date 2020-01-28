@@ -94,7 +94,7 @@ class FeaturePropertyDisplayGroup(models.Model):
 
     @cached_property
     def form_schema(self):
-        original_schema = deepcopy(self.crud_view.layer.schema)
+        original_schema = deepcopy(self.crud_view.layer.generated_schema)
         properties = {}
         required = []
 

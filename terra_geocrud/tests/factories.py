@@ -2,7 +2,7 @@ import factory
 from template_model.models import Template
 
 from geostore import GeometryTypes
-from geostore.tests.factories import LayerFactory
+from geostore.tests.factories import LayerWithSchemaFactory
 from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment
 from terra_geocrud.tests.settings import DOCX_TEMPLATE
 
@@ -19,26 +19,8 @@ class CrudViewFactory(factory.DjangoModelFactory):
     name = factory.faker.Faker('name')
     order = 0
     layer = factory.SubFactory(
-        LayerFactory,
+        LayerWithSchemaFactory,
         geom_type=GeometryTypes.Point,
-        schema={
-            "type": "object",
-            "required": ["name", ],
-            "properties": {
-                "name": {
-                    'type': "string",
-                    "title": "Name"
-                },
-                "age": {
-                    'type': "integer",
-                    "title": "Age",
-                },
-                "country": {
-                    'type': "string",
-                    "title": "Country"
-                },
-            }
-        }
     )
 
     class Meta:

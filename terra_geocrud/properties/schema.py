@@ -16,7 +16,7 @@ class FormSchemaMixin:
 
     @cached_property
     def grouped_form_schema(self):
-        original_schema = deepcopy(self.layer.schema)
+        original_schema = deepcopy(self.layer.generated_schema)
         generated_schema = deepcopy(original_schema)
         groups = self.feature_display_groups.all()
         processed_properties = []
@@ -78,9 +78,9 @@ class FormSchemaMixin:
 
         for prop in self.properties:
             # exclude format 'data-url', array if final data is object, and textarea / rte fields
-            if (self.layer.schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
-                    self.layer.schema.get('properties', {}).get(prop).get('type') != 'array'
-                    or self.layer.schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object') \
+            if (self.layer.generated_schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
+                    self.layer.generated_schema.get('properties', {}).get(prop).get('type') != 'array'
+                    or self.layer.generated_schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object') \
                     and (self.ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
                          and self.ui_schema.get(prop, {}).get('ui:field') != 'rte'):
                 properties.append(prop)
