@@ -30,7 +30,6 @@ class StorageFunctionTestCase(APITestCase):
                                            title=self.property_key, layer=self.crud_view.layer,
                                            options={"format": 'data-url'})
 
-
         self.feature_with_file_name = FeatureFactory(
             layer=self.crud_view.layer,
             properties={
