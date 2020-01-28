@@ -38,12 +38,12 @@ class CrudViewTestCase(TestCase):
 
     def test_clean_default_list_properties(self):
         with self.assertRaises(ValidationError):
-            self.crud_view.default_list_properties.append('toto')
+            self.crud_view.default_list_properties.add(self.other_schema_property)
             self.crud_view.clean()
 
     def test_clean_feature_title_property(self):
         with self.assertRaises(ValidationError):
-            self.crud_view.feature_title_property = 'toto'
+            self.crud_view.feature_title_property = self.other_schema_property
             self.crud_view.clean()
 
     def test_render_property_data(self):

@@ -7,7 +7,7 @@ from django.utils.functional import cached_property
 class FormSchemaMixin:
     def clean(self):
         # verify properties in default_list_properties exist
-        unexpected_properties = list(set(self.default_list_properties) - set(self.list_available_properties))
+        unexpected_properties = list(set(self.default_list_properties.all()) - set(self.list_available_properties))
         if unexpected_properties:
             raise ValidationError(f'Properties should exists for feature list : {unexpected_properties}')
         # verify feature_title_property exists

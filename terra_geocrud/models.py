@@ -58,9 +58,11 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
                                          https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
-    default_list_properties = ArrayField(models.CharField(max_length=250), default=list, blank=True)
-    feature_title_property = models.CharField(help_text=_("Schema property used to define feature title."),
-                                              max_length=250, blank=True, null=False, default="")
+    default_list_properties = models.ManyToManyField('geostore.LayerSchemaProperty', related_name='crud_views',
+                                                     blank=True, help_text=_("Default list of properties for a view"))
+    feature_title_property = models.ForeignKey('geostore.LayerSchemaProperty',
+                                               help_text=_("Schema property used to define feature title."), blank=True,
+                                               null=True, on_delete=models.SET_NULL)
     visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))
 
     @cached_property

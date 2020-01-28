@@ -96,7 +96,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_feature_list_properties(self, obj):
         # TODO: keep default properties at first, then order by property title
-        default_list = list(obj.default_list_properties or obj.list_available_properties[:8])
+        default_list = list(obj.default_list_properties.all() or obj.list_available_properties[:8])
         result = {
             prop: {
                 "title": obj.layer.get_property_title(prop),
