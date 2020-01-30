@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature, LayerExtraGeom, LayerSchemaProperty
+from geostore.models import Feature, LayerExtraGeom, LayerSchemaProperty, ArrayObjectProperty
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
@@ -135,14 +135,17 @@ class CrudViewViewSetTestCase(APITestCase):
         response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertDictEqual(data['ui_schema'], self.view_1.ui_schema)
+        self.assertDictEqual(data['ui_schema'], self.view_1.generated_ui_schema)
 
     def test_grouped_ui_schema(self):
-        self.view_1.ui_schema = {
-            'name': {'ui:widget': 'textarea'},
-            'ui:order': ['name', 'age']
-        }
-        self.view_1.save()
+        layer_schema_name = LayerSchemaProperty.objects.get(slug="name", layer=self.view_1.layer)
+        layer_schema_age = LayerSchemaProperty.objects.get(slug="age", layer=self.view_1.layer)
+        models.UISchemaProperty.objects.create(crud_view=self.view_1, layer_schema=layer_schema_name,
+                                               schema={'ui:widget': 'textarea'}, order=1)
+        models.UISchemaProperty.objects.create(crud_view=self.view_1, layer_schema=layer_schema_age, order=2)
+
+        self.assertEqual({'name': {'ui:widget': 'textarea'}, 'ui:order': ['name', 'age', '*']},
+                         self.view_1.generated_ui_schema)
         group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test',
                                                                     properties=['age'])
         group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test2',

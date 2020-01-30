@@ -53,9 +53,6 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True,
                                   help_text=_("Picto displayed in left menu"))
     map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
-    ui_schema = JSONField(default=dict, blank=True,
-                          help_text=_("""Custom ui:schema style for this entry.
-                                         https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
     default_list_properties = models.ManyToManyField('geostore.LayerSchemaProperty', related_name='crud_views',
@@ -75,6 +72,34 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
 
     def get_layer(self):
         return self.layer
+
+    @property
+    def generated_ui_schema(self):
+        """ Generate JSON schema according to linked schema properties  """
+        ui_schema_properties = self.ui_schema_properties.all().order_by('order').prefetch_related('ui_array_properties')
+        ui_schema = {}
+        ui_order = []
+        for prop in ui_schema_properties:
+            name = prop.layer_schema.slug
+            if prop.schema:
+                ui_schema.update({name: prop.schema})
+            ui_array_order = []
+            if prop.order:
+                ui_order.append(name)
+            for prop_array in prop.ui_array_properties.all().order_by('order'):
+                name_array = prop_array.array_layer_schema.slug
+                ui_schema.setdefault(name, {})
+                ui_schema[name].setdefault('items', {})
+                ui_schema[name]['items'].update({name_array: prop_array.schema})
+                if prop_array.order:
+                    ui_array_order.append(name_array)
+            if ui_array_order:
+                ui_schema[name].setdefault('items', {})
+                ui_schema[name]['items'].update({'ui:order': ui_array_order})
+        ui_order.append('*')
+        if ui_order:
+            ui_schema.update({'ui:order': ui_order})
+        return ui_schema
 
     class Meta:
         verbose_name = _("View")
@@ -228,3 +253,40 @@ class ExtraLayerStyle(MapStyleModelMixin, models.Model):
         unique_together = (
             ('crud_view', 'layer_extra_geom'),
         )
+
+
+class UISchemaObjectProperty(models.Model):
+    schema = JSONField(help_text=_("Custom ui schema"), blank=True, default=dict)
+    order = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    class Meta:
+        abstract = True
+
+
+class UISchemaProperty(UISchemaObjectProperty):
+    crud_view = models.ForeignKey(CrudView, related_name='ui_schema_properties', on_delete=models.PROTECT)
+    layer_schema = models.OneToOneField('geostore.LayerSchemaProperty',
+                                        related_name='ui_schema_property',
+                                        on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.crud_view}: {self.layer_schema.slug} ({self.layer_schema.prop_type})"
+
+    class Meta:
+        verbose_name = _("UI Schema property")
+        verbose_name_plural = _("UI Schema properties")
+
+
+class UIArraySchemaProperty(UISchemaObjectProperty):
+    ui_schema_property = models.ForeignKey(UISchemaProperty, related_name='ui_array_properties',
+                                           on_delete=models.PROTECT)
+    array_layer_schema = models.OneToOneField('geostore.ArrayObjectProperty',
+                                              related_name='ui_array_schema',
+                                              on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.ui_schema_property}: {self.array_layer_schema.slug} ({self.array_layer_schema.prop_type})"
+
+    class Meta:
+        verbose_name = _("UI Array object schema property")
+        verbose_name_plural = _("UI Array object schema properties")

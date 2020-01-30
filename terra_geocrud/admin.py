@@ -49,15 +49,39 @@ class PropertyDisplayRenderingTabularInline(admin.TabularInline):
     extra = 0
 
 
+class UIArraySchemaPropertyAdminInline(admin.TabularInline):
+    model = models.UIArraySchemaProperty
+    extra = 1
+    formfield_overrides = {
+        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+    }
+
+
+class UISchemaPropertyAdmin(admin.ModelAdmin):
+    inlines = [UIArraySchemaPropertyAdminInline, ]
+    extra = 1
+    formfield_overrides = {
+        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+    }
+    list_filter = ['crud_view', ]
+    list_display = ('crud_view', 'order', 'layer_schema')
+
+
+class UISchemaPropertyAdminInline(admin.TabularInline):
+    model = models.UISchemaProperty
+    extra = 1
+
+
 class CrudViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine]
+    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine,
+               UISchemaPropertyAdminInline]
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
-        (_('UI schema & properties'), {
-            'fields': ('properties', 'default_list_properties', 'feature_title_property', 'ui_schema'),
+        (_('Properties'), {
+            'fields': ('properties', 'default_list_properties', 'feature_title_property'),
             'classes': ('collapse', )
         }),
         (_("Document generation"), {

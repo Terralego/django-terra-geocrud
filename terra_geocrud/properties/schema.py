@@ -43,7 +43,7 @@ class FormSchemaMixin:
         """
         Original ui_schema is recomposed with grouped properties
         """
-        ui_schema = deepcopy(self.ui_schema)
+        ui_schema = deepcopy(self.generated_ui_schema)
 
         groups = self.feature_display_groups.all()
         for group in groups:
@@ -81,7 +81,7 @@ class FormSchemaMixin:
             if (self.layer.generated_schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
                     self.layer.generated_schema.get('properties', {}).get(prop).get('type') != 'array'
                     or self.layer.generated_schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object') \
-                    and (self.ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
-                         and self.ui_schema.get(prop, {}).get('ui:field') != 'rte'):
+                    and (self.generated_ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
+                         and self.generated_ui_schema.get(prop, {}).get('ui:field') != 'rte'):
                 properties.append(prop)
         return properties
