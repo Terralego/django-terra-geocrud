@@ -128,6 +128,11 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
             "type": "object",
             "required": [],
             "properties": {
+                'other': {'items': {'properties': {'column': {'title': 'column',
+                                                              'type': 'string'}},
+                                    'type': 'object'},
+                          'title': 'Other',
+                          'type': 'array'},
                 'country': {
                     'type': 'string',
                     'title': 'Country'
