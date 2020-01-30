@@ -117,11 +117,15 @@ class CrudViewAdmin(VersionAdmin):
         return queryset
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        kwargs["queryset"] = self.define_queryset_layer_schema(db_field, "feature_title_property")
+        queryset = self.define_queryset_layer_schema(db_field, "feature_title_property")
+        if queryset:
+            kwargs["queryset"] = queryset
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        kwargs["queryset"] = self.define_queryset_layer_schema(db_field, "default_list_properties")
+        queryset = self.define_queryset_layer_schema(db_field, "default_list_properties")
+        if queryset:
+            kwargs["queryset"] = queryset
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
