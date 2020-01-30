@@ -4,8 +4,6 @@ import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 
-from geostore.models import ArrayObjectProperty, LayerSchemaProperty
-
 
 def move_ui_schema(apps, schema_editor):
     # We can't import Layer models directly as it may be a newer

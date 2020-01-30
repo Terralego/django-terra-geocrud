@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature, LayerExtraGeom, LayerSchemaProperty, ArrayObjectProperty
+from geostore.models import Feature, LayerExtraGeom, LayerSchemaProperty
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
