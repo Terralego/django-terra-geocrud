@@ -107,20 +107,21 @@ class CrudViewAdmin(VersionAdmin):
         self.obj = super(CrudViewAdmin, self).get_object(request, object_id)
         return self.obj
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "feature_title_property":
+    def define_queryset_layer_schema(self, db_field, name):
+        queryset = None
+        if db_field.name == name:
             if self.obj:
-                kwargs["queryset"] = LayerSchemaProperty.objects.filter(layer=self.obj.layer)
+                queryset = LayerSchemaProperty.objects.filter(layer=self.obj.layer)
             else:
-                kwargs["queryset"] = LayerSchemaProperty.objects.none()
+                queryset = LayerSchemaProperty.objects.none()
+        return queryset
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        kwargs["queryset"] = self.define_queryset_layer_schema(db_field, "feature_title_property")
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "default_list_properties":
-            if self.obj:
-                kwargs["queryset"] = LayerSchemaProperty.objects.filter(layer=self.obj.layer)
-            else:
-                kwargs["queryset"] = LayerSchemaProperty.objects.none()
+        kwargs["queryset"] = self.define_queryset_layer_schema(db_field, "default_list_properties")
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
