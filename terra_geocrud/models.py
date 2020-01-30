@@ -90,7 +90,8 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
                 name_array = prop_array.array_layer_schema.slug
                 ui_schema.setdefault(name, {})
                 ui_schema[name].setdefault('items', {})
-                ui_schema[name]['items'].update({name_array: prop_array.schema})
+                if prop_array.schema:
+                    ui_schema[name]['items'].update({name_array: prop_array.schema})
                 if prop_array.order:
                     ui_array_order.append(name_array)
             if ui_array_order:
