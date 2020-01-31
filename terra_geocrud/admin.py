@@ -67,16 +67,10 @@ class UISchemaPropertyAdmin(admin.ModelAdmin):
     list_display = ('crud_view', 'order', 'layer_schema')
 
 
-class UISchemaPropertyAdminInline(admin.TabularInline):
-    model = models.UISchemaProperty
-    extra = 1
-
-
 class CrudViewAdmin(VersionAdmin):
     list_display = ['name', 'order', 'pictogram', 'properties', ]
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine,
-               UISchemaPropertyAdminInline]
+    inlines = [FeatureDisplayGroupTabularInline, PropertyDisplayRenderingTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
         (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),

@@ -140,9 +140,9 @@ class CrudViewViewSetTestCase(APITestCase):
     def test_grouped_ui_schema(self):
         layer_schema_name = LayerSchemaProperty.objects.get(slug="name", layer=self.view_1.layer)
         layer_schema_age = LayerSchemaProperty.objects.get(slug="age", layer=self.view_1.layer)
-        models.UISchemaProperty.objects.create(crud_view=self.view_1, layer_schema=layer_schema_name,
+        models.UISchemaProperty.objects.create(layer_schema=layer_schema_name,
                                                schema={'ui:widget': 'textarea'}, order=1)
-        models.UISchemaProperty.objects.create(crud_view=self.view_1, layer_schema=layer_schema_age, order=2)
+        models.UISchemaProperty.objects.create(layer_schema=layer_schema_age, order=2)
 
         self.assertEqual({'name': {'ui:widget': 'textarea'}, 'ui:order': ['name', 'age', '*']},
                          self.view_1.generated_ui_schema)

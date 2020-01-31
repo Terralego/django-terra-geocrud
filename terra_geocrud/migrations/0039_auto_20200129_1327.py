@@ -15,9 +15,7 @@ def move_ui_schema(apps, schema_editor):
     ArrayObjectProperty = apps.get_model('geostore', 'ArrayObjectProperty')
 
     for layer_schema in LayerSchemaProperty.objects.all():
-        layer = layer_schema.layer
-        view = layer.crud_view
-        ui_schema = UISchemaProperty.objects.create(layer_schema_id=layer_schema.pk, crud_view=view,
+        ui_schema = UISchemaProperty.objects.create(layer_schema_id=layer_schema.pk,
                                                     order=0, schema={})
         for array_property in layer_schema.array_properties.all():
             UIArraySchemaProperty.objects.create(array_layer_schema_id=array_property.pk,
@@ -89,7 +87,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('schema', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, help_text='Custom ui schema')),
                 ('order', models.PositiveSmallIntegerField(db_index=True, default=0)),
-                ('crud_view', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='ui_schema_properties', to='terra_geocrud.CrudView')),
                 ('layer_schema', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='ui_schema_property', to='geostore.LayerSchemaProperty')),
             ],
             options={

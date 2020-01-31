@@ -76,7 +76,9 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     @property
     def generated_ui_schema(self):
         """ Generate JSON schema according to linked schema properties  """
-        ui_schema_properties = self.ui_schema_properties.all().order_by('order').prefetch_related('ui_array_properties')
+        schema_properties = self.layer.schema_properties.all().values_list('pk', flat=True)
+        ui_schema_properties = UISchemaProperty.objects.filter(layer_schema_id__in=schema_properties).order_by('order').\
+            prefetch_related('ui_array_properties')
         ui_schema = {}
         ui_order = []
         for prop in ui_schema_properties:
@@ -265,13 +267,12 @@ class UISchemaObjectProperty(models.Model):
 
 
 class UISchemaProperty(UISchemaObjectProperty):
-    crud_view = models.ForeignKey(CrudView, related_name='ui_schema_properties', on_delete=models.PROTECT)
     layer_schema = models.OneToOneField('geostore.LayerSchemaProperty',
                                         related_name='ui_schema_property',
                                         on_delete=models.PROTECT)
 
     def __str__(self):
-        return f"{self.crud_view}: {self.layer_schema.slug} ({self.layer_schema.prop_type})"
+        return f"{self.layer_schema.layer.crud_view}: {self.layer_schema.slug} ({self.layer_schema.prop_type})"
 
     class Meta:
         verbose_name = _("UI Schema property")
