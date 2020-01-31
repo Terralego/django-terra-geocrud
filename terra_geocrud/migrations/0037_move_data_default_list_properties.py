@@ -17,8 +17,8 @@ def move_data_default_list(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('geostore', '0041_auto_20200128_1414'),
         ('terra_geocrud', '0036_auto_20191210_0908'),
+        ('geostore', '0038_remove_layer_schema'),
     ]
 
     operations = [

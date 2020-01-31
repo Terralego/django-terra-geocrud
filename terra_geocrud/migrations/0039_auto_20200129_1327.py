@@ -33,7 +33,7 @@ def move_ui_schema(apps, schema_editor):
                 except LayerSchemaProperty.DoesNotExist:
                     continue
                 items = value.pop('items', {})
-                ui_schema = UISchemaProperty.objects.get(layer_schema_id=layer_schema.pk, crud_view=view)
+                ui_schema = UISchemaProperty.objects.get(layer_schema_id=layer_schema.pk)
                 ui_schema.schema = value
                 ui_schema.save()
 
@@ -65,7 +65,7 @@ def move_ui_schema(apps, schema_editor):
                     layer_schema = LayerSchemaProperty.objects.get(layer_id=view.layer.pk, slug=element_order)
                 except LayerSchemaProperty.DoesNotExist:
                     continue
-                ui_schema = UISchemaProperty.objects.get(layer_schema_id=layer_schema.pk, crud_view=view)
+                ui_schema = UISchemaProperty.objects.get(layer_schema_id=layer_schema.pk)
                 try:
                     ui_schema.order = order.index(element_order) + 1
                     ui_schema.save()
@@ -76,7 +76,6 @@ def move_ui_schema(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('geostore', '0041_auto_20200128_1414'),
         ('terra_geocrud', '0038_move_data_title_property'),
     ]
 
