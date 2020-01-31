@@ -16,7 +16,7 @@ class TemplateDocxFactory(factory.DjangoModelFactory):
 
 
 class CrudViewFactory(factory.DjangoModelFactory):
-    name = factory.faker.Faker('name')
+    name = factory.Sequence(lambda n: "Name %03d" % n)
     order = 0
     layer = factory.SubFactory(
         LayerFactory,
@@ -46,7 +46,7 @@ class CrudViewFactory(factory.DjangoModelFactory):
 
 
 class AttachmentCategoryFactory(factory.DjangoModelFactory):
-    name = factory.Faker('name')
+    name = factory.Sequence(lambda n: "Name %03d" % n)
     pictogram = factory.django.ImageField(color='green')
 
     class Meta:
