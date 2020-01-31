@@ -63,8 +63,7 @@ class UISchemaPropertyAdmin(admin.ModelAdmin):
     formfield_overrides = {
         fields.JSONField: {'widget': widgets.JSONEditorWidget},
     }
-    list_filter = ['crud_view', ]
-    list_display = ('crud_view', 'order', 'layer_schema')
+    list_display = ('order', 'layer_schema')
 
 
 class CrudViewAdmin(VersionAdmin):
