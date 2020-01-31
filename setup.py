@@ -57,7 +57,7 @@ setup(
         'requests',
         'django-json-widget>=0.2.0',
         'pillow',
-        'sorl-thumbnail>12.6.2',
+        'sorl-thumbnail>=12.6.2',
     ],
     tests_require=tests_require,
     extras_require={
