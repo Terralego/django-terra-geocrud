@@ -42,9 +42,10 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Framework :: Django',
         'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
     ],
     install_requires=[
-        'django>=2.2,<3.0',  # wait for > 12.6.0 release on pypi
+        'django>=2.2,<3.1',
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',
@@ -56,7 +57,7 @@ setup(
         'requests',
         'django-json-widget>=0.2.0',
         'pillow',
-        'sorl-thumbnail>',
+        'sorl-thumbnail>=12.6.2',
     ],
     tests_require=tests_require,
     extras_require={
