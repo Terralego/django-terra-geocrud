@@ -14,7 +14,8 @@ from template_model.models import Template
 from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
 from .map.styles import get_default_style
-from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content
+from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content, \
+    get_storage_file_url
 from .properties.widgets import render_property_data
 
 
@@ -174,7 +175,7 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
 
         # apply special cases for files
         for key, value in final_properties.items():
-            if feature.layer.schema.get(key, {}).get('format') == 'data-url':
+            if feature.layer.schema.get('properties').get(key, {}).get('format') == 'data-url':
                 final_properties[key] = get_storage_file_path(key, value, obj)
 
         return {
@@ -336,8 +337,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             }
             # apply special cases for files
             for key, value in final_properties.items():
-                if obj.layer.schema.get(key, {}).get('format') == 'data-url':
-                    final_properties[key] = get_storage_file_path(key, value, obj)
+                if obj.layer.schema.get('properties').get(key, {}).get('format') == 'data-url':
+                    final_properties[key] = get_storage_file_url(key, value, obj)
 
             results['__default__'] = {
                 "title": "",
