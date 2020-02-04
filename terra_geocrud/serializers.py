@@ -175,8 +175,8 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
 
         # apply special cases for files
         for key, value in final_properties.items():
-            if feature.layer.schema.get('properties').get(key, {}).get('format') == 'data-url':
-                final_properties[key] = get_storage_file_path(key, value, obj)
+            if feature.layer.schema.get(key, {}).get('format') == 'data-url':
+                final_properties[key] = get_storage_file_url(key, value, obj)
 
         return {
             key: {
