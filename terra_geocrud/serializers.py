@@ -1,17 +1,17 @@
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 
 from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _
-from pathlib import Path
-
 from geostore.models import LayerExtraGeom
+from geostore.serializers import LayerSerializer, FeatureSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
+from sorl.thumbnail import get_thumbnail
 from template_model.models import Template
 
-from geostore.serializers import LayerSerializer, FeatureSerializer
 from . import models
 from .map.styles import get_default_style
 from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content, \
@@ -173,21 +173,25 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
             for prop in list(obj.properties)
         }
 
-        # apply special cases for files
+        results = {}
+
         for key, value in final_properties.items():
             if feature.layer.schema.get(key, {}).get('format') == 'data-url':
+                # apply special cases for files
+                storage_file_path = get_storage_file_path(key, value, obj)
+                print(get_thumbnail(storage_file_path, "250x250"))
+
                 final_properties[key] = get_storage_file_url(key, value, obj)
 
-        return {
-            key: {
+            results[key] = {
                 "display_value": value,
                 "value": feature.properties.get(key),
                 "title": feature.layer.get_property_title(key),
                 "schema": feature.layer.schema.get(key),
                 "ui_schema": feature.layer.crud_view.ui_schema.get(key, {})
             }
-            for key, value in final_properties.items()
-        }
+
+        return results
 
     class Meta:
         model = models.FeaturePropertyDisplayGroup
@@ -331,29 +335,54 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         # add default other properties
         remained_properties = list(set(crud_view.properties) - set(processed_properties))
         if remained_properties:
+            # reconstruct property key/value list based on layer schema
             final_properties = {
                 prop: obj.properties.get(prop)
                 for prop in list(remained_properties)
             }
-            # apply special cases for files
+            properties = {}
+
             for key, value in final_properties.items():
-                if obj.layer.schema.get('properties').get(key, {}).get('format') == 'data-url':
-                    final_properties[key] = get_storage_file_url(key, value, obj)
+                data_type = 'data'
+                data = value
+                format = obj.layer.schema.get('properties').get(key, {}).get('format')
+
+                if format == 'data-url':
+                    # apply special cases for files
+                    data_type = 'file'
+                    storage_file_path = get_storage_file_path(key, value, obj)
+                    data = {
+                        "url": get_storage_file_url(storage_file_path),
+                    }
+                    # generate / get thumbnail for image
+                    try:
+                        # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
+                        if value.split(';')[0].split(':')[1].split('/')[0] == 'image':
+                            # apply special cases for images
+                            data_type = 'image'
+                            data.update({
+                                "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                            })
+                    except IndexError:
+                        pass
+                elif format == "date":
+                    data_type = 'date'
+                    data = value
+
+                properties.update({key: {
+                    "display_value": data,
+                    "type": data_type,
+                    "title": obj.layer.get_property_title(key),
+                    "value": obj.properties.get(key),
+                    "schema": obj.layer.schema.get('properties').get(key),
+                    "ui_schema": obj.layer.crud_view.ui_schema.get(key, {})
+                }})
 
             results['__default__'] = {
                 "title": "",
                 "pictogram": None,
                 "order": 9999,
-                "properties": {
-                    key: {
-                        "display_value": value,
-                        "title": obj.layer.get_property_title(key),
-                        "value": obj.properties.get(key),
-                        "schema": obj.layer.schema.get('properties').get(key),
-                        "ui_schema": obj.layer.crud_view.ui_schema.get(key, {})
-                    }
-                    for key, value in final_properties.items()
-                }
+                "properties": properties
             }
 
         return results
@@ -405,7 +434,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
     def validate_properties(self, data):
         new_data = deepcopy(data)
-        # degroup properties
+        # ungroup properties
         for key, value in new_data.items():
             if isinstance(value, dict):
                 # pop and explode dict

@@ -40,9 +40,7 @@ def store_data_file(storage, storage_file_path, file_content):
     storage.save(storage_file_path, ContentFile(base64.b64decode(file_content)))
 
 
-def get_storage_file_url(prop, value, feature):
+def get_storage_file_url(storage_file_path):
     # check if there is file in storage, else store it
     storage = get_storage()
-    file_info, file_content = get_info_content(value)
-    storage_file_path = get_storage_file_path(prop, value, feature)
     return storage.url(storage_file_path)
