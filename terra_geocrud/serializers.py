@@ -158,6 +158,41 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
         fields = ('title', 'slug', 'order', 'pictogram', 'properties')
 
 
+class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
+    title = serializers.CharField(source='label')
+    order = serializers.IntegerField()
+    pictogram = serializers.ImageField()
+    properties = serializers.SerializerMethodField()
+
+    def get_properties(self, obj):
+        """ Get feature properties in group to form { title: rendering(value) } """
+        feature = self.context.get('feature')
+        final_properties = {
+            prop: feature.properties.get(prop)
+            for prop in list(obj.properties)
+        }
+
+        # apply special cases for files
+        for key, value in final_properties.items():
+            if feature.layer.schema.get(key, {}).get('format') == 'data-url':
+                final_properties[key] = get_storage_file_path(key, value, obj)
+
+        return {
+            key: {
+                "display_value": value,
+                "value": feature.properties.get(key),
+                "title": feature.layer.get_property_title(key),
+                "schema": feature.layer.schema.get(key),
+                "ui_schema": feature.layer.crud_view.ui_schema.get(key, {})
+            }
+            for key, value in final_properties.items()
+        }
+
+    class Meta:
+        model = models.FeaturePropertyDisplayGroup
+        fields = ('title', 'slug', 'order', 'pictogram', 'properties')
+
+
 class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
     geom = None
     detail_url = serializers.SerializerMethodField()
@@ -245,6 +280,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     geom = geo_serializers.GeometryField()
     documents = serializers.SerializerMethodField()
     display_properties = serializers.SerializerMethodField()
+    new_display_properties = serializers.SerializerMethodField()
     properties = serializers.JSONField()
     attachments = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
@@ -275,6 +311,51 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                 results[group.slug][prop] = original_properties.pop(prop, None)
 
         return {**results, **original_properties}
+
+    def get_new_display_properties(self, obj):
+        """ Feature properties to display (key / value, display value and info) """
+        processed_properties = []
+        results = {}
+        crud_view = obj.layer.crud_view
+        groups = crud_view.feature_display_groups.all()
+
+        # get ordered groups filled
+        for group in groups:
+            serializer = FeatureNewDisplayPropertyGroup(group,
+                                                        context={'request': self.context.get('request'),
+                                                                 'feature': obj})
+            results[group.slug] = serializer.data
+            processed_properties += list(group.properties)
+
+        # add default other properties
+        remained_properties = list(set(crud_view.properties) - set(processed_properties))
+        if remained_properties:
+            final_properties = {
+                prop: obj.properties.get(prop)
+                for prop in list(remained_properties)
+            }
+            # apply special cases for files
+            for key, value in final_properties.items():
+                if obj.layer.schema.get(key, {}).get('format') == 'data-url':
+                    final_properties[key] = get_storage_file_path(key, value, obj)
+
+            results['__default__'] = {
+                "title": "",
+                "pictogram": None,
+                "order": 9999,
+                "properties": {
+                    key: {
+                        "display_value": value,
+                        "title": obj.layer.get_property_title(key),
+                        "value": obj.properties.get(key),
+                        "schema": obj.layer.schema.get('properties').get(key),
+                        "ui_schema": obj.layer.crud_view.ui_schema.get(key, {})
+                    }
+                    for key, value in final_properties.items()
+                }
+            }
+
+        return results
 
     def get_display_properties(self, obj):
         """ Feature properties to display (title / rendered value) """
@@ -335,6 +416,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return data
 
     def _store_files(self):
+        """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
         FAKE_CONTENT = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
         files_properties = [
             key for key, value in self.instance.layer.schema['properties'].items()
