@@ -69,7 +69,8 @@ jobs:
     - flake8 terra_geocrud
 
   - stage: deploy
-    install: pip install -e .
+    before_install: python3 -m venv ../venv
+    install: ../venv/pip install -e .
     before_script: skip
     script: ./manage.py compilemessages
     after_script: skip
