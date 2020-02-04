@@ -5,7 +5,7 @@ from django.template.defaultfilters import date as date_filter
 from django.utils.dateparse import parse_date
 from django.utils.module_loading import import_string
 
-from terra_geocrud.properties.files import get_storage_file_url
+from terra_geocrud.properties.files import get_storage_file_url, get_storage_file_path
 
 
 def render_property_data(feature, property_renderer):
@@ -51,7 +51,8 @@ class DataUrlToImgWidget(BaseWidget):
             final_attrs = ""
             for key, v in attrs.items():
                 final_attrs += f' {key}="{v}"'
-            url = get_storage_file_url(self.property, self.value, self.feature)
+            storage_file_path = get_storage_file_path(self.property, self.value, self.feature)
+            url = get_storage_file_url(storage_file_path)
             return f'<img src="{url}" {final_attrs} />'
 
 
@@ -70,7 +71,8 @@ class FileAhrefWidget(BaseWidget):
             final_attrs = ""
             for key, v in attrs.items():
                 final_attrs += f' {key}="{v}"'
-            url = get_storage_file_url(self.property, self.value, self.feature)
+            storage_file_path = get_storage_file_path(self.property, self.value, self.feature)
+            url = get_storage_file_url(storage_file_path)
             return f'<a href="{url}" {final_attrs}>{text}</a>'
 
 

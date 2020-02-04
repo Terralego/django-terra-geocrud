@@ -179,9 +179,7 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
             if feature.layer.schema.get(key, {}).get('format') == 'data-url':
                 # apply special cases for files
                 storage_file_path = get_storage_file_path(key, value, obj)
-                print(get_thumbnail(storage_file_path, "250x250"))
-
-                final_properties[key] = get_storage_file_url(key, value, obj)
+                final_properties[key] = get_storage_file_url(storage_file_path)
 
             results[key] = {
                 "display_value": value,
