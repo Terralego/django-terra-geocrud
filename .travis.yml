@@ -70,7 +70,7 @@ jobs:
 
   - stage: deploy
     before_install: python3 -m venv ../venv
-    install: ../venv/pip install -e .
+    install: ../venv/bin/pip3 install -e .
     before_script: skip
     script: ./manage.py compilemessages
     after_script: skip
