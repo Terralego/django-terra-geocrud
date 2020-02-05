@@ -21,9 +21,9 @@ from rest_framework.views import APIView
 from . import models, serializers, settings as app_settings
 
 
-def set_reversion_user(reversion, user):
+def set_reversion_user(_reversion, user):
     if not user.is_anonymous:
-        reversion.set_user(user)
+        _reversion.set_user(user)
 
 
 class ReversionMixin:
