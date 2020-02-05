@@ -31,7 +31,7 @@ stages:
 - deploy
 
 install:
-- sudo apt-get -y install libproj-dev binutils gdal-bin libgdal-dev
+- sudo apt-get -y install libproj-dev binutils gdal-bin libgdal-dev python3-pip python3-venv
 - pip install -e .[dev]
 - pip install codecov
 - if [[ $DJANGO_VERSION == dev ]]; then
@@ -69,8 +69,8 @@ jobs:
     - flake8 terra_geocrud
 
   - stage: deploy
-    before_install: python3 -m venv ../venv
-    install: ../venv/bin/pip3 install -e .
+    before_install: skip
+    install: pip install -e .
     before_script: skip
     script: ./manage.py compilemessages
     after_script: skip
