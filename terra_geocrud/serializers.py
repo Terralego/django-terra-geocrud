@@ -173,23 +173,46 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
             for prop in list(obj.properties)
         }
 
-        results = {}
+        properties = {}
 
         for key, value in final_properties.items():
-            if feature.layer.schema.get(key, {}).get('format') == 'data-url':
+            data_type = 'data'
+            data = value
+            data_format = feature.layer.schema.get('properties').get(key, {}).get('format')
+
+            if data_format == 'data-url':
                 # apply special cases for files
-                storage_file_path = get_storage_file_path(key, value, obj)
-                final_properties[key] = get_storage_file_url(storage_file_path)
+                data_type = 'file'
+                storage_file_path = get_storage_file_path(key, value, feature)
+                data = {
+                    "url": get_storage_file_url(storage_file_path),
+                }
+                # generate / get thumbnail for image
+                try:
+                    # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
+                    infos, content = get_info_content(value)
+                    if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
+                        # apply special cases for images
+                        data_type = 'image'
+                        data.update({
+                            "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                        })
+                except IndexError:
+                    pass
+            elif data_format == "date":
+                data_type = 'date'
+                data = value
 
-            results[key] = {
-                "display_value": value,
-                "value": feature.properties.get(key),
+            properties.update({key: {
+                "display_value": data,
+                "type": data_type,
                 "title": feature.layer.get_property_title(key),
-                "schema": feature.layer.schema.get(key),
+                "value": feature.properties.get(key),
+                "schema": feature.layer.schema.get('properties').get(key),
                 "ui_schema": feature.layer.crud_view.ui_schema.get(key, {})
-            }
+            }})
 
-        return results
+        return properties
 
     class Meta:
         model = models.FeaturePropertyDisplayGroup
@@ -343,9 +366,9 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             for key, value in final_properties.items():
                 data_type = 'data'
                 data = value
-                format = obj.layer.schema.get('properties').get(key, {}).get('format')
+                data_format = obj.layer.schema.get('properties').get(key, {}).get('format')
 
-                if format == 'data-url':
+                if data_format == 'data-url':
                     # apply special cases for files
                     data_type = 'file'
                     storage_file_path = get_storage_file_path(key, value, obj)
@@ -355,7 +378,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                     # generate / get thumbnail for image
                     try:
                         # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
-                        if value.split(';')[0].split(':')[1].split('/')[0] == 'image':
+                        infos, content = get_info_content(value)
+                        if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
                             # apply special cases for images
                             data_type = 'image'
                             data.update({
@@ -363,7 +387,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                             })
                     except IndexError:
                         pass
-                elif format == "date":
+                elif data_format == "date":
                     data_type = 'date'
                     data = value
 
@@ -445,7 +469,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
     def _store_files(self):
         """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
-        FAKE_CONTENT = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
+        fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
         files_properties = [
             key for key, value in self.instance.layer.schema['properties'].items()
             if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
@@ -458,9 +482,9 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                     storage_file_path = get_storage_file_path(file_prop, value, self.instance)
                     file_info, file_content = get_info_content(value)
                     # check if file has been saved in storage
-                    if file_content != FAKE_CONTENT:
+                    if file_content != fake_content:
                         store_data_file(storage, storage_file_path, file_content)
-                        self.instance.properties[file_prop] = f'{file_info};base64,{FAKE_CONTENT}'
+                        self.instance.properties[file_prop] = f'{file_info};base64,{fake_content}'
                         self.instance.save()
 
     def save(self, *args, **kwargs):
