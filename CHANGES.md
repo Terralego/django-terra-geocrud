@@ -6,6 +6,7 @@ CHANGELOG
 ----------------------------
 
 * Back to django 3.0 compatibility
+* New serializer detail to provide features properties informations and data
 
 
 0.3.31          (2020-01-29)

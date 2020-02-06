@@ -15,14 +15,15 @@ from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from . import models, serializers, settings as app_settings
 
 
-def set_reversion_user(reversion, user):
+def set_reversion_user(_reversion, user):
     if not user.is_anonymous:
-        reversion.set_user(user)
+        _reversion.set_user(user)
 
 
 class ReversionMixin:
@@ -115,11 +116,11 @@ class CrudRenderTemplateDetailView(DetailView):
 
 
 class CrudLayerViewSet(LayerViewSet):
-    permission_classes = []
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
 
 
 class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
-    permission_classes = []
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
 
     def get_queryset(self):
         qs = super().get_queryset()
