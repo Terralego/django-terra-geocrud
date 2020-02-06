@@ -42,5 +42,6 @@ def store_data_file(storage, storage_file_path, file_content):
 
 def get_storage_file_url(storage_file_path):
     # check if there is file in storage, else store it
-    storage = get_storage()
-    return storage.url(storage_file_path)
+    if storage_file_path:
+        storage = get_storage()
+        return storage.url(storage_file_path)
