@@ -191,12 +191,13 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
                 try:
                     # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
                     infos, content = get_info_content(value)
-                    if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
-                        # apply special cases for images
-                        data_type = 'image'
-                        data.update({
-                            "thumbnail": get_thumbnail(storage_file_path, "500x500").url
-                        })
+                    if infos:
+                        if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
+                            # apply special cases for images
+                            data_type = 'image'
+                            data.update({
+                                "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                            })
                 except IndexError:
                     pass
             elif data_format == "date":
