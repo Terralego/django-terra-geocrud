@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.32.dev0     (XXXX-XX-XX)
+0.3.32          (2020-02-06)
 ----------------------------
 
 * Back to django 3.0 compatibility
