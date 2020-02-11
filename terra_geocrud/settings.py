@@ -54,8 +54,8 @@ if 'siteprefs' in settings.INSTALLED_APPS:
                 (prefs.one(
                     MAPBOX_ACCESS_TOKEN,
                     field=CharField(max_length=1024),
-                    verbose_name='Customize mbglrenderer url', static=False,
-                    help_text='This enable picture map rendering. (ex: http://mbglrender)', ),
+                    verbose_name='MapBox token', static=False,
+                    help_text='To access to MapBox services.', ),
                  prefs.one(
                      DEFAULT_MAP_CENTER_LAT,
                      verbose_name='Default map center latitude', static=False,
