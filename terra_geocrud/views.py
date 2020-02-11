@@ -1,3 +1,4 @@
+import json
 import mimetypes
 from pathlib import Path
 
@@ -88,9 +89,9 @@ class CrudSettingsApiView(APIView):
                 "minZoom": app_settings.DEFAULT_MAP_MIN_ZOOM,
             },
             'STYLES': {
-                'line': app_settings.DEFAULT_STYLE_LINE,
-                'point': app_settings.DEFAULT_STYLE_POINT,
-                'polygon': app_settings.DEFAULT_STYLE_POLYGON,
+                'line': json.loads(app_settings.DEFAULT_STYLE_LINE),
+                'point': json.loads(app_settings.DEFAULT_STYLE_POINT),
+                'polygon': json.loads(app_settings.DEFAULT_STYLE_POLYGON),
             }
         }
 
