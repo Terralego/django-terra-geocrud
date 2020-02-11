@@ -27,9 +27,12 @@ class MapStyleModelMixin:
 def get_default_style(layer):
     response = {}
     if layer.is_point:
-        response = eval(app_settings.DEFAULT_STYLE_POINT)
+        response = eval(app_settings.DEFAULT_STYLE_POINT) if isinstance(app_settings.DEFAULT_STYLE_POINT, str) \
+            else app_settings.DEFAULT_STYLE_POINT
     elif layer.is_linestring:
-        response = eval(app_settings.DEFAULT_STYLE_LINE)
+        response = eval(app_settings.DEFAULT_STYLE_LINE) if isinstance(app_settings.DEFAULT_STYLE_LINE, str) \
+            else app_settings.DEFAULT_STYLE_LINE
     elif layer.is_polygon:
-        response = eval(app_settings.DEFAULT_STYLE_POLYGON)
+        response = eval(app_settings.DEFAULT_STYLE_POLYGON) if isinstance(app_settings.DEFAULT_STYLE_POLYGON, str) \
+            else app_settings.DEFAULT_STYLE_POLYGON
     return deepcopy(response)

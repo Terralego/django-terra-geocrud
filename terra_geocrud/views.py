@@ -88,9 +88,15 @@ class CrudSettingsApiView(APIView):
                 "minZoom": app_settings.DEFAULT_MAP_MIN_ZOOM,
             },
             'STYLES': {
-                'line': eval(app_settings.DEFAULT_STYLE_LINE),
-                'point': eval(app_settings.DEFAULT_STYLE_POINT),
-                'polygon': eval(app_settings.DEFAULT_STYLE_POLYGON),
+                'line': eval(app_settings.DEFAULT_STYLE_LINE) if isinstance(app_settings.DEFAULT_STYLE_LINE,
+                                                                            str)
+                else app_settings.DEFAULT_STYLE_LINE,
+                'point': eval(app_settings.DEFAULT_STYLE_POINT) if isinstance(app_settings.DEFAULT_STYLE_POINT,
+                                                                              str)
+                else app_settings.DEFAULT_STYLE_POINT,
+                'polygon': eval(app_settings.DEFAULT_STYLE_POLYGON) if isinstance(app_settings.DEFAULT_STYLE_POLYGON,
+                                                                                  str)
+                else app_settings.DEFAULT_STYLE_POLYGON,
             }
         }
 
