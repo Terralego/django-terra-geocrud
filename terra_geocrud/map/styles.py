@@ -21,17 +21,15 @@ DEFAULT_MBGL_RENDERER_STYLE = {
 class MapStyleModelMixin:
     @cached_property
     def map_style_with_default(self):
-        response = get_default_style(self.get_layer())
-        style = self.map_style
-        return deepcopy(style) if style else response
+        return deepcopy(self.map_style) if self.map_style else get_default_style(self.get_layer())
 
 
 def get_default_style(layer):
     response = {}
     if layer.is_point:
-        response = app_settings.DEFAULT_STYLE_POINT
+        response = eval(app_settings.DEFAULT_STYLE_POINT)
     elif layer.is_linestring:
-        response = app_settings.DEFAULT_STYLE_LINE
+        response = eval(app_settings.DEFAULT_STYLE_LINE)
     elif layer.is_polygon:
-        response = app_settings.DEFAULT_STYLE_POLYGON
+        response = eval(app_settings.DEFAULT_STYLE_POLYGON)
     return deepcopy(response)
