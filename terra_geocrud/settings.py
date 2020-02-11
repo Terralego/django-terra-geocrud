@@ -106,21 +106,6 @@ if 'siteprefs' in settings.INSTALLED_APPS:
                         verbose_name='Map min zoom', static=False
                     ),
                     prefs.one(
-                        DEFAULT_STYLE_LINE,
-                        field=JSONField(default=dict),
-                        verbose_name='Default style for lines', static=False
-                    ),
-                    prefs.one(
-                        DEFAULT_STYLE_POINT,
-                        field=JSONField(default=dict),
-                        verbose_name='Default style for points', static=False
-                    ),
-                    prefs.one(
-                        DEFAULT_STYLE_POLYGON,
-                        field=JSONField(default=dict),
-                        verbose_name='Default style for polygons', static=False
-                    ),
-                    prefs.one(
                         DATA_FILE_STORAGE_CLASS,
                         field=CharField(max_length=1024),
                         verbose_name='Features data file storage class',
@@ -155,6 +140,26 @@ if 'siteprefs' in settings.INSTALLED_APPS:
                         verbose_name='NE longitude',
                         help_text="in decimal WGS84",
                         static=False
+                    ),
+                ),
+                static=False),
+            prefs.group(
+                'Default geometry styles',
+                (
+                    prefs.one(
+                        DEFAULT_STYLE_LINE,
+                        field=JSONField(default=dict),
+                        verbose_name='Default style for lines', static=False
+                    ),
+                    prefs.one(
+                        DEFAULT_STYLE_POINT,
+                        field=JSONField(default=dict),
+                        verbose_name='Default style for points', static=False
+                    ),
+                    prefs.one(
+                        DEFAULT_STYLE_POLYGON,
+                        field=JSONField(default=dict),
+                        verbose_name='Default style for polygons', static=False
                     ),
                 ),
                 static=False),
