@@ -6,7 +6,7 @@ In your project :
 
 * settings
 
-::
+.. code-block:: python
 
     INSTALLED_APPS = [
         # basic django apps
@@ -51,72 +51,66 @@ In your project :
 
 * urls
 
-::
+.. code-block:: python
 
     urlpatterns = [
         ...
         # admin
-        path('', admin.site.urls), # some base admin views are available in geocrud. But you need to register them yourself in a custom app
+        path('', admin.site.urls), # some base admin views are available in geocrud.
 
         # terralego based urls
         path('api/', include('terra_utils.urls')),
         path('api/', include('terra_accounts.urls')),
 
-        # urls required for gecrud
+        # urls required for geocrud
         path('api/mapbox_baselayer/', include('mapbox_baselayer.urls')),
         path('api/crud/', include('terra_geocrud.urls')),
         ...
     ]
 
-You can customize default url and namespace by including terra_geocrud.views directly
 
 Run migrations
 
-::
+.. code-block:: bash
 
     ./manage.py migrate
-
-
-
-- ADMIN :
-
-Some configured views are available in terra_geocrud.admin, but are not enabled by default. Enable them in a custom app in your project.
 
 
 - SETTINGS :
 
 Some settings are available in django admin, Geographic Editor Config -> Preferences, if admin has been enabled in your project.
 
+.. code-block:: python
 
-GEOCRUD_MBGLRENDERER_MAX_ZOOM = 22                         # define zoom level max for point map capture (other based on extent)
-GEOCRUD_MAPBOX_ACCESS_TOKEN = None                         # define token to handle mapbox service
-GEOCRUD_DEFAULT_MAP_CENTER_LAT = 0.0                       # Latitude wgs84 for default empty map center
-GEOCRUD_DEFAULT_MAP_CENTER_LNG = 0.0                       # Longitude wgs84 for default empty map center
-GEOCRUD_DEFAULT_MAP_CENTER_ZOOM = 2                        # Zoom level for default empty map
-GEOCRUD_DEFAULT_MAP_MAX_ZOOM = 18                          # Max zoom level for maps
-GEOCRUD_DEFAULT_MAP_MIN_ZOOM = 3                           # Min zoom level for maps
-GEOCRUD_MAP_EXTENT_SW_LAT = -90.0                          # SW latitude wgs84 for empty map extent
-GEOCRUD_MAP_EXTENT_SW_LNG = -180.0                         # SW lonitude wgs84 for empty map extent
-GEOCRUD_MAP_EXTENT_NE_LAT = 90.0                           # NE latitude wgs84 for empty map extent
-GEOCRUD_MAP_EXTENT_NE_LNG = 180.0                          # NE longitude wgs84 for empty map extent
-GEOCRUD_DEFAULT_STYLE_LINE = {"type": "line",              # Default line style used if not defined in crud view
-                              "paint": {
-                                  "line-color": "#000",
-                                  "line-width": 3
-                              }}
-GEOCRUD_DEFAULT_STYLE_POINT = {"type": "circle",           # Default point style used if not defined in crud view
-                               "paint": {
-                                   "circle-color": "#000",
-                                   "circle-radius": 8
-                               }}
-GEOCRUD_DEFAULT_STYLE_POLYGON = {"type": "fill",           # Default polygon style used if not defined in crud view
-                                 "paint": {
-                                     "fill-color": "#000"
-                                 }}
+    GEOCRUD_MBGLRENDERER_MAX_ZOOM = 22                         # define zoom level max for point map capture (other based on extent)
+    GEOCRUD_MAPBOX_ACCESS_TOKEN = None                         # define token to handle mapbox service
+    GEOCRUD_DEFAULT_MAP_CENTER_LAT = 0.0                       # Latitude wgs84 for default empty map center
+    GEOCRUD_DEFAULT_MAP_CENTER_LNG = 0.0                       # Longitude wgs84 for default empty map center
+    GEOCRUD_DEFAULT_MAP_CENTER_ZOOM = 2                        # Zoom level for default empty map
+    GEOCRUD_DEFAULT_MAP_MAX_ZOOM = 18                          # Max zoom level for maps
+    GEOCRUD_DEFAULT_MAP_MIN_ZOOM = 3                           # Min zoom level for maps
+    GEOCRUD_MAP_EXTENT_SW_LAT = -90.0                          # SW latitude wgs84 for empty map extent
+    GEOCRUD_MAP_EXTENT_SW_LNG = -180.0                         # SW lonitude wgs84 for empty map extent
+    GEOCRUD_MAP_EXTENT_NE_LAT = 90.0                           # NE latitude wgs84 for empty map extent
+    GEOCRUD_MAP_EXTENT_NE_LNG = 180.0                          # NE longitude wgs84 for empty map extent
+    GEOCRUD_DEFAULT_STYLE_LINE = {"type": "line",              # Default line style used if not defined in crud view
+                                  "paint": {
+                                      "line-color": "#000",
+                                      "line-width": 3
+                                  }}
+    GEOCRUD_DEFAULT_STYLE_POINT = {"type": "circle",           # Default point style used if not defined in crud view
+                                   "paint": {
+                                       "circle-color": "#000",
+                                       "circle-radius": 8
+                                   }}
+    GEOCRUD_DEFAULT_STYLE_POLYGON = {"type": "fill",           # Default polygon style used if not defined in crud view
+                                     "paint": {
+                                         "fill-color": "#000"
+                                     }}
 
 These settings should be override in your project settings file only :
 
-::
+.. code-block:: python
 
     GEOCRUD_MBGLRENDERER_URL = 'http://mbglrenderer'
 
@@ -128,7 +122,8 @@ These settings should be override in your project settings file only :
   Change the url in the settings to use external instance of mbglrenderer :
 
 
-::
+.. code-block:: python
+
     GEOCRUD_DATA_FILE_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
 
 * This settings manage storage class for feature data files. It will be more secure if you choose a custom private storage backend, like s3 with signature

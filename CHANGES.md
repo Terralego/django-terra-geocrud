@@ -7,7 +7,7 @@ CHANGELOG
 
 !! Breaking changes !!
 
-New settings system.
+* New settings system.
 After install, please reset your settings in Django admin / GEOCRUD / Preference section (superuser only)
 
 * Fix way to generate templates

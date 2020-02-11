@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'mapbox_baselayer',
     'terra_accounts',
     'terra_geocrud',
-    'test_terra_geocrud.test_app',
 ]
 
 MIDDLEWARE = [

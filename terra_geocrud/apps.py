@@ -7,7 +7,7 @@ from terra_accounts.permissions_mixins import PermissionRegistrationMixin
 
 class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
     name = 'terra_geocrud'
-    verbose_name = 'Geographic Editor Config'
+    verbose_name = 'Geographic Editor (CRUD)'
     permissions = (
         ("can_manage_views", _("GEOCRUD: Can create / edit / delete views / groups and associated layers.")),
         ("can_view_feature", _("GEOCRUD: Can read feature detail.")),
@@ -18,11 +18,12 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
 
     def ready(self):
         super().ready()
-        # in terra lego context, we assume to render module url
         terra_settings = getattr(settings, 'TERRA_APPLIANCE_SETTINGS', {})
         modules = terra_settings.get('modules', {})
+        # auto enable CRUD in terralego modules settings
         modules.update({
             'CRUD': {
+                # in terra lego context, we assume to render module url
                 "settings": reverse_lazy('settings'),
             }
         })
