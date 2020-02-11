@@ -1,9 +1,7 @@
 import mimetypes
-from copy import deepcopy
 from pathlib import Path
 
 import reversion
-from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -74,8 +72,27 @@ class CrudSettingsApiView(APIView):
         return data
 
     def get(self, request, *args, **kwargs):
-        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
-        default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
+        default_config = {
+            # default extent to world
+            'EXTENT': [app_settings.MAP_EXTENT_SW_LNG,
+                       app_settings.MAP_EXTENT_SW_LAT,
+                       app_settings.MAP_EXTENT_NE_LNG,
+                       app_settings.MAP_EXTENT_NE_LAT],
+            # We should automatically get the source of layers from a model
+            'map': {
+                "mapbox_access_token": app_settings.MAPBOX_ACCESS_TOKEN,
+                "center": [app_settings.DEFAULT_MAP_CENTER_LNG,
+                           app_settings.DEFAULT_MAP_CENTER_LAT],
+                "zoom": app_settings.DEFAULT_MAP_CENTER_ZOOM,
+                "maxZoom": app_settings.DEFAULT_MAP_MAX_ZOOM,
+                "minZoom": app_settings.DEFAULT_MAP_MIN_ZOOM,
+            },
+            'STYLES': {
+                'line': app_settings.DEFAULT_STYLE_LINE,
+                'point': app_settings.DEFAULT_STYLE_POINT,
+                'polygon': app_settings.DEFAULT_STYLE_POLYGON,
+            }
+        }
 
         data = {
             "menu": self.get_menu_section(),

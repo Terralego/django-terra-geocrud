@@ -27,12 +27,11 @@ class MapStyleModelMixin:
 
 
 def get_default_style(layer):
-    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
     response = {}
     if layer.is_point:
-        response = style_settings.get('point')
+        response = app_settings.DEFAULT_STYLE_POINT
     elif layer.is_linestring:
-        response = style_settings.get('line')
+        response = app_settings.DEFAULT_STYLE_LINE
     elif layer.is_polygon:
-        response = style_settings.get('polygon')
+        response = app_settings.DEFAULT_STYLE_POLYGON
     return deepcopy(response)

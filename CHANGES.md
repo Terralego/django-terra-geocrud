@@ -5,6 +5,11 @@ CHANGELOG
 0.3.35.dev0     (XXXX-XX-XX)
 ----------------------------
 
+!! Breaking changes !!
+
+New settings system.
+After install, please reset your settings in Django admin / GEOCRUD / Preference section (superuser only)
+
 * Fix way to generate templates
 
 
@@ -37,6 +42,7 @@ CHANGELOG
 * Fix image generation from data stored image
 * New template tag to handle image from data-url stored image
 * Fix bug in admin
+
 
 0.3.32          (2020-02-06)
 ----------------------------

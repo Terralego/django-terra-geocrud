@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'reversion',
     'sorl.thumbnail',
     'geostore',
+    'siteprefs',
     'mapbox_baselayer',
     'terra_accounts',
     'terra_geocrud',

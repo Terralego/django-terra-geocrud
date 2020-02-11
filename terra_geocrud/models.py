@@ -70,7 +70,10 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
         extent = features_extent.get('extent')
         # get extent in settings if no features
 
-        return extent if extent else app_settings.TERRA_GEOCRUD['EXTENT']
+        return extent if extent else [app_settings.MAP_EXTENT_SW_LNG,
+                                      app_settings.MAP_EXTENT_SW_LAT,
+                                      app_settings.MAP_EXTENT_NE_LNG,
+                                      app_settings.MAP_EXTENT_NE_LAT]
 
     def get_layer(self):
         return self.layer

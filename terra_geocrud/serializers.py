@@ -166,6 +166,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
             if data_format == 'data-url':
                 # apply special cases for files
                 data_type = 'file'
+
                 data = {"url": None}
                 if value:
                     # generate / get thumbnail for image
@@ -188,6 +189,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                                 pass
                     except IndexError:
                         pass
+
             elif data_format == "date":
                 data_type = 'date'
                 data = value
@@ -268,9 +270,11 @@ class FeaturePictureSerializer(BaseUpdatableMixin):
 
     class Meta:
         model = models.FeaturePicture
-        extra_kwargs = {
-        }
-        fields = ('id', 'category', 'legend', 'image', 'thumbnail', 'action_url', 'created_at', 'updated_at')
+        fields = (
+            'id', 'category', 'legend', 'image',
+            'thumbnail', 'action_url',
+            'created_at', 'updated_at'
+        )
 
 
 class FeatureAttachmentSerializer(BaseUpdatableMixin):
@@ -397,6 +401,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
                         except IndexError:
                             pass
+
                 elif data_format == "date":
                     data_type = 'date'
                     data = value

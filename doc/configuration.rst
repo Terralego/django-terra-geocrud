@@ -9,14 +9,25 @@ In your project :
 ::
 
     INSTALLED_APPS = [
-        ...
+        # apps required by terralego base
+        'django.contrib.gis',
+        'django.contrib.postgres',
+        'rest_framework_gis',
+        'rest_framework_jwt',
+        'terra_utils',
+        'terra_accounts',
+
         # apps required by CRUD
+        'siteprefs', # set preferences directly in admin
         'geostore',  # store geographic data
         'template_model',  # store template in model
         'template_engines',  # generate odt and docx templates
         'rest_framework',  # if you want to try api HTML interface
         'django_json_widget',  # if you want to use django admin
+        'sorl.thumbnail', # to generate and manage cached image thumbnails
+        'mapbox_baselayer', # store and configure mapbox base layers
         'reversion',  # used to store every change on data (run ./manage.py createinitialrevisions first)
+
         # CRUD app
         'terra_geocrud',
         ...
@@ -36,8 +47,15 @@ In your project :
 
     urlpatterns = [
         ...
-        # some urls in geostore are required by geocrud
-        path('api/geostore/', include('geostore.urls')),
+        # admin
+        path('', admin.site.urls), # some base admin views are available in geocrud. But you need to register them yourself in a custom app
+
+        # terralego based urls
+        path('api/', include('terra_utils.urls')),
+        path('api/', include('terra_accounts.urls')),
+
+        # urls required for gecrud
+        path('api/mapbox_baselayer/', include('mapbox_baselayer.urls')),
         path('api/crud/', include('terra_geocrud.urls')),
         ...
     ]
@@ -61,7 +79,7 @@ you can disable and / or customize admin
 
 Waiting for settings definition directly in models.
 
-Settings should be overrided  with TERRA_GEOCRUD settings in your project settings file:
+Settings should be overrided directly in django admin
 
 ::
 

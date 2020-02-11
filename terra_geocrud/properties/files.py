@@ -17,8 +17,7 @@ def get_info_content(value):
 
 
 def get_storage():
-    """ Get media storage for feature data element, using settings """
-    StorageClass = get_storage_class(import_path=app_settings.TERRA_GEOCRUD['DATA_FILE_STORAGE_CLASS'])
+    StorageClass = get_storage_class(import_path=app_settings.DATA_FILE_STORAGE_CLASS)
     return StorageClass()
 
 

@@ -71,7 +71,7 @@ class CrudViewSetTestCase(APITestCase):
         response = self.client.get(reverse('crudview-detail', args=(crud_view.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['point'])
+        self.assertDictEqual(data['map_style'], app_settings.DEFAULT_STYLE_POINT)
 
     def test_override_point_style(self):
         custom_style = {
@@ -93,7 +93,7 @@ class CrudViewSetTestCase(APITestCase):
         response = self.client.get(reverse('crudview-detail', args=(crud_view.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['line'])
+        self.assertDictEqual(data['map_style'], app_settings.DEFAULT_STYLE_LINE)
 
     def test_override_line_style(self):
         custom_style = {
@@ -115,7 +115,7 @@ class CrudViewSetTestCase(APITestCase):
         response = self.client.get(reverse('crudview-detail', args=(crud_view.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertDictEqual(data['map_style'], app_settings.TERRA_GEOCRUD['STYLES']['polygon'])
+        self.assertDictEqual(data['map_style'], app_settings.DEFAULT_STYLE_POLYGON)
 
     def test_override_polygon_style(self):
         custom_style = {

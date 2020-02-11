@@ -35,7 +35,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
 
         feature = context['object']
         style = self.get_style(feature, feature_included, extras_included, base_layer)
-        token = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
+        token = app_settings.MAPBOX_ACCESS_TOKEN
         final_style = {
             'style': dumps(style),
             'width': width,
@@ -52,7 +52,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
         if not collections:
             return final_style
         elif len(collections) == 1 and isinstance(collections[0], Point):
-            final_style['zoom'] = app_settings.TERRA_GEOCRUD.get('MAX_ZOOM', 22)
+            final_style['zoom'] = app_settings.MBGLRENDERER_MAX_ZOOM
             final_style['center'] = list(feature.geom.centroid)
         else:
             final_style['center'] = list(collections.centroid)
@@ -97,8 +97,7 @@ class MapImageLoaderNodeURL(ImageLoaderNodeURL):
             if map_base_layer.base_layer_type == 'mapbox':
                 response = requests.get(map_base_layer.map_box_url.replace("mapbox://styles",
                                                                            "https://api.mapbox.com/styles/v1"),
-                                        params={"access_token": app_settings.TERRA_GEOCRUD.get('map', {}).get(
-                                            'mapbox_access_token')})
+                                        params={"access_token": app_settings.MAPBOX_ACCESS_TOKEN})
                 if response.status_code == 200:
                     return response.json()
             else:
@@ -147,7 +146,7 @@ def map_image_url_loader(parser, token):
     - feature_included : Primary feature will be shown
     - extra_features : List of the extra feature you wan to add on your map
     - width : Width of the picture rendered
-    - heigth : Height of the picture rendered
+    - height : Height of the picture rendered
     - anchor : Type of anchor, paragraph, as-char, char, frame, page
     """
     tag_name, args, kwargs = parse_tag(token, parser)
@@ -162,7 +161,7 @@ def map_image_url_loader(parser, token):
                       'width': kwargs.pop('width', None),
                       'height': kwargs.pop('height', None),
                       'base_layer': kwargs.pop('base_layer', None)}
-    return MapImageLoaderNodeURL(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)
+    return MapImageLoaderNodeURL(f"{app_settings.MBGLRENDERER_URL}/render", **kwargs)
 
 
 @register.filter
