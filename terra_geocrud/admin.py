@@ -60,10 +60,10 @@ class CrudViewAdmin(VersionAdmin):
     }
 
     def get_readonly_fields(self, request, obj=None):
-        ro_fields = super().get_readonly_fields(request, obj=obj)
+        ro_fields = list(super().get_readonly_fields(request, obj=obj))
         if obj and obj.pk:
             # dont change layer after creation
-            ro_fields.append('layer')
+            ro_fields += ('layer', )
         return ro_fields
 
 
