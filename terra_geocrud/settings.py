@@ -19,25 +19,25 @@ MAP_EXTENT_NE_LAT = 90.0
 MAP_EXTENT_NE_LNG = 180.0
 
 DEFAULT_STYLE_LINE = {
-    'type': 'line',
-    'paint': {
-        'line-color': '#000',
-        'line-width': 3
+    "type": "line",
+    "paint": {
+        "line-color": "#000",
+        "line-width": 3
     }
 }
 
 DEFAULT_STYLE_POINT = {
-    'type': 'circle',
-    'paint': {
-        'circle-color': '#000',
-        'circle-radius': 8
+    "type": "circle",
+    "paint": {
+        "circle-color": "#000",
+        "circle-radius": 8
     }
 }
 
 DEFAULT_STYLE_POLYGON = {
-    'type': 'fill',
-    'paint': {
-        'fill-color': '#000'
+    "type": "fill",
+    "paint": {
+        "fill-color": "#000"
     }
 }
 
