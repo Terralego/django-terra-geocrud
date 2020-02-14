@@ -50,7 +50,7 @@ def get_storage_file_url(storage_file_path):
 def get_storage_path_from_infos(infos):
     """ path is stored behind name= """
     file_infos = infos.split(';')
-    return file_infos[1].split('name=')[0]
+    return file_infos[1].split('name=')[1]
 
 
 def get_storage_path_from_value(value):
