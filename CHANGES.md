@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.33.dev0     (XXXX-XX-XX)
+0.3.33          (2020-02-14)
 ----------------------------
 
 * BREAKING CHANGES : new way to store path in storage
