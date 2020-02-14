@@ -199,8 +199,8 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
                                 data.update({
                                     "thumbnail": get_thumbnail(storage_file_path, "500x500").url
                                 })
-                            except:
-                                raise Exception(infos, storage_file_path)
+                            except ValueError:
+                                pass
                     except IndexError:
                         pass
             elif data_format == "date":
@@ -391,8 +391,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                     data.update({
                                         "thumbnail": get_thumbnail(storage_file_path, "500x500").url
                                     })
-                                except:
-                                    raise Exception(infos, storage_file_path)
+                                except ValueError:
+                                    pass
 
                         except IndexError:
                             pass
