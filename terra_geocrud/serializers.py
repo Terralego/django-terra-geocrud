@@ -494,7 +494,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                     if file_content != fake_content:
                         store_data_file(storage, storage_file_path, file_content)
                         # patch file_infos with new path
-                        detail_infos = file_info.split('name=')
+                        detail_infos = file_info.split(';name=')
                         new_info = f"{detail_infos[0]};name={storage_file_path}"
                         self.instance.properties[file_prop] = f'{new_info};base64,{fake_content}'
                         self.instance.save()
