@@ -5,6 +5,9 @@ CHANGELOG
 0.3.33.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* BREAKING CHANGES : new way to store path in storage
+* Fix image generation from data stored image
+* New template tag to handle image from data-url stored image
 * Fix bug in admin
 
 0.3.32          (2020-02-06)

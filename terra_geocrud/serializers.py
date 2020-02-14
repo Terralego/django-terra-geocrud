@@ -14,8 +14,8 @@ from template_model.models import Template
 
 from . import models
 from .map.styles import get_default_style
-from .properties.files import get_storage, get_storage_file_path, store_data_file, get_info_content, \
-    get_storage_file_url
+from .properties.files import get_storage, generate_storage_file_path, store_data_file, get_info_content, \
+    get_storage_file_url, get_storage_path_from_infos
 from .properties.widgets import render_property_data
 
 
@@ -183,7 +183,7 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
             if data_format == 'data-url':
                 # apply special cases for files
                 data_type = 'file'
-                storage_file_path = get_storage_file_path(key, value, feature)
+                storage_file_path = generate_storage_file_path(key, value, feature)
                 data = {
                     "url": get_storage_file_url(storage_file_path),
                 }
@@ -372,22 +372,23 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                 if data_format == 'data-url':
                     # apply special cases for files
                     data_type = 'file'
-                    storage_file_path = get_storage_file_path(key, value, obj)
-                    data = {
-                        "url": get_storage_file_url(storage_file_path),
-                    }
-                    # generate / get thumbnail for image
-                    try:
-                        # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
-                        infos, content = get_info_content(value)
-                        if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
-                            # apply special cases for images
-                            data_type = 'image'
-                            data.update({
-                                "thumbnail": get_thumbnail(storage_file_path, "500x500").url
-                            })
-                    except IndexError:
-                        pass
+                    data = {"url": None}
+                    if value:
+                        # generate / get thumbnail for image
+                        try:
+                            # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
+                            infos, content = get_info_content(value)
+                            storage_file_path = get_storage_path_from_infos(infos)
+                            data['url'] = get_storage_file_url(storage_file_path),
+
+                            if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
+                                # apply special cases for images
+                                data_type = 'image'
+                                data.update({
+                                    "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                                })
+                        except IndexError:
+                            pass
                 elif data_format == "date":
                     data_type = 'date'
                     data = value
@@ -480,12 +481,15 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             for file_prop in files_properties:
                 value = self.instance.properties.get(file_prop)
                 if value:
-                    storage_file_path = get_storage_file_path(file_prop, value, self.instance)
+                    storage_file_path = generate_storage_file_path(file_prop, value, self.instance)
                     file_info, file_content = get_info_content(value)
                     # check if file has been saved in storage
                     if file_content != fake_content:
                         store_data_file(storage, storage_file_path, file_content)
-                        self.instance.properties[file_prop] = f'{file_info};base64,{fake_content}'
+                        # patch file_infos with new path
+                        detail_infos = file_info.split('name=')
+                        new_info = f"{detail_infos[0]};name={storage_file_path}"
+                        self.instance.properties[file_prop] = f'{new_info};base64,{fake_content}'
                         self.instance.save()
 
     def save(self, *args, **kwargs):

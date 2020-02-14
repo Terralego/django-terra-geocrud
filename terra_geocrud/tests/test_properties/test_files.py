@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 
 from geostore.tests.factories import FeatureFactory
 
-from terra_geocrud.properties.files import get_info_content, get_storage_file_path, get_storage
+from terra_geocrud.properties.files import get_info_content, generate_storage_file_path, get_storage
 from terra_geocrud.tests import factories
 
 
@@ -51,7 +51,7 @@ class StorageFunctionTestCase(APITestCase):
     def test_get_info_content_no_file_name(self):
         value = self.feature_without_file_name.properties[self.property_key]
         info, content = get_info_content(self.feature_without_file_name.properties[self.property_key])
-        path = get_storage_file_path(self.property_key, value, self.feature_without_file_name)
+        path = generate_storage_file_path(self.property_key, value, self.feature_without_file_name)
         self.assertTrue(path.endswith(f'{self.property_key}.png'), path)
 
     def test_send_file(self):
@@ -69,7 +69,7 @@ class StorageFunctionTestCase(APITestCase):
             format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         storage = get_storage()
-        storage_file_path = get_storage_file_path(self.property_key,
-                                                  self.feature_with_file_name.properties.get(self.property_key),
-                                                  self.feature_with_file_name)
+        storage_file_path = generate_storage_file_path(self.property_key,
+                                                       self.feature_with_file_name.properties.get(self.property_key),
+                                                       self.feature_with_file_name)
         self.assertTrue(storage.exists(storage_file_path))

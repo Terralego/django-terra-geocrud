@@ -1,3 +1,4 @@
+import base64
 import logging
 import math
 import secrets
@@ -15,6 +16,7 @@ from template_engines.templatetags.utils import parse_tag
 
 from terra_geocrud import settings as app_settings
 from terra_geocrud.map.styles import DEFAULT_MBGL_RENDERER_STYLE, get_default_style
+from terra_geocrud.properties.files import get_info_content, get_storage
 
 logger = logging.getLogger(__name__)
 register = template.Library()
@@ -161,3 +163,17 @@ def map_image_url_loader(parser, token):
                       'height': kwargs.pop('height', None),
                       'base_layer': kwargs.pop('base_layer', None)}
     return MapImageLoaderNodeURL(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)
+
+
+@register.filter
+def stored_image_base64(value):
+    """ As data-url file are stored in custom storage and not in b64, we need to prepare data to use """
+    infos, content = get_info_content(value)
+    infos = infos.split(';')
+    data_type = infos[0]
+    data_path = infos[1].strip('name=')
+    storage = get_storage()
+    file_bytes = storage.open(data_path, 'rb').read()
+    file_b64 = base64.encodebytes(file_bytes)
+    result = f"{data_type};base64," + file_b64.decode()
+    return result
