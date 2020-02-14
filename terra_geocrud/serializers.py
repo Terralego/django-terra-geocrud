@@ -200,7 +200,7 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
                                     "thumbnail": get_thumbnail(storage_file_path, "500x500").url
                                 })
                             except:
-                                raise Exception(storage_file_path)
+                                raise Exception(infos, storage_file_path)
                     except IndexError:
                         pass
             elif data_format == "date":
@@ -392,7 +392,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                         "thumbnail": get_thumbnail(storage_file_path, "500x500").url
                                     })
                                 except:
-                                    raise Exception(storage_file_path)
+                                    raise Exception(infos, storage_file_path)
 
                         except IndexError:
                             pass
