@@ -195,9 +195,12 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
                         if infos and infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
                             # apply special cases for images
                             data_type = 'image'
-                            data.update({
-                                "thumbnail": get_thumbnail(storage_file_path, "500x500").url
-                            })
+                            try:
+                                data.update({
+                                    "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                                })
+                            except:
+                                raise Exception(storage_file_path)
                     except IndexError:
                         pass
             elif data_format == "date":
@@ -384,9 +387,12 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                             if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
                                 # apply special cases for images
                                 data_type = 'image'
-                                data.update({
-                                    "thumbnail": get_thumbnail(storage_file_path, "500x500").url
-                                })
+                                try:
+                                    data.update({
+                                        "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                                    })
+                                except:
+                                    raise Exception(storage_file_path)
 
                         except IndexError:
                             pass
