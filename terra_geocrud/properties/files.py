@@ -49,11 +49,8 @@ def get_storage_file_url(storage_file_path):
 
 def get_storage_path_from_infos(infos):
     """ path is stored behind name= """
-    try:
-        file_infos = infos.split(';')
-        return file_infos[1].split('name=')[1]
-    except IndexError:
-        raise Exception(file_infos)
+    file_infos = infos.split(';')
+    return file_infos[1].split('name=')[0]
 
 
 def get_storage_path_from_value(value):
