@@ -7,7 +7,6 @@ JSON_PATH = os.path.join(DATA_PATH, 'json')
 PICTURES_PATH = os.path.join(DATA_PATH, 'pictures')
 SNAPSHOTS_PATH = os.path.join(DATA_PATH, 'snapshots')
 
-LAYER_SCHEMA = os.path.join(JSON_PATH, 'layer_schema.json')
 FEATURE_PROPERTIES = os.path.join(JSON_PATH, 'feature_properties.json')
 
 DOCX_TEMPLATE = os.path.join(TEMPLATES_PATH, 'complex_template.docx')

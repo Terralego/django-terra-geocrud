@@ -53,14 +53,13 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True,
                                   help_text=_("Picto displayed in left menu"))
     map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
-    ui_schema = JSONField(default=dict, blank=True,
-                          help_text=_("""Custom ui:schema style for this entry.
-                                         https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
-    default_list_properties = ArrayField(models.CharField(max_length=250), default=list, blank=True)
-    feature_title_property = models.CharField(help_text=_("Schema property used to define feature title."),
-                                              max_length=250, blank=True, null=False, default="")
+    default_list_properties = models.ManyToManyField('geostore.LayerSchemaProperty', related_name='crud_views',
+                                                     blank=True, help_text=_("Default list of properties for a view"))
+    feature_title_property = models.ForeignKey('geostore.LayerSchemaProperty',
+                                               help_text=_("Schema property used to define feature title."), blank=True,
+                                               null=True, on_delete=models.SET_NULL)
     visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))
 
     @cached_property
@@ -73,6 +72,37 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
 
     def get_layer(self):
         return self.layer
+
+    @property
+    def generated_ui_schema(self):
+        """ Generate JSON schema according to linked schema properties  """
+        schema_properties = self.layer.schema_properties.all().values_list('pk', flat=True)
+        ui_schema_properties = UISchemaProperty.objects.filter(layer_schema_id__in=schema_properties).order_by('order').\
+            prefetch_related('ui_array_properties')
+        ui_schema = {}
+        ui_order = []
+        for prop in ui_schema_properties:
+            name = prop.layer_schema.slug
+            if prop.schema:
+                ui_schema.update({name: prop.schema})
+            ui_array_order = []
+            if prop.order:
+                ui_order.append(name)
+            for prop_array in prop.ui_array_properties.all().order_by('order'):
+                name_array = prop_array.array_layer_schema.slug
+                ui_schema.setdefault(name, {})
+                ui_schema[name].setdefault('items', {})
+                if prop_array.schema:
+                    ui_schema[name]['items'].update({name_array: prop_array.schema})
+                if prop_array.order:
+                    ui_array_order.append(name_array)
+            if ui_array_order:
+                ui_schema[name].setdefault('items', {})
+                ui_schema[name]['items'].update({'ui:order': ui_array_order})
+        ui_order.append('*')
+        if ui_order:
+            ui_schema.update({'ui:order': ui_order})
+        return ui_schema
 
     class Meta:
         verbose_name = _("View")
@@ -94,7 +124,7 @@ class FeaturePropertyDisplayGroup(models.Model):
 
     @cached_property
     def form_schema(self):
-        original_schema = deepcopy(self.crud_view.layer.schema)
+        original_schema = deepcopy(self.crud_view.layer.generated_schema)
         properties = {}
         required = []
 
@@ -226,3 +256,39 @@ class ExtraLayerStyle(MapStyleModelMixin, models.Model):
         unique_together = (
             ('crud_view', 'layer_extra_geom'),
         )
+
+
+class UISchemaObjectProperty(models.Model):
+    schema = JSONField(help_text=_("Custom ui schema"), blank=True, default=dict)
+    order = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    class Meta:
+        abstract = True
+
+
+class UISchemaProperty(UISchemaObjectProperty):
+    layer_schema = models.OneToOneField('geostore.LayerSchemaProperty',
+                                        related_name='ui_schema_property',
+                                        on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.layer_schema.layer.crud_view}: {self.layer_schema.slug} ({self.layer_schema.prop_type})"
+
+    class Meta:
+        verbose_name = _("UI Schema property")
+        verbose_name_plural = _("UI Schema properties")
+
+
+class UIArraySchemaProperty(UISchemaObjectProperty):
+    ui_schema_property = models.ForeignKey(UISchemaProperty, related_name='ui_array_properties',
+                                           on_delete=models.PROTECT)
+    array_layer_schema = models.OneToOneField('geostore.ArrayObjectProperty',
+                                              related_name='ui_array_schema',
+                                              on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.ui_schema_property}: {self.array_layer_schema.slug} ({self.array_layer_schema.prop_type})"
+
+    class Meta:
+        verbose_name = _("UI Array object schema property")
+        verbose_name_plural = _("UI Array object schema properties")

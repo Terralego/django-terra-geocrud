@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from geostore.models import ArrayObjectProperty, LayerSchemaProperty
 from geostore.tests.factories import FeatureFactory
 from terra_geocrud.properties import widgets
 
@@ -123,26 +124,6 @@ class ArrayObjectTableWidgetTestCase(TestCase):
     def setUp(self) -> None:
         self.property_key = 'my_object'
         self.feature = FeatureFactory(
-            layer__schema={
-                "properties": {
-                    "my_object": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "annee": {
-                                    "type": "string",
-                                    "title": "Année"
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "title": "Description"
-                                },
-                            }
-                        }
-                    }
-                }
-            },
             properties={
                 self.property_key: [
                     {"annee": "2019", "description": "test"},
@@ -150,11 +131,14 @@ class ArrayObjectTableWidgetTestCase(TestCase):
                 ]
             }
         )
+        schema = LayerSchemaProperty.objects.create(required=False, prop_type="array", array_type="object", title="my_object",
+                                                    layer=self.feature.layer)
+        ArrayObjectProperty.objects.create(array_property=schema, prop_type="string", title="Description")
+        ArrayObjectProperty.objects.create(array_property=schema, prop_type="string", title="Année")
 
     def test_rendering_without_args(self):
         widget = widgets.ArrayObjectTableWidget(feature=self.feature, prop=self.property_key)
         content = widget.render()
-
         # should formatted as table
         self.assertHTMLEqual(content,
                              "<table><thead><tr><th>Année</th><th>Description</th></tr></thead>"

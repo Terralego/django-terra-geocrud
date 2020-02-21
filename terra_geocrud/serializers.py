@@ -97,7 +97,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_feature_list_properties(self, obj):
         # TODO: keep default properties at first, then order by property title
-        default_list = list(obj.default_list_properties or obj.list_available_properties[:8])
+        default_list = list(obj.default_list_properties.all() or obj.list_available_properties[:8])
         result = {
             prop: {
                 "title": obj.layer.get_property_title(prop),
@@ -480,8 +480,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
         fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
         files_properties = [
-            key for key, value in self.instance.layer.schema['properties'].items()
-            if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
+            key for key, value in self.instance.layer.generated_schema['properties'].items()
+            if self.instance.layer.generated_schema['properties'][key].get('format') == 'data-url'
         ]
         if files_properties:
             storage = get_storage()

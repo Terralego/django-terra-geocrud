@@ -7,7 +7,7 @@ from django.utils.functional import cached_property
 class FormSchemaMixin:
     def clean(self):
         # verify properties in default_list_properties exist
-        unexpected_properties = list(set(self.default_list_properties) - set(self.list_available_properties))
+        unexpected_properties = list(set(self.default_list_properties.all()) - set(self.list_available_properties))
         if unexpected_properties:
             raise ValidationError(f'Properties should exists for feature list : {unexpected_properties}')
         # verify feature_title_property exists
@@ -16,7 +16,7 @@ class FormSchemaMixin:
 
     @cached_property
     def grouped_form_schema(self):
-        original_schema = deepcopy(self.layer.schema)
+        original_schema = deepcopy(self.layer.generated_schema)
         generated_schema = deepcopy(original_schema)
         groups = self.feature_display_groups.all()
         processed_properties = []
@@ -43,7 +43,7 @@ class FormSchemaMixin:
         """
         Original ui_schema is recomposed with grouped properties
         """
-        ui_schema = deepcopy(self.ui_schema)
+        ui_schema = deepcopy(self.generated_ui_schema)
 
         groups = self.feature_display_groups.all()
         for group in groups:
@@ -78,10 +78,10 @@ class FormSchemaMixin:
 
         for prop in self.properties:
             # exclude format 'data-url', array if final data is object, and textarea / rte fields
-            if (self.layer.schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
-                    self.layer.schema.get('properties', {}).get(prop).get('type') != 'array'
-                    or self.layer.schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object') \
-                    and (self.ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
-                         and self.ui_schema.get(prop, {}).get('ui:field') != 'rte'):
+            if (self.layer.generated_schema.get('properties', {}).get(prop).get('format') != 'data-url') and (
+                    self.layer.generated_schema.get('properties', {}).get(prop).get('type') != 'array'
+                    or self.layer.generated_schema.get('properties', {}).get(prop).get('items', {}).get('type') != 'object') \
+                    and (self.generated_ui_schema.get(prop, {}).get('ui:widget') != 'textarea'
+                         and self.generated_ui_schema.get(prop, {}).get('ui:field') != 'rte'):
                 properties.append(prop)
         return properties

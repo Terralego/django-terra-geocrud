@@ -92,7 +92,7 @@ class ArrayObjectTableWidget(BaseWidget):
 
     def render(self):
         headers = ''
-        object_properties = self.feature.layer.schema['properties'].get(self.property)['items']['properties']
+        object_properties = self.feature.layer.generated_schema['properties'].get(self.property)['items']['properties']
         for prop, value in object_properties.items():
             headers += '<th>{}</th>'.format(value.get('title', prop))
 

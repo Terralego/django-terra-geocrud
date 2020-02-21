@@ -8,7 +8,8 @@ from django.urls import reverse
 from rest_framework import status
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
 
-from geostore.models import Feature
+from geostore.models import Feature, LayerSchemaProperty, ArrayObjectProperty
+from geostore.tests.factories import LayerFactory
 from terra_geocrud.models import PropertyDisplayRendering, AttachmentCategory, AttachmentMixin, \
     feature_attachment_directory_path, feature_picture_directory_path
 from terra_geocrud.tests import factories
@@ -26,40 +27,23 @@ class CrudModelMixinTestCase(TestCase):
 
 class CrudViewTestCase(TestCase):
     def setUp(self) -> None:
-        self.crud_view = factories.CrudViewFactory(
-            layer__schema={
-                "type": "object",
-                "required": ["name", ],
-                "properties": {
-                    "name": {
-                        'type': "string",
-                        "title": "Name"
-                    },
-                    "logo": {
-                        'type': "string",
-                        "title": "Logo",
-                        "format": "data-url"
-                    },
-                    "age": {
-                        'type': "integer",
-                        "title": "Age",
-                    },
-                    "country": {
-                        'type': "string",
-                        "title": "Country"
-                    },
-                }
-            }
-        )
+        self.other_layer = LayerFactory()
+        self.crud_view = factories.CrudViewFactory()
+        LayerSchemaProperty.objects.create(required=False, prop_type="string", title="Logo",
+                                           layer=self.crud_view.layer)
+        self.other_schema_property = LayerSchemaProperty.objects.create(required=False,
+                                                                        prop_type="string",
+                                                                        title="Country",
+                                                                        layer=self.other_layer)
 
     def test_clean_default_list_properties(self):
         with self.assertRaises(ValidationError):
-            self.crud_view.default_list_properties.append('toto')
+            self.crud_view.default_list_properties.add(self.other_schema_property)
             self.crud_view.clean()
 
     def test_clean_feature_title_property(self):
         with self.assertRaises(ValidationError):
-            self.crud_view.feature_title_property = 'toto'
+            self.crud_view.feature_title_property = self.other_schema_property
             self.crud_view.clean()
 
     def test_render_property_data(self):
@@ -79,6 +63,34 @@ class CrudViewTestCase(TestCase):
         self.assertNotEqual(json_data['display_properties']['__default__']['properties']['Logo'],
                             self.feature.properties.get('logo'))
         self.assertTrue(json_data['display_properties']['__default__']['properties']['Logo'].startswith('<img '))
+
+    def test_complex_ui_schema(self):
+        layer = LayerFactory()
+        self.crud_view.layer = layer
+        self.crud_view.save()
+        layer_schema = LayerSchemaProperty.objects.create(required=True, prop_type="string", title="Name", layer=layer)
+        layer_schema_2 = LayerSchemaProperty.objects.create(required=False, prop_type="integer", title="Age",
+                                                            layer=layer)
+        layer_schema_array = LayerSchemaProperty.objects.create(required=False, prop_type="array",
+                                                                array_type="object", title="Other",
+                                                                layer=layer)
+        array_schema_1 = ArrayObjectProperty.objects.create(prop_type="string", title="column",
+                                                            array_property=layer_schema_array)
+        array_schema_2 = ArrayObjectProperty.objects.create(prop_type="int", title="column2",
+                                                            array_property=layer_schema_array)
+        models.UISchemaProperty.objects.create(layer_schema=layer_schema,
+                                               schema={'ui:widget': 'textarea'}, order=1)
+        models.UISchemaProperty.objects.create(layer_schema=layer_schema_2, order=2)
+        ui_schema_with_array = models.UISchemaProperty.objects.create(layer_schema=layer_schema_array)
+        models.UIArraySchemaProperty.objects.create(ui_schema_property=ui_schema_with_array,
+                                                    array_layer_schema=array_schema_1, order=1)
+        models.UIArraySchemaProperty.objects.create(ui_schema_property=ui_schema_with_array,
+                                                    array_layer_schema=array_schema_2,
+                                                    schema={'ui:widget': 'textarea'})
+        self.assertEqual({'other': {'items': {'column2': {'ui:widget': 'textarea'}, 'ui:order': ['column']}},
+                          'name': {'ui:widget': 'textarea'},
+                          'ui:order': ['name', 'age', '*']},
+                         self.crud_view.generated_ui_schema)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
@@ -117,6 +129,11 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
             "type": "object",
             "required": [],
             "properties": {
+                'other': {'items': {'properties': {'column': {'title': 'column',
+                                                              'type': 'string'}},
+                                    'type': 'object'},
+                          'title': 'Other',
+                          'type': 'array'},
                 'country': {
                     'type': 'string',
                     'title': 'Country'
@@ -194,3 +211,24 @@ class AttachmentTestCase(TestCase):
     def test_picture_thumbnail(self):
         thumbnail = self.feature_picture.thumbnail
         self.assertIsNotNone(thumbnail)
+
+
+class UISchemaAndUIArraySchemaPropertyTestCase(TestCase):
+    def setUp(self) -> None:
+        layer = LayerFactory()
+        self.crud_view = factories.CrudViewFactory(name="Foo", layer=layer)
+        self.ui_schema = models.UISchemaProperty()
+        layer_schema_array = LayerSchemaProperty.objects.create(required=False, prop_type="array",
+                                                                array_type="object", title="Other",
+                                                                layer=layer)
+        array_schema_1 = ArrayObjectProperty.objects.create(prop_type="string", title="column",
+                                                            array_property=layer_schema_array)
+        self.ui_schema = models.UISchemaProperty.objects.create(layer_schema=layer_schema_array)
+        self.ui_array_schema = models.UIArraySchemaProperty.objects.create(ui_schema_property=self.ui_schema,
+                                                                           array_layer_schema=array_schema_1)
+
+    def test_str_schema(self):
+        self.assertEqual('Foo: other (array)', str(self.ui_schema))
+
+    def test_str_array_schema(self):
+        self.assertEqual('Foo: other (array): column (string)', str(self.ui_array_schema))

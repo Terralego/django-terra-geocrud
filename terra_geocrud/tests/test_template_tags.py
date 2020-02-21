@@ -9,9 +9,9 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from . import factories
-from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA, SMALL_PICTURE
+from .settings import FEATURE_PROPERTIES, SMALL_PICTURE
 
-from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
+from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom, LayerSchemaProperty
 from geostore import GeometryTypes
 
 from mapbox_baselayer.models import BaseLayerTile, MapBaseLayer
@@ -22,11 +22,19 @@ from terra_geocrud import settings as app_settings
 
 class MapImageUrlLoaderTestCase(TestCase):
     def setUp(self):
+
         self.crud_view_line = factories.CrudViewFactory(name="Line", order=0,
-                                                        layer__schema=json.load(open(LAYER_SCHEMA)),
                                                         layer__geom_type=GeometryTypes.LineString)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Number", layer=self.crud_view_line.layer)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Context", layer=self.crud_view_line.layer)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Perimeter", layer=self.crud_view_line.layer)
+        LayerSchemaProperty.objects.create(required=False, prop_type="string",
+                                           title="Conservation", layer=self.crud_view_line.layer)
+
         self.crud_view_point = factories.CrudViewFactory(name="Point", order=0,
-                                                         layer__schema=json.load(open(LAYER_SCHEMA)),
                                                          layer__geom_type=GeometryTypes.Point)
 
         self.line = Feature.objects.create(

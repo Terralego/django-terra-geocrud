@@ -50,7 +50,7 @@ setup(
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',
         'django-mapbox-baselayer>=0.0.3',
-        'django-geostore>=0.3.16',
+        'django-geostore@https://github.com/Terralego/django-geostore/archive/schema_as_properties.tar.gz',
         'django-terra-accounts>=0.3.8',
         'djangorestframework-gis',
         'djangorestframework',
