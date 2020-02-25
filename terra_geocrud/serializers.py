@@ -315,6 +315,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     attachments = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
     extra_geometries = serializers.SlugRelatedField(slug_field='identifier', many=True, read_only=True)
+    geometries = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
         return reverse('picture-list', kwargs={'identifier': obj.identifier})
@@ -462,6 +463,24 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                                context={'request': self.context.get('request'),
                                                         'feature': obj})
         return serializer.data
+
+    def get_geometries(self, obj):
+        result = {
+            'main': {
+                "geom": obj.geom.geojson,
+                "url": reverse('feature-detail', args=(obj.layer_id, obj.identifier))
+            }
+        }
+        for extra_geom in obj.layer.extra_geometries.all():
+            geoms = obj.extra_geometries.filter(layer_extra_geom=extra_geom)
+            result[extra_geom.slug] = {
+                "geom": geoms.first().geom.geojson,
+                "url": reverse('feature-detail-extra-geometry', args=(obj.layer_id, obj.identifier, geoms.first().pk))
+            } if geoms.exists() else {
+                "geom": None,
+                "url": reverse('feature-create-extra-geometry', args=(obj.layer_id, obj.identifier, extra_geom.pk))
+            }
+        return result
 
     def validate_properties(self, data):
         new_data = deepcopy(data)

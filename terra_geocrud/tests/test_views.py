@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature, LayerExtraGeom
+from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
@@ -219,6 +219,17 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
 class CrudFeatureViewsSetTestCase(APITestCase):
     def setUp(self):
         self.crud_view = factories.CrudViewFactory()
+        # add extra geometries to layer
+        self.extra_layer_1 = LayerExtraGeom.objects.create(
+            layer=self.crud_view.layer,
+            geom_type=GeometryTypes.Point,
+            title='Extra 1'
+        )
+        self.extra_layer_2 = LayerExtraGeom.objects.create(
+            layer=self.crud_view.layer,
+            geom_type=GeometryTypes.LineString,
+            title='Extra 2'
+        )
         self.group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test',
                                                                          properties=['age'])
         self.group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
@@ -234,6 +245,12 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                   "name": "2012-01-01",
                                                   "country": "slovenija"},
                                               layer=self.crud_view.layer)
+        # add extra geometries to feature
+        self.extra_feature = FeatureExtraGeom.objects.create(
+            feature=self.feature,
+            layer_extra_geom=self.extra_layer_1,
+            geom='POINT(0 0)'
+        )
         self.pictures = factories.FeaturePictureFactory.create_batch(10, feature=self.feature)
         self.attachments = factories.FeatureAttachmentFactory.create_batch(10, feature=self.feature)
         self.template = factories.TemplateDocxFactory()

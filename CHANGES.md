@@ -5,6 +5,8 @@ CHANGELOG
 0.3.34.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Add all geometries description in feature detail serializer
+
 
 0.3.33          (2020-02-14)
 ----------------------------
