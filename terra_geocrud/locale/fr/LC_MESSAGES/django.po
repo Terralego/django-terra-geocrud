@@ -148,3 +148,6 @@ msgstr "Propriétés disponibles pour la liste des features"
 
 msgid "Unclassified"
 msgstr "Non classé"
+
+msgid "Main geometry"
+msgstr "Géométrie principale"

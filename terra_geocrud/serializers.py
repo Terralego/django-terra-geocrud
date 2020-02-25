@@ -470,19 +470,22 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             'main': {
                 "geom": json.loads(obj.geom.geojson),
                 "url": reverse('feature-detail', args=(obj.layer_id, obj.identifier)),
-                "identifier": obj.identifier
+                "identifier": obj.identifier,
+                "title": _("Main geometry")
             }
         }
         for extra_geom in obj.layer.extra_geometries.all():
             geoms = obj.extra_geometries.filter(layer_extra_geom=extra_geom)
-            result[extra_geom.slug] = {
+            result[extra_geom.name] = {
                 "geom": json.loads(geoms.first().geom.geojson),
                 "url": reverse('feature-detail-extra-geometry', args=(obj.layer_id, obj.identifier, geoms.first().pk)),
-                "identifier": geoms.first().identifier
+                "identifier": geoms.first().identifier,
+                "title": extra_geom.title
             } if geoms.exists() else {
                 "geom": None,
                 "url": reverse('feature-create-extra-geometry', args=(obj.layer_id, obj.identifier, extra_geom.pk)),
-                "identifier": None
+                "identifier": None,
+                "title": extra_geom.title
             }
         return result
 

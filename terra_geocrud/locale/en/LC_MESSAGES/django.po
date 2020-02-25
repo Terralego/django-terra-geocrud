@@ -144,3 +144,6 @@ msgstr ""
 
 msgid "Unclassified"
 msgstr ""
+
+msgid "Main geometry"
+msgstr ""
