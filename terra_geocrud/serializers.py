@@ -12,6 +12,7 @@ from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
 from sorl.thumbnail import get_thumbnail
 from template_model.models import Template
+from terra_geocrud.models import AttachmentCategory
 
 from . import models
 from .map.styles import get_default_style
@@ -319,10 +320,22 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     geometries = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
-        return reverse('picture-list', kwargs={'identifier': obj.identifier})
+        return [{
+            "name": category.name,
+            "pictogram": category.pictogram.url if category.pictogram else None,
+            "pictures": FeaturePictureSerializer(obj.pictures.filter(category=category),
+                                                 many=True).data,
+            "action_url": reverse('picture-list', args=(obj.identifier, ))
+        } for category in AttachmentCategory.objects.all()]
 
     def get_attachments(self, obj):
-        return reverse('attachment-list', kwargs={'identifier': obj.identifier})
+        return [{
+            "name": category.name,
+            "pictogram": category.pictogram.url if category.pictogram else None,
+            "attachments": FeatureAttachmentSerializer(obj.attachments.filter(category=category),
+                                                       many=True).data,
+            "action_url": reverse('attachment-list', args=(obj.identifier, ))
+        } for category in AttachmentCategory.objects.all()]
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
