@@ -482,20 +482,24 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         result = {
             'main': {
                 "geom": json.loads(obj.geom.geojson),
+                "geom_type": obj.layer.geom_type,
                 "url": reverse('feature-detail', args=(obj.layer_id, obj.identifier)),
                 "identifier": obj.identifier,
                 "title": _("Main geometry")
             }
         }
         for extra_geom in obj.layer.extra_geometries.all():
-            geoms = obj.extra_geometries.filter(layer_extra_geom=extra_geom)
+            geometries = obj.extra_geometries.filter(layer_extra_geom=extra_geom)
+            geometry = geometries.first()
             result[extra_geom.name] = {
-                "geom": json.loads(geoms.first().geom.geojson),
-                "url": reverse('feature-detail-extra-geometry', args=(obj.layer_id, obj.identifier, geoms.first().pk)),
-                "identifier": geoms.first().identifier,
+                "geom": json.loads(geometry.geom.geojson),
+                "geom_type": extra_geom.geom_type,
+                "url": reverse('feature-detail-extra-geometry', args=(obj.layer_id, obj.identifier, geometry.pk)),
+                "identifier": geometry.identifier,
                 "title": extra_geom.title
-            } if geoms.exists() else {
+            } if geometry else {
                 "geom": None,
+                "geom_type": extra_geom.geom_type,
                 "url": reverse('feature-create-extra-geometry', args=(obj.layer_id, obj.identifier, extra_geom.pk)),
                 "identifier": None,
                 "title": extra_geom.title
