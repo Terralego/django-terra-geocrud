@@ -319,6 +319,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     geometries = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
+        """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
             "name": category.name,
             "pictogram": category.pictogram.url if category.pictogram else None,
@@ -328,6 +329,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         } for category in models.AttachmentCategory.objects.all()]
 
     def get_attachments(self, obj):
+        """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
             "name": category.name,
             "pictogram": category.pictogram.url if category.pictogram else None,
