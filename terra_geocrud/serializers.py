@@ -12,12 +12,11 @@ from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
 from sorl.thumbnail import get_thumbnail
 from template_model.models import Template
-from terra_geocrud.models import AttachmentCategory
 
 from . import models
 from .map.styles import get_default_style
-from .properties.files import get_storage, generate_storage_file_path, store_data_file, get_info_content, \
-    get_storage_file_url, get_storage_path_from_infos
+from .properties.files import get_info_content, get_storage_file_url, \
+    get_storage_path_from_infos, store_feature_files
 from .properties.widgets import render_property_data
 
 
@@ -326,7 +325,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             "pictures": FeaturePictureSerializer(obj.pictures.filter(category=category),
                                                  many=True).data,
             "action_url": reverse('picture-list', args=(obj.identifier, ))
-        } for category in AttachmentCategory.objects.all()]
+        } for category in models.AttachmentCategory.objects.all()]
 
     def get_attachments(self, obj):
         return [{
@@ -335,7 +334,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             "attachments": FeatureAttachmentSerializer(obj.attachments.filter(category=category),
                                                        many=True).data,
             "action_url": reverse('attachment-list', args=(obj.identifier, ))
-        } for category in AttachmentCategory.objects.all()]
+        } for category in models.AttachmentCategory.objects.all()]
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
@@ -479,6 +478,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return serializer.data
 
     def get_geometries(self, obj):
+        """ Describe geometries and action endpoint to frontend.
+        "main" reference feature geometry, other are extra geometries """
         result = {
             'main': {
                 "geom": json.loads(obj.geom.geojson),
@@ -519,32 +520,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         super().validate_properties(data)
         return data
 
-    def _store_files(self):
-        """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
-        fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
-        files_properties = [
-            key for key, value in self.instance.layer.schema['properties'].items()
-            if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
-        ]
-        if files_properties:
-            storage = get_storage()
-            for file_prop in files_properties:
-                value = self.instance.properties.get(file_prop)
-                if value:
-                    storage_file_path = generate_storage_file_path(file_prop, value, self.instance)
-                    file_info, file_content = get_info_content(value)
-                    # check if file has been saved in storage
-                    if file_content != fake_content:
-                        store_data_file(storage, storage_file_path, file_content)
-                        # patch file_infos with new path
-                        detail_infos = file_info.split(';name=')
-                        new_info = f"{detail_infos[0]};name={storage_file_path}"
-                        self.instance.properties[file_prop] = f'{new_info};base64,{fake_content}'
-                        self.instance.save()
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self._store_files()
+        # save base64 file content to storage
+        store_feature_files(self.instance)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
