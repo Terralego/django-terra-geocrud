@@ -1,5 +1,6 @@
 import base64
 import mimetypes
+from urllib.parse import unquote
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
@@ -35,12 +36,11 @@ def generate_storage_file_path(prop, value, feature):
             extension = mimetypes.guess_extension(infos[0].split(':')[1])
             file_name = f"{prop}{extension}"
 
+        # some file_name can be uri encoded
+        file_name = unquote(file_name)
+
         # build name in storage
         return f'terra_geocrud/features/{feature.pk}/data_file/{prop}/{file_name}'
-
-
-def store_data_file(storage, storage_file_path, file_content):
-    storage.save(storage_file_path, ContentFile(base64.b64decode(file_content)))
 
 
 def store_feature_files(feature):
@@ -59,7 +59,7 @@ def store_feature_files(feature):
                 file_info, file_content = get_info_content(value)
                 # check if file has been saved in storage
                 if file_content != fake_content:
-                    store_data_file(storage, storage_file_path, file_content)
+                    storage.save(storage_file_path, ContentFile(base64.b64decode(file_content)))
                     # patch file_infos with new path
                     detail_infos = file_info.split(';name=')
                     new_info = f"{detail_infos[0]};name={storage_file_path}"
