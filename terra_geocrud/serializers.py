@@ -15,8 +15,8 @@ from template_model.models import Template
 
 from . import models
 from .map.styles import get_default_style
-from .properties.files import get_storage, generate_storage_file_path, store_data_file, get_info_content, \
-    get_storage_file_url, get_storage_path_from_infos
+from .properties.files import get_info_content, get_storage_file_url, \
+    get_storage_path_from_infos, store_feature_files
 from .properties.widgets import render_property_data
 
 
@@ -319,10 +319,24 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     geometries = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
-        return reverse('picture-list', kwargs={'identifier': obj.identifier})
+        """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
+        return [{
+            "name": category.name,
+            "pictogram": category.pictogram.url if category.pictogram else None,
+            "pictures": FeaturePictureSerializer(obj.pictures.filter(category=category),
+                                                 many=True).data,
+            "action_url": reverse('picture-list', args=(obj.identifier, ))
+        } for category in models.AttachmentCategory.objects.all()]
 
     def get_attachments(self, obj):
-        return reverse('attachment-list', kwargs={'identifier': obj.identifier})
+        """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
+        return [{
+            "name": category.name,
+            "pictogram": category.pictogram.url if category.pictogram else None,
+            "attachments": FeatureAttachmentSerializer(obj.attachments.filter(category=category),
+                                                       many=True).data,
+            "action_url": reverse('attachment-list', args=(obj.identifier, ))
+        } for category in models.AttachmentCategory.objects.all()]
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
@@ -466,23 +480,29 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return serializer.data
 
     def get_geometries(self, obj):
+        """ Describe geometries and action endpoint to frontend.
+        "main" reference feature geometry, other are extra geometries """
         result = {
             'main': {
                 "geom": json.loads(obj.geom.geojson),
+                "geom_type": obj.layer.geom_type,
                 "url": reverse('feature-detail', args=(obj.layer_id, obj.identifier)),
                 "identifier": obj.identifier,
                 "title": _("Main geometry")
             }
         }
         for extra_geom in obj.layer.extra_geometries.all():
-            geoms = obj.extra_geometries.filter(layer_extra_geom=extra_geom)
+            geometries = obj.extra_geometries.filter(layer_extra_geom=extra_geom)
+            geometry = geometries.first()
             result[extra_geom.name] = {
-                "geom": json.loads(geoms.first().geom.geojson),
-                "url": reverse('feature-detail-extra-geometry', args=(obj.layer_id, obj.identifier, geoms.first().pk)),
-                "identifier": geoms.first().identifier,
+                "geom": json.loads(geometry.geom.geojson),
+                "geom_type": extra_geom.geom_type,
+                "url": reverse('feature-detail-extra-geometry', args=(obj.layer_id, obj.identifier, geometry.pk)),
+                "identifier": geometry.identifier,
                 "title": extra_geom.title
-            } if geoms.exists() else {
+            } if geometry else {
                 "geom": None,
+                "geom_type": extra_geom.geom_type,
                 "url": reverse('feature-create-extra-geometry', args=(obj.layer_id, obj.identifier, extra_geom.pk)),
                 "identifier": None,
                 "title": extra_geom.title
@@ -502,32 +522,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         super().validate_properties(data)
         return data
 
-    def _store_files(self):
-        """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
-        fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
-        files_properties = [
-            key for key, value in self.instance.layer.schema['properties'].items()
-            if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
-        ]
-        if files_properties:
-            storage = get_storage()
-            for file_prop in files_properties:
-                value = self.instance.properties.get(file_prop)
-                if value:
-                    storage_file_path = generate_storage_file_path(file_prop, value, self.instance)
-                    file_info, file_content = get_info_content(value)
-                    # check if file has been saved in storage
-                    if file_content != fake_content:
-                        store_data_file(storage, storage_file_path, file_content)
-                        # patch file_infos with new path
-                        detail_infos = file_info.split(';name=')
-                        new_info = f"{detail_infos[0]};name={storage_file_path}"
-                        self.instance.properties[file_prop] = f'{new_info};base64,{fake_content}'
-                        self.instance.save()
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self._store_files()
+        # save base64 file content to storage
+        store_feature_files(self.instance)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

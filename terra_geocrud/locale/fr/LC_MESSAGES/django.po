@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-05 15:09+0000\n"
+"POT-Creation-Date: 2020-02-26 10:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,32 +40,33 @@ msgid "Other settings"
 msgstr "Autres réglages"
 
 msgid "Picture"
-msgstr ""
+msgstr "Image"
 
 msgid "Pictures"
-msgstr ""
+msgstr "Images"
 
 msgid "Attachment"
-msgstr ""
+msgstr "Pièce-jointe"
 
 msgid "Attachments"
+msgstr "Pièces-jointes"
+
+msgid ""
+"GEOCRUD: Can create / edit / delete views / groups and associated layers."
 msgstr ""
+"GEOCRUD: Peut créer / éditier / supprimer les vues / groupes et layers associés."
 
-msgid "Can create / edit / delete views / groups and associated layers."
-msgstr ""
-"Peut créer / éditier / supprimer les vues / groupes et layers associés."
+msgid "GEOCRUD: Can read feature detail."
+msgstr "GEOCRUD: Peut lire les détails d'une feature"
 
-msgid "Can read feature detail."
-msgstr "Peut lire les détails d'une feature"
+msgid "GEOCRUD: Can create feature"
+msgstr "GEOCRUD: Peut créer des features"
 
-msgid "Can create feature"
-msgstr "Peut créer des features"
+msgid "GEOCRUD: Can change feature"
+msgstr "GEOCRUD: Peut modifier une feature"
 
-msgid "Can change feature"
-msgstr "Peut modifier une feature"
-
-msgid "Can delete feature"
-msgstr "Peut supprimer une feature"
+msgid "GEOCRUD: Can delete feature"
+msgstr "GEOCRUD: Peut supprimer une feature"
 
 msgid "Display name in left menu"
 msgstr "Affiche le nom dans le menu de gauche"
@@ -103,6 +104,9 @@ msgstr ""
 msgid "Schema property used to define feature title."
 msgstr "Propriété du schema utilisée pour le titre de la feature"
 
+msgid "Keep visible if ungrouped."
+msgstr ""
+
 msgid "View"
 msgstr "Vue"
 
@@ -122,10 +126,10 @@ msgid "Custom feature properties rendering"
 msgstr "Rendus personnalisés de propriétés"
 
 msgid "Attachment category"
-msgstr ""
+msgstr "Catégorie de pièces-jointes"
 
 msgid "Attachment categories"
-msgstr ""
+msgstr "Catégories de pièces-jointes"
 
 msgid "Feature attachment"
 msgstr ""
@@ -139,6 +143,15 @@ msgstr ""
 msgid "Feature pictures"
 msgstr ""
 
+msgid "ExtraLayer style"
+msgstr ""
+
+msgid "ExtraLayer styles"
+msgstr ""
+
+msgid "VT styles and definitions"
+msgstr ""
+
 msgid "Url endpoint for view's features"
 msgstr "URL de la liste des features de la vue."
 
@@ -146,8 +159,8 @@ msgid ""
 "Available properties for feature datatable. Ordered, {name: {title, type}}"
 msgstr "Propriétés disponibles pour la liste des features"
 
-msgid "Unclassified"
-msgstr "Non classé"
-
 msgid "Main geometry"
 msgstr "Géométrie principale"
+
+msgid "Unclassified"
+msgstr "Non classé"

@@ -10,10 +10,10 @@ from django.utils.translation import gettext_lazy as _
 from geostore.db.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail
 
-from . import settings as app_settings
-from .properties.schema import FormSchemaMixin
 from terra_geocrud.map.styles import MapStyleModelMixin
+from . import settings as app_settings
 from .properties.files import get_storage
+from .properties.schema import FormSchemaMixin
 from .properties.widgets import get_widgets_choices
 
 

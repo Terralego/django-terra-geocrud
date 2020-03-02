@@ -124,7 +124,9 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.prefetch_related('layer__crud_view__templates')
+        return qs.prefetch_related('layer__crud_view__templates',
+                                   'layer__extra_geometries',
+                                   'extra_geometries')
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
