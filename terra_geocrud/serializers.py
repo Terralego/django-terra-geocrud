@@ -340,8 +340,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
     def get_title(self, obj):
         """ Get Feature title, as feature_title_property content or identifier by default """
-        crud_view_defined_property = obj.layer.crud_view.feature_title_property
-        return obj.properties.get(crud_view_defined_property, '') if crud_view_defined_property else obj.identifier
+        return obj.layer.crud_view.get_feature_title(obj)
 
     def get_properties(self, obj):
         """ Feature properties as form initial data format (name / value) """
@@ -480,8 +479,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return serializer.data
 
     def get_geometries(self, obj):
-        """ Describe geometries and action endpoint to frontend.
-        "main" reference feature geometry, other are extra geometries """
+        """ Describe geometries and action endpoint to frontend. """
         result = {
             obj.layer.name: {
                 "geom": json.loads(obj.geom.geojson),
@@ -522,8 +520,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         super().validate_properties(data)
         return data
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def save(self, **kwargs):
+        super().save(**kwargs)
         # save base64 file content to storage
         store_feature_files(self.instance)
 

@@ -109,9 +109,11 @@ class CrudRenderTemplateDetailView(DetailView):
         self.template = self.get_template_object()
         self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
         response = super().render_to_response(context, **response_kwargs)
-        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(
-            Path(self.template.template_file.name).name
-        )
+        path = Path(self.template.template_file.name)
+        feature = self.get_object()
+        feature_name = feature.layer.crud_view.get_feature_title(feature)
+        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}{path.suffix}"
+        response['Content-Disposition'] = f'attachment; filename={smart_text(new_name)}'
         return response
 
 

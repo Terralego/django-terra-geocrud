@@ -74,6 +74,11 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     def get_layer(self):
         return self.layer
 
+    def get_feature_title(self, feature):
+        """ Get feature title base on title field. Return identifier if empty or None """
+        return feature.properties.get(self.feature_title_property, '')\
+            if self.feature_title_property else feature.identifier
+
     class Meta:
         verbose_name = _("View")
         verbose_name_plural = _("Views")

@@ -6,6 +6,7 @@ CHANGELOG
 ----------------------------
 
 * Add all geometries description in feature detail serializer
+* Change generated document name with feature title
 
 
 0.3.33          (2020-02-14)
