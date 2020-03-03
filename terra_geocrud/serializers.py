@@ -483,7 +483,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         """ Describe geometries and action endpoint to frontend.
         "main" reference feature geometry, other are extra geometries """
         result = {
-            'main': {
+            obj.layer.name: {
                 "geom": json.loads(obj.geom.geojson),
                 "geom_type": obj.layer.geom_type,
                 "url": reverse('feature-detail', args=(obj.layer_id, obj.identifier)),
