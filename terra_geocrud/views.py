@@ -122,6 +122,7 @@ class CrudLayerViewSet(LayerViewSet):
 
 
 class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
+    serializer_class_extra_geom = serializers.CrudFeatureExtraGeomSerializer
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
 
     def get_queryset(self):

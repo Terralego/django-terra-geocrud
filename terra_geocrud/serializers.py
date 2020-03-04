@@ -6,7 +6,7 @@ from pathlib import Path
 from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _
 from geostore.models import LayerExtraGeom
-from geostore.serializers import LayerSerializer, FeatureSerializer
+from geostore.serializers import LayerSerializer, FeatureSerializer, FeatureExtraGeomSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
@@ -534,3 +534,11 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     class Meta(FeatureSerializer.Meta):
         exclude = ('source', 'target', 'layer',)
         fields = None
+
+
+class CrudFeatureExtraGeomSerializer(FeatureExtraGeomSerializer):
+    layer_extra_geom = serializers.SlugRelatedField(slug_field='name', read_only=True)
+
+    class Meta(FeatureExtraGeomSerializer.Meta):
+        fields = ('id', 'identifier', 'feature', 'geom', )
+        read_only_fields = ('id', 'identifier', 'feature', 'layer_extra_geom')
