@@ -540,5 +540,5 @@ class CrudFeatureExtraGeomSerializer(FeatureExtraGeomSerializer):
     layer_extra_geom = serializers.SlugRelatedField(slug_field='name', read_only=True)
 
     class Meta(FeatureExtraGeomSerializer.Meta):
-        fields = ('id', 'identifier', 'feature', 'geom', )
+        fields = ('id', 'identifier', 'feature', 'geom', 'layer_extra_geom')
         read_only_fields = ('id', 'identifier', 'feature', 'layer_extra_geom')
