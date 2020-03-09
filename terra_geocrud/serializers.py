@@ -537,8 +537,12 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
 
 class CrudFeatureExtraGeomSerializer(FeatureExtraGeomSerializer):
-    layer_extra_geom = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    """ Used to create or edit extra geometry. Should return Feature detail serializer """
+
+    def to_representation(self, instance):
+        # use default CrudFeatureDetailSerializer to representation
+        serializer = CrudFeatureDetailSerializer(instance.feature)
+        return serializer.to_representation(instance.feature)
 
     class Meta(FeatureExtraGeomSerializer.Meta):
-        fields = ('id', 'identifier', 'feature', 'geom', 'layer_extra_geom')
-        read_only_fields = ('id', 'identifier', 'feature', 'layer_extra_geom')
+        fields = ('geom', )
