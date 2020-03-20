@@ -49,6 +49,8 @@ class LayerViewSerializer(LayerSerializer):
 
 class CrudViewSerializer(serializers.ModelSerializer):
     layer = LayerViewSerializer()
+    object_name = serializers.SerializerMethodField()
+    object_name_plural = serializers.SerializerMethodField()
     extent = serializers.SerializerMethodField()
     exports = serializers.SerializerMethodField()
     ui_schema = serializers.JSONField(source='grouped_ui_schema')
@@ -61,6 +63,12 @@ class CrudViewSerializer(serializers.ModelSerializer):
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: {title, type}}")
     )
+
+    def get_object_name(self, obj):
+        return obj.object_name if obj.object_name else obj.name
+
+    def get_object_name_plural(self, obj):
+        return obj.object_name_plural if obj.object_name_plural else obj.name
 
     def get_map_layers(self, obj):
         data = [{
