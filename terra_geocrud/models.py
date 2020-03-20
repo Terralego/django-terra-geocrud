@@ -44,7 +44,8 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     """
     Used to defined ad layer's view in CRUD
     """
-    name_plural = models.CharField(max_length=100, default="", blank=True, null=False)
+    object_name = models.CharField(max_length=100, default="", blank=True, null=False)
+    object_name_plural = models.CharField(max_length=100, default="", blank=True, null=False)
     group = models.ForeignKey(CrudGroupView, on_delete=models.SET_NULL, related_name='crud_views',
                               null=True, blank=True, help_text=_("Group this entry in left menu"))
     layer = models.OneToOneField('geostore.Layer', on_delete=models.CASCADE, related_name='crud_view')
