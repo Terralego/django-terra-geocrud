@@ -10,13 +10,16 @@ from geostore.serializers import LayerSerializer, FeatureSerializer, FeatureExtr
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
-from sorl.thumbnail import get_thumbnail
 from template_model.models import Template
 
 from . import models
 from .map.styles import get_default_style
 from .properties.files import get_info_content, get_storage_file_url, \
     get_storage_path_from_infos, store_feature_files
+from .thumbnail_backends import ThumbnailDataFileBackend
+
+
+thumbnail_backend = ThumbnailDataFileBackend()
 
 
 class BaseUpdatableMixin(serializers.ModelSerializer):
@@ -168,9 +171,8 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                             data_type = 'image'
                             try:
                                 data.update({
-                                    "thumbnail": get_thumbnail(storage_file_path,
-                                                               "500x500",
-                                                               generate=True, save=True).url
+                                    "thumbnail": thumbnail_backend.get_thumbnail(storage_file_path,
+                                                                                 "500x500").url
                                 })
                             except ValueError:
                                 pass
@@ -375,9 +377,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                 data_type = 'image'
                                 try:
                                     data.update({
-                                        "thumbnail": get_thumbnail(storage_file_path,
-                                                                   "500x500",
-                                                                   generate=True, save=True).url
+                                        "thumbnail": thumbnail_backend.get_thumbnail(storage_file_path,
+                                                                                     "500x500").url
                                     })
                                 except ValueError:
                                     pass
