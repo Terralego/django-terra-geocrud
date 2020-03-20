@@ -32,7 +32,7 @@ class CrudViewAdmin(VersionAdmin):
     inlines = [FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['grouped_form_schema', 'properties']
     fieldsets = (
-        (None, {'fields': (('name', 'layer'), ('group', 'order', 'pictogram'))}),
+        (None, {'fields': (('name', 'name_plural', 'layer'), ('group', 'order', 'pictogram'))}),
         (_('UI schema & properties'), {
             'fields': ('properties', 'default_list_properties', 'feature_title_property', 'ui_schema'),
             'classes': ('collapse', )
