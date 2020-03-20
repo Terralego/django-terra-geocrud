@@ -17,7 +17,6 @@ from . import models
 from .map.styles import get_default_style
 from .properties.files import get_info_content, get_storage_file_url, \
     get_storage_path_from_infos, store_feature_files
-from .properties.widgets import render_property_data
 
 
 class BaseUpdatableMixin(serializers.ModelSerializer):
@@ -116,7 +115,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CrudView
         fields = (
-            'id', 'name', 'pictogram', 'order', 'map_style',
+            'id', 'name', 'name_plural', 'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
             'feature_endpoint', 'extent', 'exports',
             'feature_list_properties', 'map_layers'
@@ -132,35 +131,6 @@ class CrudGroupSerializer(serializers.ModelSerializer):
 
 
 class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
-    title = serializers.CharField(source='label')
-    order = serializers.IntegerField()
-    pictogram = serializers.ImageField()
-    properties = serializers.SerializerMethodField()
-
-    def get_properties(self, obj):
-        """ Get feature properties in group to form { title: rendering(value) } """
-        feature = self.context.get('feature')
-        widget_properties = self.context.get('widget_properties')
-        final_properties = {
-            prop: feature.properties.get(prop)
-            for prop in list(obj.properties)
-        }
-
-        # apply widgets
-        for widget in widget_properties.filter(property__in=obj.properties):
-            final_properties[widget.property] = render_property_data(feature, widget)
-
-        return {
-            feature.layer.get_property_title(key): value
-            for key, value in final_properties.items()
-        }
-
-    class Meta:
-        model = models.FeaturePropertyDisplayGroup
-        fields = ('title', 'slug', 'order', 'pictogram', 'properties')
-
-
-class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
     title = serializers.CharField(source='label')
     order = serializers.IntegerField()
     pictogram = serializers.ImageField()
@@ -191,14 +161,16 @@ class FeatureNewDisplayPropertyGroup(serializers.ModelSerializer):
                         # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
                         infos, content = get_info_content(value)
                         storage_file_path = get_storage_path_from_infos(infos)
-                        data['url'] = get_storage_file_url(storage_file_path),
+                        data['url'] = get_storage_file_url(storage_file_path)
 
                         if infos and infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
                             # apply special cases for images
                             data_type = 'image'
                             try:
                                 data.update({
-                                    "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                                    "thumbnail": get_thumbnail(storage_file_path,
+                                                               "500x500",
+                                                               generate=True, save=True).url
                                 })
                             except ValueError:
                                 pass
@@ -311,11 +283,9 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     geom = geo_serializers.GeometryField()
     documents = serializers.SerializerMethodField()
     display_properties = serializers.SerializerMethodField()
-    new_display_properties = serializers.SerializerMethodField()
     properties = serializers.JSONField()
     attachments = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
-    extra_geometries = serializers.SlugRelatedField(slug_field='identifier', many=True, read_only=True)
     geometries = serializers.SerializerMethodField()
 
     def get_pictures(self, obj):
@@ -357,7 +327,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
         return {**results, **original_properties}
 
-    def get_new_display_properties(self, obj):
+    def get_display_properties(self, obj):
         """ Feature properties to display (key / value, display value and info) """
         processed_properties = []
         results = {}
@@ -366,8 +336,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
         # get ordered groups filled
         for group in groups:
-            serializer = FeatureNewDisplayPropertyGroup(group,
-                                                        context={'request': self.context.get('request'),
+            serializer = FeatureDisplayPropertyGroup(group,
+                                                     context={'request': self.context.get('request'),
                                                                  'feature': obj})
             results[group.slug] = serializer.data
             processed_properties += list(group.properties)
@@ -397,14 +367,17 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                             # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
                             infos, content = get_info_content(value)
                             storage_file_path = get_storage_path_from_infos(infos)
-                            data['url'] = get_storage_file_url(storage_file_path),
+
+                            data['url'] = get_storage_file_url(storage_file_path)
 
                             if infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
                                 # apply special cases for images
                                 data_type = 'image'
                                 try:
                                     data.update({
-                                        "thumbnail": get_thumbnail(storage_file_path, "500x500").url
+                                        "thumbnail": get_thumbnail(storage_file_path,
+                                                                   "500x500",
+                                                                   generate=True, save=True).url
                                     })
                                 except ValueError:
                                     pass
@@ -431,44 +404,6 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                 "properties": properties
             }
 
-        return results
-
-    def get_display_properties(self, obj):
-        """ Feature properties to display (title / rendered value) """
-        processed_properties = []
-        results = {}
-        crud_view = obj.layer.crud_view
-        groups = crud_view.feature_display_groups.all()
-        widget_properties = crud_view.feature_property_rendering.all()
-
-        # get ordered groups filled
-        for group in groups:
-            serializer = FeatureDisplayPropertyGroup(group,
-                                                     context={'request': self.context.get('request'),
-                                                              'feature': obj,
-                                                              'widget_properties': widget_properties})
-            results[group.slug] = serializer.data
-            processed_properties += list(group.properties)
-
-        # add default other properties
-        remained_properties = list(set(crud_view.properties) - set(processed_properties))
-        if remained_properties:
-            final_properties = {
-                prop: obj.properties.get(prop)
-                for prop in list(remained_properties)
-            }
-            # apply widgets
-            for widget in widget_properties.filter(property__in=remained_properties):
-                final_properties[widget.property] = render_property_data(obj, widget)
-
-            results['__default__'] = {
-                "title": "",
-                "pictogram": None,
-                "order": 9999,
-                "properties": {
-                    obj.layer.get_property_title(key): value for key, value in final_properties.items()
-                }
-            }
         return results
 
     def get_documents(self, obj):

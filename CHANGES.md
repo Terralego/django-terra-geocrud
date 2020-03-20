@@ -8,6 +8,10 @@ CHANGELOG
 * Add all geometries description in feature detail serializer
 * Change generated document name with feature title
 * Custom serializer for feature extra geometries
+* Fix old serializer feature properties
+* Manage singlurar or plural names for crud views
+* Fix image url in array
+* Try to fix some thumbnail generation
 
 
 0.3.33          (2020-02-14)
