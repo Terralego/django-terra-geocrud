@@ -118,7 +118,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CrudView
         fields = (
-            'id', 'name', 'name_plural', 'pictogram', 'order', 'map_style',
+            'id', 'name', 'object_name', 'object_name_plural',
+            'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
             'feature_endpoint', 'extent', 'exports',
             'feature_list_properties', 'map_layers'
