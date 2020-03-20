@@ -172,7 +172,8 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                             try:
                                 data.update({
                                     "thumbnail": thumbnail_backend.get_thumbnail(storage_file_path,
-                                                                                 "500x500").url
+                                                                                 "500x500",
+                                                                                 upscale=False).url
                                 })
                             except ValueError:
                                 pass
@@ -378,7 +379,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                 try:
                                     data.update({
                                         "thumbnail": thumbnail_backend.get_thumbnail(storage_file_path,
-                                                                                     "500x500").url
+                                                                                     "500x500",
+                                                                                     upscale=False).url
                                     })
                                 except ValueError:
                                     pass

@@ -15,6 +15,8 @@ class ThumbnailDataFileBackend(ThumbnailBackend):
         Returns thumbnail as an ImageFile instance for file with geometry and
         options given. First it will try to get it from the key value store,
         secondly it will create it.
+
+        Override from ThumbnailBackend to use different storage backend for image source
         """
         logger.debug('Getting thumbnail for file [%s] at [%s]', file_, geometry_string)
 
