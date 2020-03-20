@@ -4,14 +4,24 @@ CHANGELOG
 
 0.3.34.dev0     (XXXX-XX-XX)
 ----------------------------
+## Bug fixes
+
+* Fix image url in array
+* Try to fix some thumbnail generation
+
+## Features
 
 * Add all geometries description in feature detail serializer
 * Change generated document name with feature title
 * Custom serializer for feature extra geometries
 * Fix old serializer feature properties
-* Manage singlurar or plural names for crud views
-* Fix image url in array
-* Try to fix some thumbnail generation
+* Manage plural names for crud views
+
+## Deprecate
+
+* feature serializer new_display_properties became display_properties
+* extra_geometries is no longer available
+* Widget for data rendering is no longer available
 
 
 0.3.33          (2020-02-14)

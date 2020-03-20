@@ -14,7 +14,6 @@ from terra_geocrud.map.styles import MapStyleModelMixin
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.schema import FormSchemaMixin
-from .properties.widgets import get_widgets_choices
 
 
 class CrudModelMixin(models.Model):
@@ -137,26 +136,6 @@ class FeaturePropertyDisplayGroup(models.Model):
         self.slug = slugify(self.label)
 
         super().save(*args, **kwargs)
-
-
-class PropertyDisplayRendering(models.Model):
-    crud_view = models.ForeignKey(CrudView, related_name='feature_property_rendering', on_delete=models.CASCADE)
-    property = models.CharField(max_length=255, blank=False, null=False)
-    widget = models.CharField(max_length=255, choices=get_widgets_choices())
-    args = JSONField(default=dict, blank=True)
-
-    def clean(self):
-        # verify property exists
-        if self.property not in self.crud_view.properties:
-            raise ValidationError(f'Property should exists in layer schema definition : {self.property}')
-
-    class Meta:
-        verbose_name = _("Custom feature property rendering")
-        verbose_name_plural = _("Custom feature properties rendering")
-        ordering = ('crud_view', 'property',)
-        unique_together = (
-            ('crud_view', 'property'),
-        )
 
 
 class AttachmentCategory(models.Model):

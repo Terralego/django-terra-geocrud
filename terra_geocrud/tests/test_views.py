@@ -234,11 +234,6 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                                          properties=['age'])
         self.group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
                                                                          properties=['name'])
-        self.display_rendering = models.PropertyDisplayRendering.objects.create(
-            crud_view=self.crud_view,
-            property='name',
-            widget='terra_geocrud.properties.widgets.DateFormatWidget'
-        )
         self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
                                               properties={
                                                   "age": 10,

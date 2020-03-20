@@ -338,7 +338,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         for group in groups:
             serializer = FeatureDisplayPropertyGroup(group,
                                                      context={'request': self.context.get('request'),
-                                                                 'feature': obj})
+                                                              'feature': obj})
             results[group.slug] = serializer.data
             processed_properties += list(group.properties)
 

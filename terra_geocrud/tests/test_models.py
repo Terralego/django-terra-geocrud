@@ -4,12 +4,10 @@ from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.test.testcases import TestCase
-from django.urls import reverse
-from rest_framework import status
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
 
 from geostore.models import Feature
-from terra_geocrud.models import PropertyDisplayRendering, AttachmentCategory, AttachmentMixin, \
+from terra_geocrud.models import AttachmentCategory, AttachmentMixin, \
     feature_attachment_directory_path, feature_picture_directory_path
 from terra_geocrud.tests import factories
 from .. import models
@@ -61,24 +59,6 @@ class CrudViewTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.crud_view.feature_title_property = 'toto'
             self.crud_view.clean()
-
-    def test_render_property_data(self):
-        self.feature = Feature.objects.create(layer=self.crud_view.layer,
-                                              geom=Point(0, 0, srid=4326),
-                                              properties={"age": 10, "name": "jec", "country": "slovenija",
-                                                          "logo": "data:image/png;name=toto.png;base64,xxxxxxxxxxxx"})
-        # add rendering widget
-        PropertyDisplayRendering.objects.create(crud_view=self.crud_view,
-                                                property='logo',
-                                                widget='terra_geocrud.properties.widgets.DataUrlToImgWidget')
-        response = self.client.get(reverse('feature-detail',
-                                           args=(self.feature.layer_id,
-                                                 self.feature.identifier)))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        json_data = response.json()
-        self.assertNotEqual(json_data['display_properties']['__default__']['properties']['Logo'],
-                            self.feature.properties.get('logo'))
-        self.assertTrue(json_data['display_properties']['__default__']['properties']['Logo'].startswith('<img '))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
@@ -140,20 +120,6 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.group_1.properties.append('toto')
             self.group_1.clean()
-
-
-class PropertyDisplayRenderingTestCase(TestCase):
-    def setUp(self) -> None:
-        self.crud_view = factories.CrudViewFactory()
-
-    def test_property_not_in_layer_schema(self):
-        with self.assertRaises(ValidationError):
-            prop = PropertyDisplayRendering(
-                crud_view=self.crud_view,
-                property='UNKNOWN_PROPERTY',
-                widget='terra_geocrud.properties.widgets.DataUrlToImgWidgetTestCase'
-            )
-            prop.clean()
 
 
 class AttachmentCategoryTestCase(TestCase):
