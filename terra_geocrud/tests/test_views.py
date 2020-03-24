@@ -38,7 +38,7 @@ class CrudGroupViewSetTestCase(APITestCase):
         self.assertEqual(data['id'], self.group.pk)
 
 
-class CrudViewViewSetTestCase(APITestCase):
+class CrudViewSetTestCase(APITestCase):
     def setUp(self):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
         self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
@@ -205,14 +205,13 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
     def test_template_rendering(self):
         response = self.client.get(
             reverse(
-                'render-template',
-                kwargs={'pk': self.feature.pk, 'template_pk': self.template.pk},
+                'feature-generate-template',
+                args=(self.feature.layer.pk, self.feature.identifier, self.template.pk)
             )
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response._headers['content-type'][-1],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        self.assertEqual(response._headers['content-type'][-1],
+                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

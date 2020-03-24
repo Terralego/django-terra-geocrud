@@ -5,6 +5,8 @@ CHANGELOG
 0.3.35.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Fix way to generate templates
+
 
 0.3.34          (2020-03-20)
 ----------------------------

@@ -6,13 +6,14 @@ import reversion
 from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
-from django.views.generic.detail import DetailView
 from geostore.models import Feature
 from geostore.views import FeatureViewSet, LayerViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
@@ -92,31 +93,6 @@ class CrudSettingsApiView(APIView):
         return Response(data)
 
 
-class CrudRenderTemplateDetailView(DetailView):
-    model = Feature
-    pk_template_field = 'pk'
-    pk_template_kwargs = 'template_pk'
-
-    def get_template_names(self):
-        return self.template.template_file.name
-
-    def get_template_object(self):
-        return get_object_or_404(self.get_object().layer.crud_view.templates,
-                                 **{self.pk_template_field:
-                                    self.kwargs.get(self.pk_template_kwargs)})
-
-    def render_to_response(self, context, **response_kwargs):
-        self.template = self.get_template_object()
-        self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
-        response = super().render_to_response(context, **response_kwargs)
-        path = Path(self.template.template_file.name)
-        feature = self.get_object()
-        feature_name = feature.layer.crud_view.get_feature_title(feature)
-        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}{path.suffix}"
-        response['Content-Disposition'] = f'attachment; filename={smart_text(new_name)}'
-        return response
-
-
 class CrudLayerViewSet(LayerViewSet):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
 
@@ -135,6 +111,27 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
         return serializers.CrudFeatureListSerializer
+
+    @action(detail=True, methods=['get'], permission_classes=[],
+            url_path=r'generate-template/(?P<id_template>\d+)', url_name='generate-template')
+    def generate_template(self, request, *args, **kwargs):
+        """ Custom action to serve generated document from templates """
+        feature = self.get_object()
+        template = get_object_or_404(feature.layer.crud_view.templates.all(),
+                                     pk=self.kwargs.get('id_template'))
+        content_type, _encoding = mimetypes.guess_type(template.template_file.name)
+        path = Path(template.template_file.name)
+        feature_name = feature.layer.crud_view.get_feature_title(feature)
+        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}{path.suffix}"
+
+        response = TemplateResponse(
+            request=self.request,
+            template=template.template_file.name,
+            context={'object': feature},
+            **{'content_type': content_type}
+        )
+        response['Content-Disposition'] = f'attachment; filename={smart_text(new_name)}'
+        return response
 
 
 class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):

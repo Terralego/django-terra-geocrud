@@ -247,8 +247,9 @@ class DocumentFeatureSerializer(serializers.ModelSerializer):
         return Path(obj.template_file.name).name
 
     def get_download_url(self, obj):
-        return reverse('render-template',
-                       args=(obj.pk, self.context.get('feature').pk))
+        feature = self.context.get('feature')
+        return reverse('feature-generate-template',
+                       args=(feature.layer.pk, feature.identifier, obj.pk))
 
     class Meta:
         fields = (
