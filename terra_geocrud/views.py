@@ -18,17 +18,18 @@ from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
+from terra_geocrud.settings import DEFAULT_STYLE_LINE, DEFAULT_STYLE_POINT, DEFAULT_STYLE_POLYGON
 from . import models, serializers, settings as app_settings
 
-DEFAULT_STYLE_LINE = literal_eval(app_settings.DEFAULT_STYLE_LINE) \
-    if isinstance(app_settings.DEFAULT_STYLE_LINE, str) \
-    else app_settings.DEFAULT_STYLE_LINE
-DEFAULT_STYLE_POINT = literal_eval(app_settings.DEFAULT_STYLE_POINT) \
-    if isinstance(app_settings.DEFAULT_STYLE_POINT, str) \
-    else app_settings.DEFAULT_STYLE_POINT
-DEFAULT_STYLE_POLYGON = literal_eval(app_settings.DEFAULT_STYLE_POLYGON) \
-    if isinstance(app_settings.DEFAULT_STYLE_POLYGON, str) \
-    else app_settings.DEFAULT_STYLE_POLYGON
+DEFAULT_STYLE_LINE = literal_eval(DEFAULT_STYLE_LINE) \
+    if isinstance(DEFAULT_STYLE_LINE, str) \
+    else DEFAULT_STYLE_LINE
+DEFAULT_STYLE_POINT = literal_eval(DEFAULT_STYLE_POINT) \
+    if isinstance(DEFAULT_STYLE_POINT, str) \
+    else DEFAULT_STYLE_POINT
+DEFAULT_STYLE_POLYGON = literal_eval(DEFAULT_STYLE_POLYGON) \
+    if isinstance(DEFAULT_STYLE_POLYGON, str) \
+    else DEFAULT_STYLE_POLYGON
 
 
 def set_reversion_user(_reversion, user):

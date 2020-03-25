@@ -3,7 +3,18 @@ from copy import deepcopy
 
 from django.utils.functional import cached_property
 
-from .. import settings as app_settings
+from terra_geocrud.settings import DEFAULT_STYLE_LINE, DEFAULT_STYLE_POINT, DEFAULT_STYLE_POLYGON
+
+DEFAULT_STYLE_LINE = literal_eval(DEFAULT_STYLE_LINE) \
+    if isinstance(DEFAULT_STYLE_LINE, str) \
+    else DEFAULT_STYLE_LINE
+DEFAULT_STYLE_POINT = literal_eval(DEFAULT_STYLE_POINT) \
+    if isinstance(DEFAULT_STYLE_POINT, str) \
+    else DEFAULT_STYLE_POINT
+DEFAULT_STYLE_POLYGON = literal_eval(DEFAULT_STYLE_POLYGON) \
+    if isinstance(DEFAULT_STYLE_POLYGON, str) \
+    else DEFAULT_STYLE_POLYGON
+
 
 DEFAULT_MBGL_RENDERER_STYLE = {
     'version': 8,
@@ -17,16 +28,6 @@ DEFAULT_MBGL_RENDERER_STYLE = {
         "type": "raster",
         "source": "DEFAULT_MBGL_RENDERER_STYLE"}]
 }
-
-DEFAULT_STYLE_LINE = literal_eval(app_settings.DEFAULT_STYLE_LINE) \
-    if isinstance(app_settings.DEFAULT_STYLE_LINE, str) \
-    else app_settings.DEFAULT_STYLE_LINE
-DEFAULT_STYLE_POINT = literal_eval(app_settings.DEFAULT_STYLE_POINT) \
-    if isinstance(app_settings.DEFAULT_STYLE_POINT, str) \
-    else app_settings.DEFAULT_STYLE_POINT
-DEFAULT_STYLE_POLYGON = literal_eval(app_settings.DEFAULT_STYLE_POLYGON) \
-    if isinstance(app_settings.DEFAULT_STYLE_POLYGON, str) \
-    else app_settings.DEFAULT_STYLE_POLYGON
 
 
 class MapStyleModelMixin:

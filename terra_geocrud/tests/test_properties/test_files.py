@@ -2,10 +2,9 @@ from tempfile import TemporaryDirectory
 
 from django.test import override_settings
 from django.urls import reverse
+from geostore.tests.factories import FeatureFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from geostore.tests.factories import FeatureFactory
 
 from terra_geocrud.properties.files import get_info_content, generate_storage_file_path, get_storage
 from terra_geocrud.tests import factories

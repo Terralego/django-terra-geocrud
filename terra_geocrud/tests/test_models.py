@@ -4,12 +4,12 @@ from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.test.testcases import TestCase
-from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
-
 from geostore.models import Feature
+
 from terra_geocrud.models import AttachmentCategory, AttachmentMixin, \
     feature_attachment_directory_path, feature_picture_directory_path
 from terra_geocrud.tests import factories
+from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
 from .. import models
 
 

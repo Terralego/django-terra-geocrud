@@ -1,9 +1,10 @@
 import logging
 
+from sorl.thumbnail import default
 from sorl.thumbnail.base import ThumbnailBackend
 from sorl.thumbnail.conf import settings, defaults as default_settings
 from sorl.thumbnail.images import ImageFile, DummyImageFile
-from sorl.thumbnail import default
+
 from terra_geocrud.properties.files import get_storage
 
 logger = logging.getLogger(__name__)
