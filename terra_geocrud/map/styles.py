@@ -1,3 +1,4 @@
+from ast import literal_eval
 from copy import deepcopy
 
 from django.utils.functional import cached_property
@@ -17,6 +18,16 @@ DEFAULT_MBGL_RENDERER_STYLE = {
         "source": "DEFAULT_MBGL_RENDERER_STYLE"}]
 }
 
+DEFAULT_STYLE_LINE = literal_eval(app_settings.DEFAULT_STYLE_LINE) \
+    if isinstance(app_settings.DEFAULT_STYLE_LINE, str) \
+    else app_settings.DEFAULT_STYLE_LINE
+DEFAULT_STYLE_POINT = literal_eval(app_settings.DEFAULT_STYLE_POINT) \
+    if isinstance(app_settings.DEFAULT_STYLE_POINT, str) \
+    else app_settings.DEFAULT_STYLE_POINT
+DEFAULT_STYLE_POLYGON = literal_eval(app_settings.DEFAULT_STYLE_POLYGON) \
+    if isinstance(app_settings.DEFAULT_STYLE_POLYGON, str) \
+    else app_settings.DEFAULT_STYLE_POLYGON
+
 
 class MapStyleModelMixin:
     @cached_property
@@ -27,12 +38,9 @@ class MapStyleModelMixin:
 def get_default_style(layer):
     response = {}
     if layer.is_point:
-        response = eval(app_settings.DEFAULT_STYLE_POINT) if isinstance(app_settings.DEFAULT_STYLE_POINT, str) \
-            else app_settings.DEFAULT_STYLE_POINT
+        response = DEFAULT_STYLE_POINT
     elif layer.is_linestring:
-        response = eval(app_settings.DEFAULT_STYLE_LINE) if isinstance(app_settings.DEFAULT_STYLE_LINE, str) \
-            else app_settings.DEFAULT_STYLE_LINE
+        response = DEFAULT_STYLE_LINE
     elif layer.is_polygon:
-        response = eval(app_settings.DEFAULT_STYLE_POLYGON) if isinstance(app_settings.DEFAULT_STYLE_POLYGON, str) \
-            else app_settings.DEFAULT_STYLE_POLYGON
+        response = DEFAULT_STYLE_POLYGON
     return deepcopy(response)

@@ -1,4 +1,5 @@
 import mimetypes
+from ast import literal_eval
 from pathlib import Path
 
 import reversion
@@ -18,6 +19,7 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from . import models, serializers, settings as app_settings
+from .map.styles import DEFAULT_STYLE_LINE, DEFAULT_STYLE_POINT, DEFAULT_STYLE_POLYGON
 
 
 def set_reversion_user(_reversion, user):
@@ -73,7 +75,7 @@ class CrudSettingsApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         default_config = {
-            # default extent to world
+            # to deprecate in frontend, use map['max_extent']
             'EXTENT': [app_settings.MAP_EXTENT_SW_LNG,
                        app_settings.MAP_EXTENT_SW_LAT,
                        app_settings.MAP_EXTENT_NE_LNG,
@@ -86,17 +88,21 @@ class CrudSettingsApiView(APIView):
                 "zoom": app_settings.DEFAULT_MAP_CENTER_ZOOM,
                 "maxZoom": app_settings.DEFAULT_MAP_MAX_ZOOM,
                 "minZoom": app_settings.DEFAULT_MAP_MIN_ZOOM,
+                "max_extent": [app_settings.MAP_EXTENT_SW_LNG,
+                               app_settings.MAP_EXTENT_SW_LAT,
+                               app_settings.MAP_EXTENT_NE_LNG,
+                               app_settings.MAP_EXTENT_NE_LAT],
+                "default_styles": {
+                    'line': DEFAULT_STYLE_LINE,
+                    'point': DEFAULT_STYLE_POINT,
+                    'polygon': DEFAULT_STYLE_POLYGON,
+                }
             },
+            # to deprecate in frontend, use map['default_styles']
             'STYLES': {
-                'line': eval(app_settings.DEFAULT_STYLE_LINE) if isinstance(app_settings.DEFAULT_STYLE_LINE,
-                                                                            str)
-                else app_settings.DEFAULT_STYLE_LINE,
-                'point': eval(app_settings.DEFAULT_STYLE_POINT) if isinstance(app_settings.DEFAULT_STYLE_POINT,
-                                                                              str)
-                else app_settings.DEFAULT_STYLE_POINT,
-                'polygon': eval(app_settings.DEFAULT_STYLE_POLYGON) if isinstance(app_settings.DEFAULT_STYLE_POLYGON,
-                                                                                  str)
-                else app_settings.DEFAULT_STYLE_POLYGON,
+                'line': DEFAULT_STYLE_LINE,
+                'point': DEFAULT_STYLE_POINT,
+                'polygon': DEFAULT_STYLE_POLYGON,
             }
         }
 
