@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from django.utils.functional import cached_property
 
-from terra_geocrud import settings as app_settings
+from .. import settings as app_settings
 
 DEFAULT_MBGL_RENDERER_STYLE = {
     'version': 8,
