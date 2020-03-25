@@ -46,6 +46,7 @@ setup(
     ],
     install_requires=[
         'django>=2.2',
+        'django-siteprefs',
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         'django-template-engines>=1.2.24',

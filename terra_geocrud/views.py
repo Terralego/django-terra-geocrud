@@ -1,9 +1,8 @@
 import mimetypes
-from copy import deepcopy
+from ast import literal_eval
 from pathlib import Path
 
 import reversion
-from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -19,7 +18,18 @@ from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
+from terra_geocrud.settings import DEFAULT_STYLE_LINE, DEFAULT_STYLE_POINT, DEFAULT_STYLE_POLYGON
 from . import models, serializers, settings as app_settings
+
+DEFAULT_STYLE_LINE = literal_eval(DEFAULT_STYLE_LINE) \
+    if isinstance(DEFAULT_STYLE_LINE, str) \
+    else DEFAULT_STYLE_LINE
+DEFAULT_STYLE_POINT = literal_eval(DEFAULT_STYLE_POINT) \
+    if isinstance(DEFAULT_STYLE_POINT, str) \
+    else DEFAULT_STYLE_POINT
+DEFAULT_STYLE_POLYGON = literal_eval(DEFAULT_STYLE_POLYGON) \
+    if isinstance(DEFAULT_STYLE_POLYGON, str) \
+    else DEFAULT_STYLE_POLYGON
 
 
 def set_reversion_user(_reversion, user):
@@ -74,8 +84,37 @@ class CrudSettingsApiView(APIView):
         return data
 
     def get(self, request, *args, **kwargs):
-        default_config = deepcopy(app_settings.TERRA_GEOCRUD)
-        default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
+        default_config = {
+            # to deprecate in frontend, use map['max_extent']
+            'EXTENT': [app_settings.MAP_EXTENT_SW_LNG,
+                       app_settings.MAP_EXTENT_SW_LAT,
+                       app_settings.MAP_EXTENT_NE_LNG,
+                       app_settings.MAP_EXTENT_NE_LAT],
+            # We should automatically get the source of layers from a model
+            'map': {
+                "mapbox_access_token": app_settings.MAPBOX_ACCESS_TOKEN,
+                "center": [app_settings.DEFAULT_MAP_CENTER_LNG,
+                           app_settings.DEFAULT_MAP_CENTER_LAT],
+                "zoom": app_settings.DEFAULT_MAP_CENTER_ZOOM,
+                "maxZoom": app_settings.DEFAULT_MAP_MAX_ZOOM,
+                "minZoom": app_settings.DEFAULT_MAP_MIN_ZOOM,
+                "max_extent": [app_settings.MAP_EXTENT_SW_LNG,
+                               app_settings.MAP_EXTENT_SW_LAT,
+                               app_settings.MAP_EXTENT_NE_LNG,
+                               app_settings.MAP_EXTENT_NE_LAT],
+                "default_styles": {
+                    'line': DEFAULT_STYLE_LINE,
+                    'point': DEFAULT_STYLE_POINT,
+                    'polygon': DEFAULT_STYLE_POLYGON,
+                }
+            },
+            # to deprecate in frontend, use map['default_styles']
+            'STYLES': {
+                'line': DEFAULT_STYLE_LINE,
+                'point': DEFAULT_STYLE_POINT,
+                'polygon': DEFAULT_STYLE_POLYGON,
+            }
+        }
 
         data = {
             "menu": self.get_menu_section(),

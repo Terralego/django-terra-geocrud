@@ -6,18 +6,15 @@ from django.template import Context, Template
 from django.template.base import FilterExpression, Parser
 from django.template.exceptions import TemplateSyntaxError
 from django.test import TestCase
-from django.test.utils import override_settings
-
-from . import factories
-from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA, SMALL_PICTURE
-
-from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
 from geostore import GeometryTypes
-
+from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
 from mapbox_baselayer.models import BaseLayerTile, MapBaseLayer
+
+from terra_geocrud import settings as app_settings
 from terra_geocrud.models import ExtraLayerStyle
 from terra_geocrud.templatetags.map_tags import MapImageLoaderNodeURL
-from terra_geocrud import settings as app_settings
+from . import factories
+from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA, SMALL_PICTURE
 
 
 class MapImageUrlLoaderTestCase(TestCase):
@@ -55,7 +52,7 @@ class MapImageUrlLoaderTestCase(TestCase):
 
         self.node = MapImageLoaderNodeURL('http://mbglrenderer/render')
 
-        self.token_mapbox = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
+        self.token_mapbox = app_settings.MAPBOX_ACCESS_TOKEN
 
 
 @mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
@@ -220,17 +217,14 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
         self.assertDictEqual(dict_style_post, style)
 
     def test_get_value_context_point(self, token):
-        self.maxDiff = None
-        settings_terra = app_settings.TERRA_GEOCRUD
-        settings_terra['MAX_ZOOM'] = 20
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
-                                                                              'height': None,
-                                                                              'feature_included': None,
-                                                                              'extra_features': None,
-                                                                              'base_layer': None})
+        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render',
+                                          data={'width': None,
+                                                'height': None,
+                                                'feature_included': None,
+                                                'extra_features': None,
+                                                'base_layer': None})
 
-        with override_settings(TERRA_GEOCRUD=settings_terra):
-            style = self.node.get_data(Context({'object': self.point}))
+        style = self.node.get_data(Context({'object': self.point}))
         dict_style = {
             "version": 8,
             "sources":
@@ -247,7 +241,7 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
         }
         dict_style_post = {'style': json.dumps(dict_style),
                            'center': [-0.246322800072846, 44.5562461167907],
-                           'zoom': app_settings.TERRA_GEOCRUD['MAX_ZOOM'],
+                           'zoom': app_settings.MBGLRENDERER_MAX_ZOOM,
                            'width': 1024,
                            'height': 512,
                            'token': self.token_mapbox}

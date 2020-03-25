@@ -18,7 +18,6 @@ from .properties.files import get_info_content, get_storage_file_url, \
     get_storage_path_from_infos, store_feature_files
 from .thumbnail_backends import ThumbnailDataFileBackend
 
-
 thumbnail_backend = ThumbnailDataFileBackend()
 
 
@@ -166,6 +165,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
             if data_format == 'data-url':
                 # apply special cases for files
                 data_type = 'file'
+
                 data = {"url": None}
                 if value:
                     # generate / get thumbnail for image
@@ -188,6 +188,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                                 pass
                     except IndexError:
                         pass
+
             elif data_format == "date":
                 data_type = 'date'
                 data = value
@@ -268,9 +269,11 @@ class FeaturePictureSerializer(BaseUpdatableMixin):
 
     class Meta:
         model = models.FeaturePicture
-        extra_kwargs = {
-        }
-        fields = ('id', 'category', 'legend', 'image', 'thumbnail', 'action_url', 'created_at', 'updated_at')
+        fields = (
+            'id', 'category', 'legend', 'image',
+            'thumbnail', 'action_url',
+            'created_at', 'updated_at'
+        )
 
 
 class FeatureAttachmentSerializer(BaseUpdatableMixin):
@@ -397,6 +400,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
                         except IndexError:
                             pass
+
                 elif data_format == "date":
                     data_type = 'date'
                     data = value

@@ -1,8 +1,8 @@
 from django.core.management import call_command
 from django.test.testcases import TestCase
-
 from geostore import GeometryTypes
 from geostore.models import Layer
+
 from terra_geocrud.models import CrudView
 
 

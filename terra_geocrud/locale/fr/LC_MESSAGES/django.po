@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-26 10:40+0000\n"
+"POT-Creation-Date: 2020-03-25 09:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,12 +23,6 @@ msgstr "Groupe d'affichage"
 
 msgid "Display groups for feature property display and form."
 msgstr "Group de propriété pour l'affichage / formulaire de features"
-
-msgid "Custom widget"
-msgstr "Rendu personnalisé"
-
-msgid "Custom widgets for property content display rendering"
-msgstr "Rendu personnalisé pour l'affichage des propriétés d'une feature"
 
 msgid "UI schema & properties"
 msgstr "Propriété et UI schema"
@@ -51,10 +45,14 @@ msgstr "Pièce-jointe"
 msgid "Attachments"
 msgstr "Pièces-jointes"
 
+msgid "Geographic Editor (CRUD)"
+msgstr "Éditeur géographique (CRUD)"
+
 msgid ""
 "GEOCRUD: Can create / edit / delete views / groups and associated layers."
 msgstr ""
-"GEOCRUD: Peut créer / éditier / supprimer les vues / groupes et layers associés."
+"GEOCRUD: Peut créer / éditer / supprimer les vues / groupes et layers "
+"associés."
 
 msgid "GEOCRUD: Can read feature detail."
 msgstr "GEOCRUD: Peut lire les détails d'une feature"
@@ -105,7 +103,7 @@ msgid "Schema property used to define feature title."
 msgstr "Propriété du schema utilisée pour le titre de la feature"
 
 msgid "Keep visible if ungrouped."
-msgstr ""
+msgstr "Garder visible si non-groupé"
 
 msgid "View"
 msgstr "Vue"
@@ -119,12 +117,6 @@ msgstr "Groupe d'affichage de propriétés"
 msgid "Feature properties display groups"
 msgstr "Groupes d'affichage de propriétés"
 
-msgid "Custom feature property rendering"
-msgstr "Rendu perssonalisé de propriété"
-
-msgid "Custom feature properties rendering"
-msgstr "Rendus personnalisés de propriétés"
-
 msgid "Attachment category"
 msgstr "Catégorie de pièces-jointes"
 
@@ -132,25 +124,25 @@ msgid "Attachment categories"
 msgstr "Catégories de pièces-jointes"
 
 msgid "Feature attachment"
-msgstr ""
+msgstr "Pièce jointe d'un objet"
 
 msgid "Feature attachments"
-msgstr ""
+msgstr "Pièces jointes d'un objet"
 
 msgid "Feature picture"
-msgstr ""
+msgstr "Image d'un objet"
 
 msgid "Feature pictures"
-msgstr ""
+msgstr "Images d'un objet"
 
 msgid "ExtraLayer style"
-msgstr ""
+msgstr "Styles de la Géométrie annexe"
 
 msgid "ExtraLayer styles"
-msgstr ""
+msgstr "Styles des Géométries annexes"
 
 msgid "VT styles and definitions"
-msgstr ""
+msgstr "Styles et définition des tuiles vectorielles"
 
 msgid "Url endpoint for view's features"
 msgstr "URL de la liste des features de la vue."

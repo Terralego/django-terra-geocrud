@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-26 10:40+0000\n"
+"POT-Creation-Date: 2020-03-25 09:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,12 +22,6 @@ msgid "Display group"
 msgstr ""
 
 msgid "Display groups for feature property display and form."
-msgstr ""
-
-msgid "Custom widget"
-msgstr ""
-
-msgid "Custom widgets for property content display rendering"
 msgstr ""
 
 msgid "UI schema & properties"
@@ -49,6 +43,9 @@ msgid "Attachment"
 msgstr ""
 
 msgid "Attachments"
+msgstr ""
+
+msgid "Geographic Editor (CRUD)"
 msgstr ""
 
 msgid ""
@@ -113,12 +110,6 @@ msgid "Feature properties display group"
 msgstr ""
 
 msgid "Feature properties display groups"
-msgstr ""
-
-msgid "Custom feature property rendering"
-msgstr ""
-
-msgid "Custom feature properties rendering"
 msgstr ""
 
 msgid "Attachment category"

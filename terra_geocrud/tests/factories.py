@@ -1,8 +1,8 @@
 import factory
-from template_model.models import Template
-
 from geostore import GeometryTypes
 from geostore.tests.factories import LayerFactory
+from template_model.models import Template
+
 from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment
 from terra_geocrud.tests.settings import DOCX_TEMPLATE
 

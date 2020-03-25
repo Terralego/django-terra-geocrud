@@ -1,8 +1,20 @@
+from ast import literal_eval
 from copy import deepcopy
 
 from django.utils.functional import cached_property
 
-from terra_geocrud import settings as app_settings
+from terra_geocrud.settings import DEFAULT_STYLE_LINE, DEFAULT_STYLE_POINT, DEFAULT_STYLE_POLYGON
+
+DEFAULT_STYLE_LINE = literal_eval(DEFAULT_STYLE_LINE) \
+    if isinstance(DEFAULT_STYLE_LINE, str) \
+    else DEFAULT_STYLE_LINE
+DEFAULT_STYLE_POINT = literal_eval(DEFAULT_STYLE_POINT) \
+    if isinstance(DEFAULT_STYLE_POINT, str) \
+    else DEFAULT_STYLE_POINT
+DEFAULT_STYLE_POLYGON = literal_eval(DEFAULT_STYLE_POLYGON) \
+    if isinstance(DEFAULT_STYLE_POLYGON, str) \
+    else DEFAULT_STYLE_POLYGON
+
 
 DEFAULT_MBGL_RENDERER_STYLE = {
     'version': 8,
@@ -21,18 +33,15 @@ DEFAULT_MBGL_RENDERER_STYLE = {
 class MapStyleModelMixin:
     @cached_property
     def map_style_with_default(self):
-        response = get_default_style(self.get_layer())
-        style = self.map_style
-        return deepcopy(style) if style else response
+        return deepcopy(self.map_style) if self.map_style else get_default_style(self.get_layer())
 
 
 def get_default_style(layer):
-    style_settings = app_settings.TERRA_GEOCRUD.get('STYLES', {})
     response = {}
     if layer.is_point:
-        response = style_settings.get('point')
+        response = DEFAULT_STYLE_POINT
     elif layer.is_linestring:
-        response = style_settings.get('line')
+        response = DEFAULT_STYLE_LINE
     elif layer.is_polygon:
-        response = style_settings.get('polygon')
+        response = DEFAULT_STYLE_POLYGON
     return deepcopy(response)

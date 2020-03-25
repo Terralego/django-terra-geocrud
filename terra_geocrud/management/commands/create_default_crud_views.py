@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-
 from geostore.models import Layer
+
 from ...models import CrudView
 
 
