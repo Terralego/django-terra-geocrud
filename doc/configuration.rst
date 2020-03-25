@@ -26,7 +26,6 @@ In your project :
         'terra_accounts',
 
         # apps required by CRUD
-        'siteprefs', # set some preferences directly in admin
         'geostore',  # store geographic data
         'template_model',  # store template in model
         'template_engines',  # generate odt and docx templates
@@ -35,6 +34,9 @@ In your project :
         'sorl.thumbnail', # to generate and manage cached image thumbnails
         'mapbox_baselayer', # store and configure mapbox base layers
         'reversion',  # used to store every change on data (run ./manage.py createinitialrevisions first)
+
+        # optional
+        'siteprefs', # set some preferences directly in admin
 
         # CRUD app
         'terra_geocrud',
@@ -110,16 +112,16 @@ Some settings are available in django admin, Geographic Editor Config -> Prefere
 
 These settings should be override in your project settings file only :
 
-.. code-block:: python
-
-    GEOCRUD_MBGLRENDERER_URL = 'http://mbglrenderer'
-
 * If you want to generate map on your template with the geometry of your feature, and/or extra features, you should use
   mbglrenderer.
 
   Check https://github.com/consbio/mbgl-renderer.
 
   Change the url in the settings to use external instance of mbglrenderer :
+
+.. code-block:: python
+
+    GEOCRUD_MBGLRENDERER_URL = 'http://mbglrenderer'
 
 
 .. code-block:: python
