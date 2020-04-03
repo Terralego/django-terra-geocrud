@@ -1,7 +1,6 @@
 from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
-from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.test.testcases import TestCase
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
@@ -50,76 +49,15 @@ class CrudViewTestCase(TestCase):
             }
         )
 
-    def test_clean_default_list_properties(self):
-        with self.assertRaises(ValidationError):
-            self.crud_view.default_list_properties.append('toto')
-            self.crud_view.clean()
-
-    def test_clean_feature_title_property(self):
-        with self.assertRaises(ValidationError):
-            self.crud_view.feature_title_property = 'toto'
-            self.crud_view.clean()
-
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class FeaturePropertyDisplayGroupTestCase(TestCase):
     def setUp(self) -> None:
         self.crud_view = factories.CrudViewFactory()
-        self.group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test',
-                                                                         properties=['age'])
-        self.group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
-                                                                         properties=['name'])
-        self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
-                                              properties={"age": 10, "name": "jec", "country": "slovenija"},
-                                              layer=self.crud_view.layer)
-        self.template = factories.TemplateDocxFactory()
-        self.crud_view.templates.add(self.template)
+        self.group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test')
 
     def test_str(self):
         self.assertEqual(str(self.group_1), self.group_1.label)
-
-    def test_form_schema(self):
-        self.assertDictEqual(self.group_1.form_schema,
-                             {'properties': {'age': {'title': 'Age', 'type': 'integer'}},
-                              'required': [],
-                              'title': 'test',
-                              'type': 'object'
-                              }
-                             )
-        self.assertDictEqual(self.group_2.form_schema,
-                             {'properties': {'name': {'title': 'Name', 'type': 'string'}},
-                              'required': ['name'],
-                              'title': 'test2',
-                              'type': 'object'
-                              })
-        self.maxDiff = None
-        self.assertDictEqual(self.crud_view.grouped_form_schema, {
-            "type": "object",
-            "required": [],
-            "properties": {
-                'country': {
-                    'type': 'string',
-                    'title': 'Country'
-                },
-                'test': {
-                    'properties': {'age': {'title': 'Age', 'type': 'integer'}},
-                    'required': [],
-                    'title': 'test',
-                    'type': 'object'
-                },
-                'test2': {
-                    'properties': {'name': {'title': 'Name', 'type': 'string'}},
-                    'required': ['name'],
-                    'title': 'test2',
-                    'type': 'object'
-                },
-            }
-        })
-
-    def test_clean(self):
-        with self.assertRaises(ValidationError):
-            self.group_1.properties.append('toto')
-            self.group_1.clean()
 
 
 class AttachmentCategoryTestCase(TestCase):

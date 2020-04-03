@@ -1,8 +1,8 @@
 from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
-from django.contrib.postgres.fields import JSONField, ArrayField
-from django.core.exceptions import ValidationError
+from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -54,14 +54,15 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True,
                                   help_text=_("Picto displayed in left menu"))
     map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
-    ui_schema = JSONField(default=dict, blank=True,
+    ui_schema = JSONField(default=dict, blank=True, editable=False,
                           help_text=_("""Custom ui:schema style for this entry.
                                          https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
-    default_list_properties = ArrayField(models.CharField(max_length=250), default=list, blank=True)
-    feature_title_property = models.CharField(help_text=_("Schema property used to define feature title."),
-                                              max_length=250, blank=True, null=False, default="")
+    default_list_properties = models.ManyToManyField('CrudViewProperty', blank=True, related_name='used_by_list')
+    feature_title_property = models.ForeignKey('CrudViewProperty', null=True, on_delete=models.SET_NULL,
+                                               help_text=_("Schema property used to define feature title."),
+                                               related_name='used_by_title')
     visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))
 
     @cached_property
@@ -71,6 +72,30 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
         # get extent in settings if no features
 
         return extent if extent else app_settings.TERRA_GEOCRUD['EXTENT']
+
+    @property
+    def list_available_properties(self):
+        """ exclude some properties in list (some arrays, data-url, html fields)"""
+
+        # exclude file field
+        print(self.properties.all().count())
+        properties = self.properties.exclude(
+            json_schema__contains={"format": 'data-url'},
+        )
+        # exclude array object fields
+
+        properties = properties.exclude(
+            json_schema__contains={"type": "array", "items": {"type": "object"}}
+        )
+        # exclude textarea fields
+        properties = properties.exclude(
+            ui_schema__contains={'ui:widget': 'textarea'}
+        )
+        # exclude rte fields
+        properties = properties.exclude(
+            ui_schema__contains={'ui:field': 'rte'}
+        )
+        return properties
 
     def get_layer(self):
         return self.layer
@@ -94,7 +119,6 @@ class FeaturePropertyDisplayGroup(models.Model):
     label = models.CharField(max_length=50)
     slug = models.SlugField(blank=True, editable=False)
     pictogram = models.ImageField(upload_to='crud/feature_display_group/pictograms', null=True, blank=True)
-    properties = ArrayField(models.CharField(max_length=250), default=list)
 
     def __str__(self):
         return self.label
@@ -105,11 +129,11 @@ class FeaturePropertyDisplayGroup(models.Model):
         properties = {}
         required = []
 
-        for prop in list(self.properties):
-            properties[prop] = original_schema['properties'][prop]
+        for prop in self.group_properties.all():
+            properties[prop.key] = original_schema['properties'][prop.key]
 
-            if prop in original_schema.get('required', []):
-                required.append(prop)
+            if prop.key in original_schema.get('required', []):
+                required.append(prop.key)
 
         return {
             "type": "object",
@@ -126,12 +150,6 @@ class FeaturePropertyDisplayGroup(models.Model):
             ('crud_view', 'label'),
             ('crud_view', 'slug'),
         )
-
-    def clean(self):
-        # verify properties exists
-        unexpected_properties = list(set(self.properties) - set(self.crud_view.properties))
-        if unexpected_properties:
-            raise ValidationError(f'Properties should exists : {unexpected_properties}')
 
     def save(self, *args, **kwargs):
         # generate slug
@@ -213,3 +231,57 @@ class ExtraLayerStyle(MapStyleModelMixin, models.Model):
         unique_together = (
             ('crud_view', 'layer_extra_geom'),
         )
+
+
+class CrudViewProperty(models.Model):
+    view = models.ForeignKey(CrudView, on_delete=models.CASCADE, related_name='properties')
+    group = models.ForeignKey(FeaturePropertyDisplayGroup, on_delete=models.SET_NULL,
+                              related_name='group_properties', null=True, blank=True)
+    key = models.SlugField()
+    json_schema = JSONField(blank=False, null=False, default=dict)
+    ui_schema = JSONField(blank=True, null=False, default=dict)
+    required = models.BooleanField(default=False)
+    order = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    class Meta:
+        unique_together = (
+            ('view', 'key'),
+        )
+        ordering = (
+            'view', 'group', 'order'
+        )
+        indexes = (
+            GinIndex(name='json_schema_index', fields=['json_schema'], opclasses=['jsonb_path_ops']),
+            GinIndex(name='ui_schema_index', fields=['ui_schema'], opclasses=['jsonb_path_ops']),
+        )
+
+    def __str__(self):
+        return f"{self.title} ({self.key})"
+
+    @property
+    def title(self):
+        """ Title: ui schema -> json schema -> key capitalized """
+        return self.ui_schema.get('title',
+                                  self.json_schema.get('title',
+                                                       self.key.capitalize()))
+
+    def save(self, **kwargs):
+        creation = not self.pk
+
+        super().save(**kwargs)
+        fs = self.view.layer.features.all()
+
+        if creation:
+            # creation case : add key to properties with null value
+            for f in fs:
+                f.properties[self.key] = None
+                f.save()
+
+    def delete(self, **kwargs):
+        super().delete(**kwargs)
+
+        # delete feature property keys
+        fs = self.view.layer.features.all()
+        for f in fs:
+            f.properties.pop(self.key, None)
+            f.save()

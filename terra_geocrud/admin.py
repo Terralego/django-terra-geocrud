@@ -1,13 +1,16 @@
-from django.contrib import admin
+from django import forms
+from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
+from django_object_actions import DjangoObjectActions
 from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models
+from .properties.schema import sync_layer_schema, sync_ui_schema
 
 
 class CrudGroupViewAdmin(VersionAdmin):
@@ -22,20 +25,79 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
     extra = 0
 
 
+class ExtraLayerStyleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # limit choices to available (linked by crud view / layer
+            self.fields['layer_extra_geom'].queryset = self.instance.crud_view.layer.extra_geometries.all()
+
+    class Meta:
+        model = models.ExtraLayerStyle
+        fields = "__all__"
+
+
 class ExtraLayerStyleInLine(admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _('Extra layer style')
+    verbose_name_plural = _('Extra layer styles')
     model = models.ExtraLayerStyle
+    form = ExtraLayerStyleForm
     extra = 0
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
 
 
-class CrudViewAdmin(VersionAdmin):
-    list_display = ['name', 'order', 'pictogram', 'properties', ]
+class CrudPropertyForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # limit choices to available (linked by crud view)
+            self.fields['group'].queryset = self.instance.view.feature_display_groups.all()
+            # unable to change property key after creation
+            self.fields['key'].widget = forms.TextInput(attrs={'readonly': "readonly"})
+
+    class Meta:
+        model = models.CrudViewProperty
+        fields = "__all__"
+
+
+class CrudPropertyInline(admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _("Feature property")
+    verbose_name_plural = _("Feature properties")
+    model = models.CrudViewProperty
+    form = CrudPropertyForm
+    extra = 0
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget(height=200)},
+    }
+
+
+class CrudViewForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # limit choices to available (linked by crud view)
+            self.fields['default_list_properties'].queryset = self.instance.list_available_properties.all()
+            self.fields['feature_title_property'].queryset = self.instance.list_available_properties.all()
+
+    class Meta:
+        model = models.CrudView
+        fields = "__all__"
+
+
+class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
+    form = CrudViewForm
+    list_display = ['name', 'order', 'pictogram']
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
-    readonly_fields = ['grouped_form_schema', 'properties']
+    inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
+    readonly_fields = ['ui_schema']
     fieldsets = (
         (None, {'fields': (('name', 'object_name', 'object_name_plural', 'layer'), ('group', 'order', 'pictogram'))}),
         (_('UI schema & properties'), {
-            'fields': ('properties', 'default_list_properties', 'feature_title_property', 'ui_schema'),
+            'fields': ('default_list_properties', 'feature_title_property', 'ui_schema'),
             'classes': ('collapse', )
         }),
         (_("Document generation"), {
@@ -59,6 +121,21 @@ class CrudViewAdmin(VersionAdmin):
             ro_fields += ('layer', )
         return ro_fields
 
+    def sync_schemas(self, request, obj):
+        sync_layer_schema(obj)
+        sync_ui_schema(obj)
+        messages.success(request,
+                         _("Layer json schema and crud view ui schema have been synced with crud view properties."))
+
+    sync_schemas.label = _("Sync schemas")
+    sync_schemas.short_description = _("Sync layer schema and crdu view ui schema with defined properties.")
+
+    def clean_feature_properties(self, request, obj):
+        sync_layer_schema(obj)
+        messages.success(request, _("Feature properties has been cleaned."))
+
+    change_actions = ('sync_schemas', )
+
 
 class LayerExtraGeomInline(admin.TabularInline):
     model = LayerExtraGeom
@@ -70,7 +147,7 @@ class CrudLayerAdmin(VersionAdmin):
     list_filter = ('geom_type', 'layer_groups')
     search_fields = ('pk', 'name')
     formfield_overrides = {
-        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+        fields.JSONField: {'widget': JSONEditorWidget},
     }
     inlines = [LayerExtraGeomInline, ]
 
@@ -98,7 +175,7 @@ class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     search_fields = ('pk', 'identifier', )
     inlines = (FeaturePictureInline, FeatureAttachmentInline)
     formfield_overrides = {
-        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+        fields.JSONField: {'widget': JSONEditorWidget},
     }
 
 

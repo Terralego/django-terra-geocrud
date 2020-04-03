@@ -22,7 +22,7 @@ msgid "Display group"
 msgstr "Groupe d'affichage"
 
 msgid "Display groups for feature property display and form."
-msgstr "Group de propriété pour l'affichage / formulaire de features"
+msgstr "Groupe de propriétés pour l'affichage / formulaire de features"
 
 msgid "Custom widget"
 msgstr "Rendu personnalisé"

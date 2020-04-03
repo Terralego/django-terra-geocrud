@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'geostore',
     'mapbox_baselayer',
+    'django_object_actions',
     'terra_accounts',
     'terra_geocrud',
     'test_terra_geocrud.test_app',
