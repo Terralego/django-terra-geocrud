@@ -7,8 +7,7 @@ from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.utils import formats
-from django.utils.timezone import now
+from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from geostore.models import Feature
 from geostore.views import FeatureViewSet, LayerViewSet
@@ -123,8 +122,8 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         content_type, _encoding = mimetypes.guess_type(template.template_file.name)
         path = Path(template.template_file.name)
         feature_name = feature.layer.crud_view.get_feature_title(feature)
-        date_formatted = formats.date_format(now(), "SHORT_DATETIME_FORMAT")
-        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}_{date_formatted}_{path.suffix}"
+        date_formatted = formats.date_format(timezone.localtime(), "SHORT_DATETIME_FORMAT")
+        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}_{date_formatted}{path.suffix}"
 
         response = TemplateResponse(
             request=self.request,
