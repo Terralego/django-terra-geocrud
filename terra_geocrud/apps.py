@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from sorl.thumbnail.conf import settings as thumbnail_settings
 from terra_accounts.permissions_mixins import PermissionRegistrationMixin
 
 
@@ -29,4 +30,4 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
         terra_settings.update({'modules': modules})
         setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
         # Thumbnails settings
-        setattr(settings, 'THUMBNAIL_FORMAT', 'PNG')  # force PNG for thumbnail, to keep transparency
+        setattr(thumbnail_settings, 'THUMBNAIL_FORMAT', 'PNG')  # force PNG for thumbnail, to keep transparency
