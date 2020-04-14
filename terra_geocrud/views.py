@@ -7,7 +7,8 @@ from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.utils.encoding import smart_text
+from django.utils import formats
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from geostore.models import Feature
 from geostore.views import FeatureViewSet, LayerViewSet
@@ -122,7 +123,8 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         content_type, _encoding = mimetypes.guess_type(template.template_file.name)
         path = Path(template.template_file.name)
         feature_name = feature.layer.crud_view.get_feature_title(feature)
-        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}{path.suffix}"
+        date_formatted = formats.date_format(now(), "SHORT_DATETIME_FORMAT")
+        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}_{date_formatted}_{path.suffix}"
 
         response = TemplateResponse(
             request=self.request,
@@ -130,7 +132,7 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
             context={'object': feature},
             **{'content_type': content_type}
         )
-        response['Content-Disposition'] = f'attachment; filename={smart_text(new_name)}'
+        response['Content-Disposition'] = f'attachment; filename="{new_name}"'
         return response
 
 
