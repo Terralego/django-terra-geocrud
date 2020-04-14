@@ -31,3 +31,4 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
         setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
         # Thumbnails settings
         setattr(thumbnail_settings, 'THUMBNAIL_FORMAT', 'PNG')  # force PNG for thumbnail, to keep transparency
+        setattr(thumbnail_settings, 'THUMBNAIL_UPSCALE', False)  # never upscale if image size < thumbnail size
