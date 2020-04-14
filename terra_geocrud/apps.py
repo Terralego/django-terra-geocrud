@@ -28,3 +28,5 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
         })
         terra_settings.update({'modules': modules})
         setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
+        # Thumbnails settings
+        setattr(settings, 'THUMBNAIL_FORMAT', 'PNG')  # force PNG for thumbnail, to keep transparency
