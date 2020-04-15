@@ -123,7 +123,7 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         path = Path(template.template_file.name)
         feature_name = feature.layer.crud_view.get_feature_title(feature)
         date_formatted = formats.date_format(timezone.localtime(), "SHORT_DATETIME_FORMAT")
-        new_name = f"{path.name.rstrip(path.suffix)}_{feature_name}_{date_formatted}{path.suffix}"
+        new_name = f"{template.name}_{feature_name}_{date_formatted}{path.suffix}"
 
         response = TemplateResponse(
             request=self.request,
