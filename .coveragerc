@@ -6,5 +6,6 @@ omit =
     test_terra_geocrud/*
     doc/*
     manage.py
+    terra_geocrud/thumbnail_backends.py
 
 ignore_errors = true

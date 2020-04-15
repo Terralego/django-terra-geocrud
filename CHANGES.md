@@ -6,6 +6,8 @@ CHANGELOG
 ----------------------------
 
 * Fix way to generate templates
+* Add local server time to generated files from templates
+* Improve settings with supported image formats and max upload file size in bytes
 
 
 0.3.34          (2020-03-20)
