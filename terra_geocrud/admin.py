@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
@@ -10,6 +9,7 @@ from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models
+from .forms import ExtraLayerStyleForm, CrudPropertyForm, CrudViewForm
 from .properties.schema import sync_layer_schema, sync_ui_schema
 
 
@@ -25,18 +25,6 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
     extra = 0
 
 
-class ExtraLayerStyleForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            # limit choices to available (linked by crud view / layer
-            self.fields['layer_extra_geom'].queryset = self.instance.crud_view.layer.extra_geometries.all()
-
-    class Meta:
-        model = models.ExtraLayerStyle
-        fields = "__all__"
-
-
 class ExtraLayerStyleInLine(admin.TabularInline):
     classes = ('collapse', )
     verbose_name = _('Extra layer style')
@@ -49,20 +37,6 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     }
 
 
-class CrudPropertyForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            # limit choices to available (linked by crud view)
-            self.fields['group'].queryset = self.instance.view.feature_display_groups.all()
-            # unable to change property key after creation
-            self.fields['key'].widget = forms.TextInput(attrs={'readonly': "readonly"})
-
-    class Meta:
-        model = models.CrudViewProperty
-        fields = "__all__"
-
-
 class CrudPropertyInline(admin.TabularInline):
     classes = ('collapse', )
     verbose_name = _("Feature property")
@@ -73,19 +47,6 @@ class CrudPropertyInline(admin.TabularInline):
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget(height=200)},
     }
-
-
-class CrudViewForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            # limit choices to available (linked by crud view)
-            self.fields['default_list_properties'].queryset = self.instance.list_available_properties.all()
-            self.fields['feature_title_property'].queryset = self.instance.list_available_properties.all()
-
-    class Meta:
-        model = models.CrudView
-        fields = "__all__"
 
 
 class CrudViewAdmin(DjangoObjectActions, VersionAdmin):

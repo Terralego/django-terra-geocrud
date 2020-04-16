@@ -76,9 +76,7 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     @property
     def list_available_properties(self):
         """ exclude some properties in list (some arrays, data-url, html fields)"""
-
         # exclude file field
-        print(self.properties.all().count())
         properties = self.properties.exclude(
             json_schema__contains={"format": 'data-url'},
         )
