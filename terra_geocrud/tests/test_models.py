@@ -57,11 +57,6 @@ class FeaturePropertyDisplayGroupTestCase(TestCase):
         self.crud_view = factories.CrudViewFactory()
         self.group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test')
         self.group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2')
-        CrudViewProperty.objects.create(view=self.crud_view, key="test",
-                                        group=self.group_1,
-                                        required=True,
-                                        json_schema={'type': "object", "title": "test"}
-                                        )
         CrudViewProperty.objects.create(view=self.crud_view, key="name",
                                         group=self.group_2,
                                         required=True,
