@@ -114,6 +114,7 @@ class CrudLayerAdmin(VersionAdmin):
         fields.JSONField: {'widget': JSONEditorWidget},
     }
     inlines = [LayerExtraGeomInline, ]
+    readonly_fields = ('schema', )  # schema is managed with crud view properties
 
 
 class FeaturePictureInline(AdminInlineImageMixin, admin.TabularInline):
