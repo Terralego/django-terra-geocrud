@@ -8,6 +8,8 @@ CHANGELOG
 * Fix way to generate templates
 * Add local server time to generated files from templates
 * Improve settings with supported image formats and max upload file size in bytes
+* Now all properties are managed directly in Crud View admin
+* Feature detail api endpoint improved
 
 
 0.3.34          (2020-03-20)
