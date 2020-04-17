@@ -15,6 +15,7 @@ from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properti
 
 class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
     ordering_field = "order"
+    list_editable = ["order"]
     list_display = ['name', 'order', 'pictogram']
 
 
@@ -54,6 +55,8 @@ class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
 
 class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     ordering_field = "order"
+    list_editable = ["order"]
+    filter_horizontal = ('default_list_properties', )
     form = forms.CrudViewForm
     list_display = ['name', 'order', 'pictogram']
     list_filter = ['group', ]
