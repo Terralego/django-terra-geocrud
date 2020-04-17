@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.36.dev0     (XXXX-XX-XX)
+0.3.36          (2020-04-17)
 ----------------------------
 
 * Helper to sort elements in django admin
