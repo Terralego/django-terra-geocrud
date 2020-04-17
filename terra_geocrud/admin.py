@@ -10,7 +10,7 @@ from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models
 from .forms import ExtraLayerStyleForm, CrudPropertyForm, CrudViewForm
-from .properties.schema import sync_layer_schema, sync_ui_schema
+from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema
 
 
 class CrudGroupViewAdmin(VersionAdmin):
@@ -92,10 +92,13 @@ class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
     sync_schemas.short_description = _("Sync layer schema and crdu view ui schema with defined properties.")
 
     def clean_feature_properties(self, request, obj):
-        sync_layer_schema(obj)
+        clean_properties_not_in_schema(obj)
         messages.success(request, _("Feature properties has been cleaned."))
 
-    change_actions = ('sync_schemas', )
+    clean_feature_properties.label = _("Clean features with schema")
+    clean_feature_properties.short_description = _("Clean feature properties not in generated layer schema.")
+
+    change_actions = ('sync_schemas', 'clean_feature_properties')
 
 
 class LayerExtraGeomInline(admin.TabularInline):
