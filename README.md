@@ -4,11 +4,11 @@
 
 https://django-terra-geocrud.readthedocs.io/
 
-CRUD views definition for django-geostore in terra apps
+Backend config for terra-admin CRUD
 
-* Customize Left menu from gesotore layers
+* Customize layers, feature, geometries and menu
 * Customized endpoints to manage layers and features
-* Group properties, order them, define layout and widgets to render them.
+* Group properties, order them, define layout and style to render geometries with mapbox
 
 
 ## Requirements

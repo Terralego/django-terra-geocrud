@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.35.dev0     (XXXX-XX-XX)
+0.3.35          (2020-04-17)
 ----------------------------
 
 * Fix way to generate templates
