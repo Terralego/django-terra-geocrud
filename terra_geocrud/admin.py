@@ -13,11 +13,13 @@ from . import models, forms
 from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema
 
 
-class CrudGroupViewAdmin(VersionAdmin):
+class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
+    ordering_field = "order"
     list_display = ['name', 'order', 'pictogram']
 
 
-class FeatureDisplayGroupTabularInline(admin.TabularInline):
+class FeatureDisplayGroupTabularInline(OrderableAdmin, admin.TabularInline):
+    ordering_field = "order"
     classes = ('collapse', )
     verbose_name = _('Display group')
     verbose_name_plural = _('Display groups for feature property display and form.')
@@ -50,7 +52,8 @@ class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
     }
 
 
-class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
+class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
+    ordering_field = "order"
     form = forms.CrudViewForm
     list_display = ['name', 'order', 'pictogram']
     list_filter = ['group', ]
