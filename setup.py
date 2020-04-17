@@ -55,7 +55,7 @@ setup(
         'djangorestframework-gis',
         'djangorestframework',
         'requests',
-        'django-json-widget>=0.2.0',
+        'django-json-widget>=1.0.1',
         'pillow',
         'sorl-thumbnail>=12.6.2',
     ],

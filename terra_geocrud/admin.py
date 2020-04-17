@@ -2,11 +2,12 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
+from django_json_widget.widgets import JSONEditorWidget
 from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
-from . import models, widgets
+from . import models
 
 
 class CrudGroupViewAdmin(VersionAdmin):
@@ -48,7 +49,7 @@ class CrudViewAdmin(VersionAdmin):
     )
 
     formfield_overrides = {
-        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+        fields.JSONField: {'widget': JSONEditorWidget},
     }
 
     def get_readonly_fields(self, request, obj=None):
