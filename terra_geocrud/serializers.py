@@ -305,7 +305,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     def get_pictures(self, obj):
         """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
-            "name": category.name,
+            "category": {
+                "id": category.pk,
+                "name": category.name,
+            },
             "pictogram": category.pictogram.url if category.pictogram else None,
             "pictures": FeaturePictureSerializer(obj.pictures.filter(category=category),
                                                  many=True).data,
@@ -315,7 +318,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     def get_attachments(self, obj):
         """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
-            "name": category.name,
+            "category": {
+                "id": category.pk,
+                "name": category.name,
+            },
             "pictogram": category.pictogram.url if category.pictogram else None,
             "attachments": FeatureAttachmentSerializer(obj.attachments.filter(category=category),
                                                        many=True).data,
