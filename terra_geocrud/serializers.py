@@ -108,14 +108,15 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_feature_list_properties(self, obj):
         # TODO: keep default properties at first, then order by property title
-        default_list = list(obj.default_list_properties or obj.list_available_properties[:8])
+        default_list = list(obj.default_list_properties.values_list('key', flat=True)) or list(
+            obj.list_available_properties.values_list('key', flat=True))[:8]
         result = {
-            prop: {
-                "title": obj.layer.get_property_title(prop),
-                "selected": True if prop in default_list else False,
-                "type": obj.layer.get_property_type(prop)
+            prop.key: {
+                "title": obj.layer.get_property_title(prop.key),
+                "selected": True if prop.key in default_list else False,
+                "type": obj.layer.get_property_type(prop.key)
             }
-            for prop in obj.list_available_properties
+            for prop in obj.list_available_properties.all()
         }
         # order by title
         return OrderedDict(sorted(result.items(), key=lambda x: x[1]['title']))
@@ -152,8 +153,8 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
         """ Get feature properties in group to form { title: rendering(value) } """
         feature = self.context.get('feature')
         final_properties = {
-            prop: feature.properties.get(prop)
-            for prop in list(obj.properties)
+            prop.key: feature.properties.get(prop.key)
+            for prop in obj.group_properties.all()
         }
 
         properties = {}
@@ -216,9 +217,9 @@ class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
 
     def get_properties(self, obj):
         """ Keep only properties that can be shown in list """
-        list_available_properties = list(obj.layer.crud_view.list_available_properties)
+        keys = list(obj.layer.crud_view.list_available_properties.values_list('key', flat=True))
         return {
-            key: value for key, value in obj.properties.items() if key in list_available_properties
+            key: value for key, value in obj.properties.items() if key in keys
         }
 
     def get_extent(self, obj):
@@ -304,7 +305,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     def get_pictures(self, obj):
         """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
-            "name": category.name,
+            "category": {
+                "id": category.pk,
+                "name": category.name,
+            },
             "pictogram": category.pictogram.url if category.pictogram else None,
             "pictures": FeaturePictureSerializer(obj.pictures.filter(category=category),
                                                  many=True).data,
@@ -314,7 +318,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     def get_attachments(self, obj):
         """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
-            "name": category.name,
+            "category": {
+                "id": category.pk,
+                "name": category.name,
+            },
             "pictogram": category.pictogram.url if category.pictogram else None,
             "attachments": FeatureAttachmentSerializer(obj.attachments.filter(category=category),
                                                        many=True).data,
@@ -335,14 +342,13 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         # get ordered groups filled
         for group in groups:
             results[group.slug] = {}
-            for prop in group.properties:
+            for prop in list(group.group_properties.all().values_list('key', flat=True)):
                 results[group.slug][prop] = original_properties.pop(prop, None)
 
         return {**results, **original_properties}
 
     def get_display_properties(self, obj):
         """ Feature properties to display (key / value, display value and info) """
-        processed_properties = []
         results = {}
         crud_view = obj.layer.crud_view
         groups = crud_view.feature_display_groups.all()
@@ -353,15 +359,14 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                                      context={'request': self.context.get('request'),
                                                               'feature': obj})
             results[group.slug] = serializer.data
-            processed_properties += list(group.properties)
 
         # add default other properties
-        remained_properties = list(set(crud_view.properties) - set(processed_properties))
+        remained_properties = crud_view.properties.filter(group__isnull=True)
         if remained_properties:
             # reconstruct property key/value list based on layer schema
             final_properties = {
-                prop: obj.properties.get(prop)
-                for prop in list(remained_properties)
+                prop.key: obj.properties.get(prop.key)
+                for prop in remained_properties
             }
             properties = {}
 

@@ -10,10 +10,12 @@ from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
+from terra_geocrud.models import CrudViewProperty
 
 from . import factories
 from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA
 from .. import models, settings as app_settings
+from ..properties.schema import sync_ui_schema
 
 
 class CrudGroupViewSetTestCase(APITestCase):
@@ -135,26 +137,29 @@ class CrudViewSetTestCase(APITestCase):
         response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertDictEqual(data['ui_schema'], self.view_1.ui_schema)
+        self.assertDictEqual(data['ui_schema'], self.view_1.ui_schema, data)
 
     def test_grouped_ui_schema(self):
-        self.view_1.ui_schema = {
-            'name': {'ui:widget': 'textarea'},
-            'ui:order': ['name', 'age']
-        }
-        self.view_1.save()
-        group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test',
-                                                                    properties=['age'])
-        group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test2',
-                                                                    properties=['name'])
+        group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test')
+        group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.view_1, label='test2')
+        CrudViewProperty.objects.create(view=self.view_1, key="name",
+                                        group=group_2,
+                                        json_schema={'type': "string", "title": "Name"},
+                                        ui_schema={'ui:widget': 'textarea'})
+        CrudViewProperty.objects.create(view=self.view_1, key="age",
+                                        group=group_1,
+                                        json_schema={'type': "integer", "title": "Age"})
+        CrudViewProperty.objects.create(view=self.view_1, key="country",
+                                        json_schema={'type': "string", "title": "Country"})
+        sync_ui_schema(self.view_1)
         response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertDictEqual(
             data['ui_schema'],
             {'ui:order': ['test', 'test2', '*'],
-             'test': {'ui:order': ['age', '*']},
-             'test2': {'ui:order': ['name', '*'],
+             'test': {'ui:order': ['*']},
+             'test2': {'ui:order': ['*'],
                        'name': {'ui:widget': 'textarea'}}}
         )
         group_1.delete()
@@ -229,10 +234,18 @@ class CrudFeatureViewsSetTestCase(APITestCase):
             geom_type=GeometryTypes.LineString,
             title='Extra 2'
         )
-        self.group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test',
-                                                                         properties=['age'])
-        self.group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2',
-                                                                         properties=['name'])
+        self.group_1 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test')
+        self.group_2 = models.FeaturePropertyDisplayGroup.objects.create(crud_view=self.crud_view, label='test2')
+
+        CrudViewProperty.objects.create(view=self.crud_view, key="name",
+                                        group=self.group_2,
+                                        json_schema={'type': "string", "title": "Name"})
+        CrudViewProperty.objects.create(view=self.crud_view, key="age",
+                                        group=self.group_1,
+                                        json_schema={'type': "integer", "title": "Age"})
+        CrudViewProperty.objects.create(view=self.crud_view, key="country",
+                                        json_schema={'type': "string", "title": "Country"})
+
         self.feature = Feature.objects.create(geom=Point(0, 0, srid=4326),
                                               properties={
                                                   "age": 10,

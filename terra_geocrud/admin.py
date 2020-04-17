@@ -1,13 +1,15 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
+from django_object_actions import DjangoObjectActions
 from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
-from . import models
+from . import models, forms
+from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema
 
 
 class CrudGroupViewAdmin(VersionAdmin):
@@ -23,19 +25,39 @@ class FeatureDisplayGroupTabularInline(admin.TabularInline):
 
 
 class ExtraLayerStyleInLine(admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _('Extra layer style')
+    verbose_name_plural = _('Extra layer styles')
     model = models.ExtraLayerStyle
+    form = forms.ExtraLayerStyleForm
     extra = 0
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
 
 
-class CrudViewAdmin(VersionAdmin):
-    list_display = ['name', 'order', 'pictogram', 'properties', ]
+class CrudPropertyInline(admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _("Feature property")
+    verbose_name_plural = _("Feature properties")
+    model = models.CrudViewProperty
+    form = forms.CrudPropertyForm
+    extra = 0
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget(height=200)},
+    }
+
+
+class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
+    form = forms.CrudViewForm
+    list_display = ['name', 'order', 'pictogram']
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
-    readonly_fields = ['grouped_form_schema', 'properties']
+    inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
+    readonly_fields = ['ui_schema']
     fieldsets = (
         (None, {'fields': (('name', 'object_name', 'object_name_plural', 'layer'), ('group', 'order', 'pictogram'))}),
         (_('UI schema & properties'), {
-            'fields': ('properties', 'default_list_properties', 'feature_title_property', 'ui_schema'),
+            'fields': ('default_list_properties', 'feature_title_property', 'ui_schema'),
             'classes': ('collapse', )
         }),
         (_("Document generation"), {
@@ -59,6 +81,24 @@ class CrudViewAdmin(VersionAdmin):
             ro_fields += ('layer', )
         return ro_fields
 
+    def sync_schemas(self, request, obj):
+        sync_layer_schema(obj)
+        sync_ui_schema(obj)
+        messages.success(request,
+                         _("Layer json schema and crud view ui schema have been synced with crud view properties."))
+
+    sync_schemas.label = _("Sync schemas")
+    sync_schemas.short_description = _("Sync layer schema and crud view ui schema with defined properties.")
+
+    def clean_feature_properties(self, request, obj):
+        clean_properties_not_in_schema(obj)
+        messages.success(request, _("Feature properties has been cleaned."))
+
+    clean_feature_properties.label = _("Clean features with schema")
+    clean_feature_properties.short_description = _("Clean feature properties not in generated layer schema.")
+
+    change_actions = ('sync_schemas', 'clean_feature_properties')
+
 
 class LayerExtraGeomInline(admin.TabularInline):
     model = LayerExtraGeom
@@ -70,9 +110,10 @@ class CrudLayerAdmin(VersionAdmin):
     list_filter = ('geom_type', 'layer_groups')
     search_fields = ('pk', 'name')
     formfield_overrides = {
-        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+        fields.JSONField: {'widget': JSONEditorWidget},
     }
     inlines = [LayerExtraGeomInline, ]
+    readonly_fields = ('schema', )  # schema is managed with crud view properties
 
 
 class FeaturePictureInline(AdminInlineImageMixin, admin.TabularInline):
@@ -98,7 +139,7 @@ class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     search_fields = ('pk', 'identifier', )
     inlines = (FeaturePictureInline, FeatureAttachmentInline)
     formfield_overrides = {
-        fields.JSONField: {'widget': widgets.JSONEditorWidget},
+        fields.JSONField: {'widget': JSONEditorWidget},
     }
 
 

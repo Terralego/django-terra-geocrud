@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-26 10:40+0000\n"
+"POT-Creation-Date: 2020-04-17 12:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,10 +24,16 @@ msgstr ""
 msgid "Display groups for feature property display and form."
 msgstr ""
 
-msgid "Custom widget"
+msgid "Extra layer style"
 msgstr ""
 
-msgid "Custom widgets for property content display rendering"
+msgid "Extra layer styles"
+msgstr ""
+
+msgid "Feature property"
+msgstr ""
+
+msgid "Feature properties"
 msgstr ""
 
 msgid "UI schema & properties"
@@ -37,6 +43,26 @@ msgid "Document generation"
 msgstr ""
 
 msgid "Other settings"
+msgstr ""
+
+msgid ""
+"Layer json schema and crud view ui schema have been synced with crud view "
+"properties."
+msgstr ""
+
+msgid "Sync schemas"
+msgstr ""
+
+msgid "Sync layer schema and crud view ui schema with defined properties."
+msgstr ""
+
+msgid "Feature properties has been cleaned."
+msgstr ""
+
+msgid "Clean features with schema"
+msgstr ""
+
+msgid "Clean feature properties not in generated layer schema."
 msgstr ""
 
 msgid "Picture"
@@ -113,12 +139,6 @@ msgid "Feature properties display group"
 msgstr ""
 
 msgid "Feature properties display groups"
-msgstr ""
-
-msgid "Custom feature property rendering"
-msgstr ""
-
-msgid "Custom feature properties rendering"
 msgstr ""
 
 msgid "Attachment category"
