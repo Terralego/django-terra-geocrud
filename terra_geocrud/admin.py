@@ -1,5 +1,4 @@
 from admin_ordering.admin import OrderableAdmin
-from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
