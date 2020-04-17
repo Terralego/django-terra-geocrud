@@ -58,7 +58,7 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     list_editable = ["order"]
     filter_horizontal = ('default_list_properties', )
     form = forms.CrudViewForm
-    list_display = ['name', 'order', 'pictogram']
+    list_display = ['name', 'group', 'order', 'pictogram']
     list_filter = ['group', ]
     inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['ui_schema']
