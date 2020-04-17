@@ -1,3 +1,4 @@
+from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
@@ -36,7 +37,7 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     }
 
 
-class CrudPropertyInline(admin.TabularInline):
+class CrudPropertyInline(SortableInlineAdminMixin, admin.TabularInline):
     classes = ('collapse', )
     verbose_name = _("Feature property")
     verbose_name_plural = _("Feature properties")

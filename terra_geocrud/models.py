@@ -246,7 +246,7 @@ class CrudViewProperty(models.Model):
             ('view', 'key'),
         )
         ordering = (
-            'view', 'group', 'order'
+            'order'
         )
         indexes = (
             GinIndex(name='json_schema_index', fields=['json_schema'], opclasses=['jsonb_path_ops']),
