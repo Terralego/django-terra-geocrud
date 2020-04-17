@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'geostore',
     'mapbox_baselayer',
     'django_object_actions',
-    'adminsortable2',
+    'admin_ordering',
     'terra_accounts',
     'terra_geocrud',
     'test_terra_geocrud.test_app',

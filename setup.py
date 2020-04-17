@@ -59,7 +59,7 @@ setup(
         'sorl-thumbnail>=12.6.2',
         # improve configuration with django admin
         'django-json-widget>=1.0.1',
-        'django-admin-sortable2',
+        'django-admin-ordering',
         'django-object-actions',
     ],
     tests_require=tests_require,

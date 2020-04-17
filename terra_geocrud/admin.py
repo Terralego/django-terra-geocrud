@@ -1,3 +1,4 @@
+from admin_ordering.admin import OrderableAdmin
 from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
@@ -37,7 +38,8 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     }
 
 
-class CrudPropertyInline(SortableInlineAdminMixin, admin.TabularInline):
+class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
+    ordering_field = "order"
     classes = ('collapse', )
     verbose_name = _("Feature property")
     verbose_name_plural = _("Feature properties")
