@@ -5,6 +5,8 @@ CHANGELOG
 0.3.36.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Helper to sort elements in django admin
+
 
 0.3.35          (2020-04-17)
 ----------------------------
