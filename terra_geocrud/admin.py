@@ -1,3 +1,4 @@
+from admin_ordering.admin import OrderableAdmin
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.contrib.postgres import fields
@@ -12,11 +13,14 @@ from . import models, forms
 from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema
 
 
-class CrudGroupViewAdmin(VersionAdmin):
+class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
+    ordering_field = "order"
+    list_editable = ["order"]
     list_display = ['name', 'order', 'pictogram']
 
 
-class FeatureDisplayGroupTabularInline(admin.TabularInline):
+class FeatureDisplayGroupTabularInline(OrderableAdmin, admin.TabularInline):
+    ordering_field = "order"
     classes = ('collapse', )
     verbose_name = _('Display group')
     verbose_name_plural = _('Display groups for feature property display and form.')
@@ -36,7 +40,8 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     }
 
 
-class CrudPropertyInline(admin.TabularInline):
+class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
+    ordering_field = "order"
     classes = ('collapse', )
     verbose_name = _("Feature property")
     verbose_name_plural = _("Feature properties")
@@ -48,9 +53,12 @@ class CrudPropertyInline(admin.TabularInline):
     }
 
 
-class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
+class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
+    ordering_field = "order"
+    list_editable = ["order"]
+    filter_horizontal = ('default_list_properties', )
     form = forms.CrudViewForm
-    list_display = ['name', 'order', 'pictogram']
+    list_display = ['name', 'group', 'order', 'pictogram']
     list_filter = ['group', ]
     inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
     readonly_fields = ['ui_schema']
