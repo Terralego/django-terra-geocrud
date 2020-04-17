@@ -89,7 +89,7 @@ class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
                          _("Layer json schema and crud view ui schema have been synced with crud view properties."))
 
     sync_schemas.label = _("Sync schemas")
-    sync_schemas.short_description = _("Sync layer schema and crdu view ui schema with defined properties.")
+    sync_schemas.short_description = _("Sync layer schema and crud view ui schema with defined properties.")
 
     def clean_feature_properties(self, request, obj):
         clean_properties_not_in_schema(obj)

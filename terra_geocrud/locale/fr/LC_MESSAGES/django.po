@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-26 10:40+0000\n"
+"POT-Creation-Date: 2020-04-17 12:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,11 +24,17 @@ msgstr "Groupe d'affichage"
 msgid "Display groups for feature property display and form."
 msgstr "Groupe de propriétés pour l'affichage / formulaire de features"
 
-msgid "Custom widget"
-msgstr "Rendu personnalisé"
+msgid "Extra layer style"
+msgstr "Style de géométries annexes"
 
-msgid "Custom widgets for property content display rendering"
-msgstr "Rendu personnalisé pour l'affichage des propriétés d'une feature"
+msgid "Extra layer styles"
+msgstr "Style de géométries annexes"
+
+msgid "Feature property"
+msgstr "Propriété"
+
+msgid "Feature properties"
+msgstr "Propriétés"
 
 msgid "UI schema & properties"
 msgstr "Propriété et UI schema"
@@ -38,6 +44,26 @@ msgstr "Génération de douments (gabarits)"
 
 msgid "Other settings"
 msgstr "Autres réglages"
+
+msgid ""
+"Layer json schema and crud view ui schema have been synced with crud view "
+"properties."
+msgstr ""
+
+msgid "Sync schemas"
+msgstr "Sync. schemas"
+
+msgid "Sync layer schema and crud view ui schema with defined properties."
+msgstr "Sync. le json schema et l'ui schema avec les propriétés définies."
+
+msgid "Feature properties has been cleaned."
+msgstr "Les propriétés des objets ont été nettoyées."
+
+msgid "Clean features with schema"
+msgstr "Nettoyer les propriétés selon le selon"
+
+msgid "Clean feature properties not in generated layer schema."
+msgstr "Nettoyer les propriétés des objets non présents dans le json schema"
 
 msgid "Picture"
 msgstr "Image"
@@ -54,7 +80,8 @@ msgstr "Pièces-jointes"
 msgid ""
 "GEOCRUD: Can create / edit / delete views / groups and associated layers."
 msgstr ""
-"GEOCRUD: Peut créer / éditier / supprimer les vues / groupes et layers associés."
+"GEOCRUD: Peut créer / éditier / supprimer les vues / groupes et layers "
+"associés."
 
 msgid "GEOCRUD: Can read feature detail."
 msgstr "GEOCRUD: Peut lire les détails d'une feature"
@@ -119,12 +146,6 @@ msgstr "Groupe d'affichage de propriétés"
 msgid "Feature properties display groups"
 msgstr "Groupes d'affichage de propriétés"
 
-msgid "Custom feature property rendering"
-msgstr "Rendu perssonalisé de propriété"
-
-msgid "Custom feature properties rendering"
-msgstr "Rendus personnalisés de propriétés"
-
 msgid "Attachment category"
 msgstr "Catégorie de pièces-jointes"
 
@@ -132,25 +153,25 @@ msgid "Attachment categories"
 msgstr "Catégories de pièces-jointes"
 
 msgid "Feature attachment"
-msgstr ""
+msgstr "Pièce jointe"
 
 msgid "Feature attachments"
-msgstr ""
+msgstr "Pièces jointes"
 
 msgid "Feature picture"
-msgstr ""
+msgstr "Image"
 
 msgid "Feature pictures"
-msgstr ""
+msgstr "Images"
 
 msgid "ExtraLayer style"
-msgstr ""
+msgstr "Style de géometrie annexe"
 
 msgid "ExtraLayer styles"
-msgstr ""
+msgstr "Styles de géométrie annexe"
 
 msgid "VT styles and definitions"
-msgstr ""
+msgstr "Style et définition des tuiles vectorielles"
 
 msgid "Url endpoint for view's features"
 msgstr "URL de la liste des features de la vue."
