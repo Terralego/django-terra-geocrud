@@ -8,8 +8,7 @@ from geostore.models import LayerExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
-from . import models
-from .forms import ExtraLayerStyleForm, CrudPropertyForm, CrudViewForm
+from . import models, forms
 from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema
 
 
@@ -30,7 +29,7 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     verbose_name = _('Extra layer style')
     verbose_name_plural = _('Extra layer styles')
     model = models.ExtraLayerStyle
-    form = ExtraLayerStyleForm
+    form = forms.ExtraLayerStyleForm
     extra = 0
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget},
@@ -42,7 +41,7 @@ class CrudPropertyInline(admin.TabularInline):
     verbose_name = _("Feature property")
     verbose_name_plural = _("Feature properties")
     model = models.CrudViewProperty
-    form = CrudPropertyForm
+    form = forms.CrudPropertyForm
     extra = 0
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget(height=200)},
@@ -50,7 +49,7 @@ class CrudPropertyInline(admin.TabularInline):
 
 
 class CrudViewAdmin(DjangoObjectActions, VersionAdmin):
-    form = CrudViewForm
+    form = forms.CrudViewForm
     list_display = ['name', 'order', 'pictogram']
     list_filter = ['group', ]
     inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
