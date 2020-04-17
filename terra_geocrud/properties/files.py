@@ -3,7 +3,7 @@ import mimetypes
 from urllib.parse import unquote
 
 from django.core.files.base import ContentFile
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import get_storage_class, default_storage
 
 from terra_geocrud import settings as app_settings
 
@@ -19,7 +19,8 @@ def get_info_content(value):
 def get_storage():
     """ Get media storage for feature data element, using settings """
     StorageClass = get_storage_class(import_path=app_settings.TERRA_GEOCRUD['DATA_FILE_STORAGE_CLASS'])
-    return StorageClass()
+    return StorageClass() if app_settings.TERRA_GEOCRUD['DATA_FILE_STORAGE_CLASS']\
+                             != 'django.core.files.storage.FileSystemStorage' else default_storage
 
 
 def generate_storage_file_path(prop, value, feature):
