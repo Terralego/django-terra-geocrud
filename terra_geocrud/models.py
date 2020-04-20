@@ -205,7 +205,7 @@ class FeaturePicture(AttachmentMixin):
 
     @cached_property
     def thumbnail(self):
-        return get_thumbnail(self.image, '350x250', crop='noop', quality=90)
+        return get_thumbnail(self.image, "500x500", crop='noop', upscale=False)
 
     class Meta:
         verbose_name = _('Feature picture')
