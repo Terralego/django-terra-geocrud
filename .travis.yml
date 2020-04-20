@@ -68,13 +68,12 @@ jobs:
 
   - stage: deploy
     before_install: skip
-    install: pip install -e .
+    install: skip
     before_script: skip
-    script: ./manage.py compilemessages
+    script: skip
     after_script: skip
 
     deploy:
-      skip_cleanup: true
       provider: pypi
       user: __token__
       password:
