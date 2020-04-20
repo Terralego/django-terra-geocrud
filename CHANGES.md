@@ -5,6 +5,9 @@ CHANGELOG
 0.3.37.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* improve thumbnail generation
+* change api default order for attachments and pictures
+
 
 0.3.36          (2020-04-17)
 ----------------------------
