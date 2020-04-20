@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.37.dev0     (XXXX-XX-XX)
+0.3.37          (2020-04-20)
 ----------------------------
 
 * improve thumbnail generation
