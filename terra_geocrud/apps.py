@@ -8,7 +8,7 @@ from terra_accounts.permissions_mixins import PermissionRegistrationMixin
 
 class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
     name = 'terra_geocrud'
-    verbose_name = 'Geographic Editor Config'
+    verbose_name = _('Geographic Editor Config')
     permissions = (
         ("can_manage_views", _("GEOCRUD: Can create / edit / delete views / groups and associated layers.")),
         ("can_view_feature", _("GEOCRUD: Can read feature detail.")),
