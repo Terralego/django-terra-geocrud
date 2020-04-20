@@ -15,6 +15,7 @@ from terra_geocrud.map.styles import MapStyleModelMixin
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.schema import FormSchemaMixin
+from .validators import validate_schema_property
 
 
 class CrudModelMixin(models.Model):
@@ -237,7 +238,7 @@ class CrudViewProperty(models.Model):
     group = models.ForeignKey(FeaturePropertyDisplayGroup, on_delete=models.SET_NULL,
                               related_name='group_properties', null=True, blank=True)
     key = models.SlugField()
-    json_schema = JSONField(blank=False, null=False, default=dict, validators=[validate_json_schema])
+    json_schema = JSONField(blank=False, null=False, default=dict, validators=[validate_schema_property])
     ui_schema = JSONField(blank=True, null=False, default=dict)
     required = models.BooleanField(default=False)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
