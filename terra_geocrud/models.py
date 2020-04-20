@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.db.mixins import BaseUpdatableModel
+from geostore.validators import validate_json_schema
 from sorl.thumbnail import ImageField, get_thumbnail
 
 from terra_geocrud.map.styles import MapStyleModelMixin
@@ -236,7 +237,7 @@ class CrudViewProperty(models.Model):
     group = models.ForeignKey(FeaturePropertyDisplayGroup, on_delete=models.SET_NULL,
                               related_name='group_properties', null=True, blank=True)
     key = models.SlugField()
-    json_schema = JSONField(blank=False, null=False, default=dict)
+    json_schema = JSONField(blank=False, null=False, default=dict, validators=[validate_json_schema])
     ui_schema = JSONField(blank=True, null=False, default=dict)
     required = models.BooleanField(default=False)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
