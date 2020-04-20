@@ -195,7 +195,7 @@ class FeatureAttachment(AttachmentMixin):
         verbose_name = _('Feature attachment')
         verbose_name_plural = _('Feature attachments')
         ordering = (
-            'feature', 'category', '-updated_at'
+            'feature', 'category', '-created_at'
         )
 
 
@@ -211,7 +211,7 @@ class FeaturePicture(AttachmentMixin):
         verbose_name = _('Feature picture')
         verbose_name_plural = _('Feature pictures')
         ordering = (
-            'feature', 'category', '-updated_at'
+            'feature', 'category', '-created_at'
         )
 
 
