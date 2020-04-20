@@ -8,7 +8,6 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.db.mixins import BaseUpdatableModel
-from geostore.validators import validate_json_schema
 from sorl.thumbnail import ImageField, get_thumbnail
 
 from terra_geocrud.map.styles import MapStyleModelMixin
