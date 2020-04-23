@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.38.dev0     (XXXX-XX-XX)
+0.3.38          (2020-04-23)
 ----------------------------
 
 * validate json schema properties
