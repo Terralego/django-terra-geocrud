@@ -264,18 +264,6 @@ class CrudViewProperty(models.Model):
                                   self.json_schema.get('title',
                                                        self.key.capitalize()))
 
-    def save(self, **kwargs):
-        creation = not self.pk
-
-        super().save(**kwargs)
-        fs = self.view.layer.features.all()
-
-        if creation:
-            # creation case : add key to properties with null value
-            for f in fs:
-                f.properties[self.key] = None
-                f.save()
-
     def delete(self, **kwargs):
         super().delete(**kwargs)
 
