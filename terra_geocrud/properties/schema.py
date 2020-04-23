@@ -74,7 +74,7 @@ def sync_ui_schema(crud_view):
     crud_view.save()
 
 
-def clean_properties_not_in_schema(crud_view):
+def clean_properties_not_in_schema_or_null(crud_view):
     """ Clean properties not in layer schema to avoid schema validation """
     layer = crud_view.layer
     features = layer.features.all()
@@ -82,6 +82,7 @@ def clean_properties_not_in_schema(crud_view):
         schema_properties = layer.schema.get('properties').keys()
         for feat in features:
             props_not_in_schema = feat.properties.keys() - schema_properties
-            for prop in props_not_in_schema:
-                feat.properties.pop(prop)
+            for prop in feat.properties.keys():
+                if prop in props_not_in_schema or feat.properties.get(prop) is None:
+                    feat.properties.pop(prop, 0)
             feat.save()

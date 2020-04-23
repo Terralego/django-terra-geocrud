@@ -10,7 +10,7 @@ from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models, forms
-from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema
+from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema_or_null
 
 
 class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
@@ -99,7 +99,7 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     sync_schemas.short_description = _("Sync layer schema and crud view ui schema with defined properties.")
 
     def clean_feature_properties(self, request, obj):
-        clean_properties_not_in_schema(obj)
+        clean_properties_not_in_schema_or_null(obj)
         messages.success(request, _("Feature properties has been cleaned."))
 
     clean_feature_properties.label = _("Clean features with schema")
