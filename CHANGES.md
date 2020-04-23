@@ -6,6 +6,7 @@ CHANGELOG
 ----------------------------
 
 * validate json schema properties
+* Disable property value affectation at creation
 
 
 0.3.37          (2020-04-20)
