@@ -81,8 +81,9 @@ def clean_properties_not_in_schema_or_null(crud_view):
     if layer.schema:
         schema_properties = layer.schema.get('properties').keys()
         for feat in features:
-            props_not_in_schema = feat.properties.keys() - schema_properties
-            for prop in feat.properties.keys():
+            properties = feat.properties.keys()
+            props_not_in_schema = properties - schema_properties
+            for prop in properties:
                 if prop in props_not_in_schema or feat.properties.get(prop) is None:
                     feat.properties.pop(prop, 0)
             feat.save()
