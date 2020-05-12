@@ -192,6 +192,11 @@ class FeatureAttachment(AttachmentMixin):
     feature = models.ForeignKey('geostore.Feature', on_delete=models.CASCADE, related_name='attachments')
     file = models.FileField(upload_to=feature_attachment_directory_path, storage=get_storage())
 
+    def delete(self, *args, **kwargs):
+        """ Delete file at deletion """
+        self.file.storage.delete(self.file.name)
+        super().delete(*args, **kwargs)
+
     class Meta:
         verbose_name = _('Feature attachment')
         verbose_name_plural = _('Feature attachments')
@@ -209,8 +214,10 @@ class FeaturePicture(AttachmentMixin):
         return get_thumbnail(self.image, "500x500", crop='noop', upscale=False)
 
     def delete(self, *args, **kwargs):
+        """ Delete image and thumbnail at deletion """
+        self.image.storage.delete(self.image.name)
         delete(self.image)
-        super(FeaturePicture, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Feature picture')
