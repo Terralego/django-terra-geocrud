@@ -1,4 +1,3 @@
-import json
 from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
@@ -10,8 +9,8 @@ from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
-from terra_geocrud.models import CrudViewProperty
 
+from terra_geocrud.models import CrudViewProperty
 from . import factories
 from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA
 from .. import models, settings as app_settings
@@ -191,7 +190,7 @@ class CrudSettingsViewTestCase(TestCase):
 class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
     def setUp(self):
         self.crud_view = factories.CrudViewFactory(name="Composantes", order=0,
-                                                   layer__schema=json.load(open(LAYER_SCHEMA)),
+                                                   layer__schema=LAYER_SCHEMA,
                                                    layer__geom_type=GeometryTypes.Point)
         self.extra_layer = LayerExtraGeom.objects.create(geom_type=GeometryTypes.MultiPolygon,
                                                          title='extra geom 1',
@@ -200,7 +199,7 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
         self.feature = Feature.objects.create(
             layer=self.crud_view.layer,
             geom=Point(x=-0.246322800072846, y=44.5562461167907),
-            properties=json.load(open(FEATURE_PROPERTIES)),
+            properties=FEATURE_PROPERTIES,
         )
         self.template = factories.TemplateDocxFactory.create(
             name='Template',

@@ -147,7 +147,7 @@ def map_image_url_loader(parser, token):
     - feature_included : Primary feature will be shown
     - extra_features : List of the extra feature you wan to add on your map
     - width : Width of the picture rendered
-    - heigth : Height of the picture rendered
+    - height : Height of the picture rendered
     - anchor : Type of anchor, paragraph, as-char, char, frame, page
     """
     tag_name, args, kwargs = parse_tag(token, parser)
@@ -173,7 +173,8 @@ def stored_image_base64(value):
     data_type = infos[0]
     data_path = infos[1].strip('name=')
     storage = get_storage()
-    file_bytes = storage.open(data_path, 'rb').read()
-    file_b64 = base64.encodebytes(file_bytes)
-    result = f"{data_type};base64," + file_b64.decode()
-    return result
+    with storage.open(data_path, 'rb') as data_file:
+        file_bytes = data_file.read()
+        file_b64 = base64.encodebytes(file_bytes)
+        result = f"{data_type};base64," + file_b64.decode()
+        return result

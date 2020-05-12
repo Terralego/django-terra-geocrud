@@ -1,3 +1,4 @@
+import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -7,9 +8,14 @@ JSON_PATH = os.path.join(DATA_PATH, 'json')
 PICTURES_PATH = os.path.join(DATA_PATH, 'pictures')
 SNAPSHOTS_PATH = os.path.join(DATA_PATH, 'snapshots')
 
-LAYER_SCHEMA = os.path.join(JSON_PATH, 'layer_schema.json')
-FEATURE_PROPERTIES = os.path.join(JSON_PATH, 'feature_properties.json')
+with open(os.path.join(JSON_PATH, 'layer_schema.json'), 'rb') as schema_json:
+    LAYER_SCHEMA = json.loads(schema_json.read())
+
+with open(os.path.join(JSON_PATH, 'feature_properties.json'), 'rb') as feature_properties:
+    FEATURE_PROPERTIES = json.loads(feature_properties.read())
 
 DOCX_TEMPLATE = os.path.join(TEMPLATES_PATH, 'complex_template.docx')
 
 SMALL_PICTURE = os.path.join(PICTURES_PATH, 'small_picture.png')
+with open(os.path.join(PICTURES_PATH, 'small_picture.png'), 'rb') as small_picture:
+    SMALL_PICTURE = small_picture.read()

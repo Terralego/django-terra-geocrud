@@ -27,21 +27,21 @@ from ..properties.schema import sync_layer_schema
 class MapImageUrlLoaderTestCase(TestCase):
     def setUp(self):
         self.crud_view_line = factories.CrudViewFactory(name="Line", order=0,
-                                                        layer__schema=json.load(open(LAYER_SCHEMA)),
+                                                        layer__schema=LAYER_SCHEMA,
                                                         layer__geom_type=GeometryTypes.LineString)
         self.crud_view_point = factories.CrudViewFactory(name="Point", order=0,
-                                                         layer__schema=json.load(open(LAYER_SCHEMA)),
+                                                         layer__schema=LAYER_SCHEMA,
                                                          layer__geom_type=GeometryTypes.Point)
 
         self.line = Feature.objects.create(
             layer=self.crud_view_line.layer,
             geom=LineString((-0.246322800072846, 44.5562461167907), (0, 44)),
-            properties=json.load(open(FEATURE_PROPERTIES)),
+            properties=FEATURE_PROPERTIES,
         )
         self.point = Feature.objects.create(
             layer=self.crud_view_point.layer,
             geom=Point(x=-0.246322800072846, y=44.5562461167907),
-            properties=json.load(open(FEATURE_PROPERTIES)),
+            properties=FEATURE_PROPERTIES,
         )
 
         self.extra_layer = LayerExtraGeom.objects.create(layer=self.crud_view_line.layer, title='test')
@@ -311,7 +311,7 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
         mocked_post.return_value.status_code = 200
-        mocked_post.return_value.content = open(SMALL_PICTURE, 'rb').read()
+        mocked_post.return_value.content = SMALL_PICTURE
         context = Context({'object': self.line})
         template_to_render = Template('{% load map_tags %}{% map_image_url_loader %}')
 

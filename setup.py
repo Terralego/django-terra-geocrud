@@ -6,8 +6,12 @@ from setuptools import setup, find_packages
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-README = open(os.path.join(HERE, 'README.md')).read()
-CHANGES = open(os.path.join(HERE, 'CHANGES.md')).read()
+with open(os.path.join(HERE, 'README.md')) as readme_file, \
+        open(os.path.join(HERE, 'CHANGES.md')) as changes_file, \
+        open(os.path.join(HERE, 'terra_geocrud', 'VERSION.md')) as version_file:
+    README = readme_file.read()
+    CHANGES = changes_file.read()
+    VERSION = version_file.read().strip()
 
 tests_require = [
     'factory-boy',
@@ -17,7 +21,7 @@ tests_require = [
 
 setup(
     name='django-terra-geocrud',
-    version=open(os.path.join(HERE, 'terra_geocrud', 'VERSION.md')).read().strip(),
+    version=VERSION,
     include_package_data=True,
     author="Makina Corpus",
     author_email="terralego-pypi@makina-corpus.com",
@@ -48,7 +52,7 @@ setup(
         'django>=2.2',
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
-        'django-template-engines>=1.2.24',
+        'django-template-engines>=1.2.26',
         'django-mapbox-baselayer>=0.0.3',
         'django-geostore>=0.3.17',
         'django-terra-accounts>=0.3.8',
