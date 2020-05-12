@@ -8,7 +8,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.db.mixins import BaseUpdatableModel
-from sorl.thumbnail import ImageField, get_thumbnail
+from sorl.thumbnail import ImageField, get_thumbnail, delete
 
 from terra_geocrud.map.styles import MapStyleModelMixin
 from . import settings as app_settings
@@ -207,6 +207,10 @@ class FeaturePicture(AttachmentMixin):
     @cached_property
     def thumbnail(self):
         return get_thumbnail(self.image, "500x500", crop='noop', upscale=False)
+
+    def delete(self, *args, **kwargs):
+        delete(self.image)
+        super(FeaturePicture, self).delete(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Feature picture')
