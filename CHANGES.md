@@ -1,9 +1,15 @@
+
 =========
 CHANGELOG
 =========
 
 0.3.39.dev0     (XXXX-XX-XX)
 ----------------------------
+
+* Update translations
+* Fix deprecation and resource warnings
+* Delete thumbnail to image deletion
+* Delete media files to image deletion
 
 
 0.3.38.1        (2020-04-24)
