@@ -3,7 +3,7 @@
 CHANGELOG
 =========
 
-0.3.39.dev0     (XXXX-XX-XX)
+0.3.39          (2020-05-15)
 ----------------------------
 
 * Update translations
