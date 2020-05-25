@@ -76,7 +76,7 @@ class FeatureExtraGeomForm(forms.ModelForm):
 
         if geometry_file:
             self.instance.geom = parse_geometry_file(geometry_file)
-        super().save(commit=commit)
+        return super().save(commit=commit)
 
     class Meta:
         model = FeatureExtraGeom
