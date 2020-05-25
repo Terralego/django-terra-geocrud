@@ -84,7 +84,6 @@ class FeatureExtraGeomForm(forms.ModelForm):
                 _("You should define geometry with drawing or file.")
             )
 
-
     def save(self, commit=True):
         geojson_file = self.cleaned_data.get('geojson_file', None)
 
