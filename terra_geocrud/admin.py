@@ -148,8 +148,12 @@ class FeatureExtraGeomInline(admin.TabularInline):
     form = forms.FeatureExtraGeomForm
     extra = 0
 
+    @property
+    def geojson_file(self):
+        return None
 
-class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
+
+class CrudFeatureAdmin(OSMGeoAdmin):
     list_max_show_all = 50
     list_display = ('pk', 'identifier', 'layer', 'source', 'target')
     list_filter = ('layer', )
