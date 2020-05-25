@@ -76,7 +76,7 @@ class FeatureExtraGeomForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        geojson_file = cleaned_data.get("cc_myself")
+        geojson_file = cleaned_data.get("geojson_file")
         geom = cleaned_data.get("geom")
 
         if not geojson_file and not geom:
