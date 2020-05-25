@@ -149,7 +149,7 @@ class FeatureExtraGeomInline(admin.TabularInline):
     extra = 0
 
 
-class CrudFeatureAdmin(OSMGeoAdmin):
+class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     list_max_show_all = 50
     list_display = ('pk', 'identifier', 'layer', 'source', 'target')
     list_filter = ('layer', )
