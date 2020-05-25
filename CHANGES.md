@@ -3,7 +3,7 @@
 CHANGELOG
 =========
 
-0.3.40.dev      (XXXX-XX-XX)
+0.3.40          (2020-05-25)
 ----------------------------
 
 * Gdal supported file format to import data in admin
