@@ -59,7 +59,7 @@ setup(
         'django-terra-accounts>=0.3.8',
         'djangorestframework-gis',
         'djangorestframework',
-        'requests',
+        'requests[security]',
         'pillow',
         'sorl-thumbnail>=12.6.2',
         # improve configuration with django admin
