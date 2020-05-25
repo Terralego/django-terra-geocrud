@@ -1,7 +1,9 @@
 import tempfile
 
 from django import forms
+from django.contrib.gis.forms import GeometryField
 from django.contrib.gis.gdal import DataSource
+from django.utils.translation import gettext as _
 from geostore.models import FeatureExtraGeom
 
 from . import models
@@ -63,6 +65,7 @@ class CrudViewForm(forms.ModelForm):
 
 
 class FeatureExtraGeomForm(forms.ModelForm):
+    geom = GeometryField(required=False)
     geojson_file = forms.FileField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -71,11 +74,22 @@ class FeatureExtraGeomForm(forms.ModelForm):
             # limit choices to available (linked by crud view)
             self.fields['layer_extra_geom'].queryset = self.instance.feature.layer.extra_geometries.all()
 
-    def save(self, commit=True):
-        geometry_file = self.cleaned_data.get('geometry_file', None)
+    def clean(self):
+        cleaned_data = super().clean()
+        geojson_file = cleaned_data.get("cc_myself")
+        geom = cleaned_data.get("geom")
 
-        if geometry_file:
-            self.instance.geom = parse_geometry_file(geometry_file)
+        if not geojson_file and not geom:
+            raise forms.ValidationError(
+                _("You should define geometry with drawing or file.")
+            )
+
+
+    def save(self, commit=True):
+        geojson_file = self.cleaned_data.get('geojson_file', None)
+
+        if geojson_file:
+            self.instance.geom = parse_geometry_file(geojson_file)
         return super().save(commit=commit)
 
     class Meta:
