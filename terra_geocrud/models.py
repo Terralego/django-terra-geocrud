@@ -60,10 +60,11 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
                                          https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
-    default_list_properties = models.ManyToManyField('CrudViewProperty', blank=True, related_name='used_by_list')
+    default_list_properties = models.ManyToManyField('CrudViewProperty', blank=True, related_name='used_by_list',
+                                                     help_text=_("Schema properties used in API list by default."),)
     feature_title_property = models.ForeignKey('CrudViewProperty', null=True, on_delete=models.SET_NULL,
                                                help_text=_("Schema property used to define feature title."),
-                                               related_name='used_by_title')
+                                               related_name='used_by_title', blank=True)
     visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))
 
     @cached_property

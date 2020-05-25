@@ -6,6 +6,7 @@ CHANGELOG
 0.3.41.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Fix mandatory field in crud view admin
 
 0.3.40          (2020-05-25)
 ----------------------------
