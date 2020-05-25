@@ -31,6 +31,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     url='https://github.com/Terralego/django-terra-geocrud.git',
+    python_requires='>=3.6',
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
