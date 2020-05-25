@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 07:24+0000\n"
+"POT-Creation-Date: 2020-05-25 13:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,6 +77,12 @@ msgstr ""
 msgid "Attachments"
 msgstr ""
 
+msgid "Extra geometry"
+msgstr ""
+
+msgid "Extra geometries"
+msgstr ""
+
 msgid "Geographic Editor Config"
 msgstr ""
 
@@ -94,6 +100,9 @@ msgid "GEOCRUD: Can change feature"
 msgstr ""
 
 msgid "GEOCRUD: Can delete feature"
+msgstr ""
+
+msgid "You should define geometry with drawing or file."
 msgstr ""
 
 msgid "Display name in left menu"

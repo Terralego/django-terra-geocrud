@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 07:24+0000\n"
+"POT-Creation-Date: 2020-05-25 12:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,8 @@ msgstr "Autres réglages"
 msgid ""
 "Layer json schema and crud view ui schema have been synced with crud view "
 "properties."
-msgstr "le JSON schema de la couche et l'UI schema ont été synchronisés avec la vue."
+msgstr ""
+"le JSON schema de la couche et l'UI schema ont été synchronisés avec la vue."
 
 msgid "Sync schemas"
 msgstr "Sync. schemas"
@@ -77,6 +78,12 @@ msgstr "Pièce-jointe"
 msgid "Attachments"
 msgstr "Pièces-jointes"
 
+msgid "Extra geometry"
+msgstr "Géométrie annexe"
+
+msgid "Extra geometries"
+msgstr "Géométrie annexes"
+
 msgid "Geographic Editor Config"
 msgstr "Config. Editeur Géographique"
 
@@ -97,6 +104,9 @@ msgstr "GEOCRUD: Peut modifier une feature"
 
 msgid "GEOCRUD: Can delete feature"
 msgstr "GEOCRUD: Peut supprimer une feature"
+
+msgid "You should define geometry with drawing or file."
+msgstr "You devez définir la géométrie en la déssinant ou en fournissant un fichier."
 
 msgid "Display name in left menu"
 msgstr "Affiche le nom dans le menu de gauche"
