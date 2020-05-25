@@ -5,7 +5,7 @@ from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from django_object_actions import DjangoObjectActions
-from geostore.models import LayerExtraGeom
+from geostore.models import LayerExtraGeom, FeatureExtraGeom
 from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
@@ -140,12 +140,21 @@ class FeatureAttachmentInline(admin.TabularInline):
     extra = 0
 
 
+class FeatureExtraGeomInline(admin.TabularInline):
+    classes = ('collapse', )
+    verbose_name = _('Extra geometry')
+    verbose_name_plural = _('Extra geometries')
+    model = FeatureExtraGeom
+    form = forms.FeatureExtraGeomForm
+    extra = 0
+
+
 class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     list_max_show_all = 50
     list_display = ('pk', 'identifier', 'layer', 'source', 'target')
     list_filter = ('layer', )
     search_fields = ('pk', 'identifier', )
-    inlines = (FeaturePictureInline, FeatureAttachmentInline)
+    inlines = (FeatureExtraGeomInline, FeaturePictureInline, FeatureAttachmentInline)
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget},
     }

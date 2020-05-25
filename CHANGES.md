@@ -6,6 +6,7 @@ CHANGELOG
 0.3.40.dev      (XXXX-XX-XX)
 ----------------------------
 
+* Gdal supported file format to import data in admin
 
 0.3.39          (2020-05-15)
 ----------------------------
