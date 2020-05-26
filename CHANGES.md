@@ -7,6 +7,7 @@ CHANGELOG
 ----------------------------
 
 * Fix mandatory field in crud view admin
+* Fix feature cleaning method
 
 0.3.40          (2020-05-25)
 ----------------------------
