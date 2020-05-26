@@ -20,7 +20,7 @@ sys.path.insert(0, root)
 
 # -- Project information -----------------------------------------------------
 
-project = 'django-terra-gecrud'
+project = 'django-terra-geocrud'
 copyright = '2019, Makina Corpus'
 author = 'Makina Corpus'
 
