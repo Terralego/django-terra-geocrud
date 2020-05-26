@@ -130,7 +130,7 @@ class FeaturePropertyDisplayGroup(models.Model):
         required = []
 
         for prop in self.group_properties.all():
-            properties[prop.key] = original_schema['properties'][prop.key]
+            properties[prop.key] = original_schema.get('properties', {}).get(prop.key)
 
             if prop.key in original_schema.get('required', []):
                 required.append(prop.key)
