@@ -1,15 +1,17 @@
 Example of use
 ==============
 
-- TERRA_GEOCRUD provide its own settings url to terralego apps via
+- TERRA_GEOCRUD provide its own settings url to terralego apps via /api/settings
 
-example:
+like:
 ::
 
-  /api/settings
-
   {
-    'CRUD': '/api/crud/settings/'
+    "modules": {
+      "CRUD': {
+        "settings": "/api/crud/settings/"
+      }
+    }
   }
 
 Settings provide default config values, and formatted list of crud group and views, ready to be displayed in frontend left menu.

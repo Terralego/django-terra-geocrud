@@ -6,10 +6,10 @@
 .. image:: https://codecov.io/gh/Terralego/django-terra-geocrud/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/Terralego/django-terra-geocrud
 
-terra_geocrud
-=======================
+django-terra-geocrud
+====================
 
-Terralego backend app
+A backend stored and API configuration for Geographic CRUD. Designed to work with [terra-admin](https://github.com/Terralego/terra-admin) CRUD module, but can be used with any frontend.
 
 .. toctree::
 

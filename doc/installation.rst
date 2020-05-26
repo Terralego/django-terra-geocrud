@@ -4,11 +4,7 @@ Installation
 Requirements
 ------------
 
-Must be installed, for the package to work:
-
-* terracommon.terra
-* template_model
-* template_engines
+Should match with [django-geostore](https://django-geostore.readthedocs.io/en/latest/installation.html#requirements) requirements
 
 With pip
 --------
@@ -17,19 +13,19 @@ From Pypi:
 
 ::
 
-    pip install xxxxxxxxxx-xxxxxxxxxxxx
+    pip install django-terra-geocrud
 
 From Github:
 
 ::
 
-    pip install -e https://github.com/Terralego/terra.backend.crud.git@master#egg=django-template-engines
+    pip install -e https://github.com/Terralego/django-terra-geocrud.git@master#egg=django-terra-geocrud
 
 With git
 --------
 
 ::
 
-    git clone https://github.com/Terralego/terra.backend.crud.git
-    cd terra.backend.crud
+    git clone https://github.com/Terralego/django-terra-geocrud.git
+    cd django_terra_geocrud
     python setup.py install
