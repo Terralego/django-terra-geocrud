@@ -3,7 +3,7 @@
 CHANGELOG
 =========
 
-0.3.41.dev0     (XXXX-XX-XX)
+0.3.41          (2020-05-26)
 ----------------------------
 
 * Fix mandatory field in crud view admin
