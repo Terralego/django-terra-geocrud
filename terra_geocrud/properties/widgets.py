@@ -2,7 +2,7 @@ def render_relation(relation, qs):
     # get property displayed list
     body = ""
 
-    head = f'<th style="width: 90%;">Nom</th><th style="width: 10%;">Lien</th>'
+    head = '<th style="width: 90%;">Nom</th><th style="width: 10%;">Lien</th>'
 
     for obj in qs:
         line = f"<td>{obj.properties.get('name', obj.identifier)}</td>"

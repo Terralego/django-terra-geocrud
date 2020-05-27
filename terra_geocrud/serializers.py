@@ -15,6 +15,7 @@ from template_model.models import Template
 
 from . import models
 from .map.styles import get_default_style
+from .properties.widgets import render_relation
 
 from .properties.files import store_feature_files
 from .properties.utils import serialize_group_properties
