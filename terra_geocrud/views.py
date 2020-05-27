@@ -149,29 +149,6 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         return response
 
 
-class CrudRenderTemplateDetailView(DetailView):
-    model = geostore_models.Feature
-    pk_template_field = 'pk'
-    pk_template_kwargs = 'template_pk'
-
-    def get_template_names(self):
-        return self.template.template_file.name
-
-    def get_template_object(self):
-        return get_object_or_404(self.get_object().layer.crud_view.templates,
-                                 **{self.pk_template_field:
-                                    self.kwargs.get(self.pk_template_kwargs)})
-
-    def render_to_response(self, context, **response_kwargs):
-        self.template = self.get_template_object()
-        self.content_type, _encoding = mimetypes.guess_type(self.get_template_names())
-        response = super().render_to_response(context, **response_kwargs)
-        response['Content-Disposition'] = 'attachment; filename=%s' % smart_text(
-            Path(self.template.template_file.name).name
-        )
-        return response
-
-
 class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):
     queryset = models.AttachmentCategory.objects.all()
     serializer_class = serializers.AttachmentCategorySerializer
