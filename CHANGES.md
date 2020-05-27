@@ -6,7 +6,7 @@ CHANGELOG
 ----------------------------
 
 * Format date in display values
-
+* Fix default cases when layer has no schema
 
 0.3.41          (2020-05-26)
 ----------------------------

@@ -163,7 +163,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
         for key, value in final_properties.items():
             data_type = 'data'
             data = value
-            data_format = feature.layer.schema.get('properties').get(key, {}).get('format')
+            data_format = feature.layer.schema.get('properties', {}).get(key, {}).get('format')
 
             if data_format == 'data-url':
                 # apply special cases for files
@@ -203,7 +203,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                 "type": data_type,
                 "title": feature.layer.get_property_title(key),
                 "value": feature.properties.get(key),
-                "schema": feature.layer.schema.get('properties').get(key),
+                "schema": feature.layer.schema.get('properties', {}).get(key),
                 "ui_schema": feature.layer.crud_view.ui_schema.get(key, {})
             }})
 
@@ -378,7 +378,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             for key, value in final_properties.items():
                 data_type = 'data'
                 data = value
-                data_format = obj.layer.schema.get('properties').get(key, {}).get('format')
+                data_format = obj.layer.schema.get('properties', {}).get(key, {}).get('format')
 
                 if data_format == 'data-url':
                     # apply special cases for files
@@ -420,7 +420,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                     "type": data_type,
                     "title": obj.layer.get_property_title(key),
                     "value": obj.properties.get(key),
-                    "schema": obj.layer.schema.get('properties').get(key),
+                    "schema": obj.layer.schema.get('properties', {}).get(key),
                     "ui_schema": obj.layer.crud_view.ui_schema.get(key, {})
                 }})
 
