@@ -1,6 +1,7 @@
 import json
 from collections import OrderedDict
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 
 from django.template.defaultfilters import date
@@ -191,7 +192,11 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                         pass
             elif data_format == "date":
                 data_type = 'date'
-                data = value
+                try:
+                    value_date = datetime.fromisoformat(value)
+                    data = date(value_date, 'SHORT_DATE_FORMAT')
+                except ValueError:
+                    pass
 
             properties.update({key: {
                 "display_value": data,
@@ -404,7 +409,11 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                             pass
                 elif data_format == "date":
                     data_type = 'date'
-                    data = value
+                    try:
+                        value_date = datetime.fromisoformat(value)
+                        data = date(value_date, 'SHORT_DATE_FORMAT')
+                    except ValueError:
+                        pass
 
                 properties.update({key: {
                     "display_value": data,
