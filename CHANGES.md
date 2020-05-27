@@ -2,8 +2,11 @@
 CHANGELOG
 =========
 
-0.3.42.dev0     (2020-05-26)
+0.3.42.dev0     (XXXX-XX-XX)
 ----------------------------
+
+* Format date in display values
+* Fix default cases when layer has no schema
 
 0.3.41          (2020-05-26)
 ----------------------------

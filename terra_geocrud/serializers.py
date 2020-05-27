@@ -1,6 +1,7 @@
 import json
 from collections import OrderedDict
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 
 from django.template.defaultfilters import date
@@ -162,7 +163,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
         for key, value in final_properties.items():
             data_type = 'data'
             data = value
-            data_format = feature.layer.schema.get('properties').get(key, {}).get('format')
+            data_format = feature.layer.schema.get('properties', {}).get(key, {}).get('format')
 
             if data_format == 'data-url':
                 # apply special cases for files
@@ -191,14 +192,18 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
                         pass
             elif data_format == "date":
                 data_type = 'date'
-                data = value
+                try:
+                    value_date = datetime.fromisoformat(value)
+                    data = date(value_date, 'SHORT_DATE_FORMAT')
+                except ValueError:
+                    pass
 
             properties.update({key: {
                 "display_value": data,
                 "type": data_type,
                 "title": feature.layer.get_property_title(key),
                 "value": feature.properties.get(key),
-                "schema": feature.layer.schema.get('properties').get(key),
+                "schema": feature.layer.schema.get('properties', {}).get(key),
                 "ui_schema": feature.layer.crud_view.ui_schema.get(key, {})
             }})
 
@@ -373,7 +378,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             for key, value in final_properties.items():
                 data_type = 'data'
                 data = value
-                data_format = obj.layer.schema.get('properties').get(key, {}).get('format')
+                data_format = obj.layer.schema.get('properties', {}).get(key, {}).get('format')
 
                 if data_format == 'data-url':
                     # apply special cases for files
@@ -404,14 +409,18 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                             pass
                 elif data_format == "date":
                     data_type = 'date'
-                    data = value
+                    try:
+                        value_date = datetime.fromisoformat(value)
+                        data = date(value_date, 'SHORT_DATE_FORMAT')
+                    except ValueError:
+                        pass
 
                 properties.update({key: {
                     "display_value": data,
                     "type": data_type,
                     "title": obj.layer.get_property_title(key),
                     "value": obj.properties.get(key),
-                    "schema": obj.layer.schema.get('properties').get(key),
+                    "schema": obj.layer.schema.get('properties', {}).get(key),
                     "ui_schema": obj.layer.crud_view.ui_schema.get(key, {})
                 }})
 
