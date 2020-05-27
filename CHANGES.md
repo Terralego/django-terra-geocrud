@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.43.dev0     (XXXX-XX-XX)
+0.3.43          (2020-05-27)
 ----------------------------
 
 * Fix case with date format
