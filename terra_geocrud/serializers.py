@@ -193,7 +193,7 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
             elif data_format == "date":
                 data_type = 'date'
                 try:
-                    value_date = datetime.fromisoformat(value)
+                    value_date = datetime.fromisoformat(str(value))
                     data = date(value_date, 'SHORT_DATE_FORMAT')
                 except ValueError:
                     pass
@@ -410,7 +410,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                 elif data_format == "date":
                     data_type = 'date'
                     try:
-                        value_date = datetime.fromisoformat(value)
+                        value_date = datetime.fromisoformat(str(value))
                         data = date(value_date, 'SHORT_DATE_FORMAT')
                     except ValueError:
                         pass
