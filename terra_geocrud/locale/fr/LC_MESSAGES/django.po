@@ -93,6 +93,19 @@ msgstr "Définir les propriétés présentes dans les tuiles"
 msgid "Define property marked as included in tile in layer definition.."
 msgstr "Définir les propriétés marquées comme incluses dans les tuiles."
 
+msgid "Extra geometry"
+msgstr "Géométrie annexe"
+
+msgid "Extra geometries"
+msgstr "Géométrie annexes"
+
+msgid "Relation"
+msgstr "Relation"
+
+msgid "Relations"
+msgstr "Relations"
+
+
 msgid "Picture"
 msgstr "Image"
 
@@ -104,12 +117,6 @@ msgstr "Pièce-jointe"
 
 msgid "Attachments"
 msgstr "Pièces-jointes"
-
-msgid "Extra geometry"
-msgstr "Géométrie annexe"
-
-msgid "Extra geometries"
-msgstr "Géométrie annexes"
 
 msgid "Geographic Editor Config"
 msgstr "Config. Editeur Géographique"
