@@ -128,14 +128,15 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     @property
     def feature_list_properties(self):
         # TODO: keep default properties at first, then order by property title
-        default_list = list(self.default_list_properties or self.list_available_properties[:8])
+        default_list = list(self.default_list_properties.values_list('key', flat=True)) or list(
+            self.list_available_properties.values_list('key', flat=True))[:8]
         result = {
-            prop: {
-                "title": self.layer.get_property_title(prop),
-                "selected": True if prop in default_list else False,
-                "type": self.layer.get_property_type(prop)
+            prop.key: {
+                "title": self.layer.get_property_title(prop.key),
+                "selected": True if prop.key in default_list else False,
+                "type": self.layer.get_property_type(prop.key)
             }
-            for prop in self.list_available_properties
+            for prop in self.list_available_properties.all()
         }
         # order by title
         return OrderedDict(sorted(result.items(), key=lambda x: x[1]['title']))
