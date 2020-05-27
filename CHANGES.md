@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.3.42.dev0     (XXXX-XX-XX)
+0.3.42          (2020-05-27)
 ----------------------------
 
 * Format date in display values
