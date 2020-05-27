@@ -1,5 +1,4 @@
 import json
-from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
 
@@ -7,18 +6,18 @@ from django.template.defaultfilters import date
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from geostore import settings as geostore_settings
-from geostore.models import LayerExtraGeom, Feature
+from geostore.models import LayerExtraGeom
 from geostore.serializers import LayerSerializer, FeatureSerializer, FeatureExtraGeomSerializer, GeometryFileAsyncSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
 from template_model.models import Template
-from terra_geocrud.properties.files import generate_storage_file_path
 
 from . import models
 from .map.styles import get_default_style
+
+from .properties.files import store_feature_files
 from .properties.utils import serialize_group_properties
-from .properties.files import get_storage, get_info_content
 
 # use base serializer as defined in geostore settings. using django-geostore-routing change this value
 
@@ -396,28 +395,10 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         super().validate_properties(data)
         return data
 
-    def _store_files(self):
-        FAKE_CONTENT = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
-        files_properties = [
-            key for key, value in self.instance.layer.schema.get('properties', {}).items()
-            if self.instance.layer.schema['properties'][key].get('format') == 'data-url'
-        ]
-        if files_properties:
-            storage = get_storage()
-            for file_prop in files_properties:
-                value = self.instance.properties.get(file_prop)
-                if value:
-                    storage_file_path = generate_storage_file_path(file_prop, value, self.instance)
-                    file_info, file_content = get_info_content(value)
-                    # check if file has been saved in storage
-                    if file_content != FAKE_CONTENT:
-                        store_data_file(storage, storage_file_path, file_content)
-                        self.instance.properties[file_prop] = f'{file_info};base64,{FAKE_CONTENT}'
-                        self.instance.save()
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self._store_files()
+    def save(self, **kwargs):
+        super().save(**kwargs)
+        # save base64 file content to storage
+        store_feature_files(self.instance)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
