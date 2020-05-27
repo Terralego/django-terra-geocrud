@@ -361,7 +361,7 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                           format="json")
         data = response_detail.json()
         expected_keys = list(self.crud_view.feature_display_groups.all()
-                             .values_list('slug', flat=True)) + ['__default__']
+                             .values_list('slug', flat=True)) + ['__default__', 'Relations']
         self.assertEqual(list(data['display_properties'].keys()), expected_keys)
 
     def test_property_detail_documents(self):
