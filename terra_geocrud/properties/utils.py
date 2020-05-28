@@ -44,7 +44,7 @@ def serialize_group_properties(feature, final_properties):
         elif data_format == "date":
             data_type = 'date'
             try:
-                value_date = datetime.fromisoformat(str(value))
+                value_date = datetime.strptime(str(value), "%Y-%m-%d").date()
                 data = date(value_date, 'SHORT_DATE_FORMAT')
             except ValueError:
                 pass
