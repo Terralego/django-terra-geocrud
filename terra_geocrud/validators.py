@@ -8,4 +8,4 @@ def validate_schema_property(value):
             "temp": value
         }
     }
-    validate_json_schema(json_schema)
+    return validate_json_schema(json_schema)

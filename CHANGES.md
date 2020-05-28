@@ -5,6 +5,7 @@ CHANGELOG
 0.3.44.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Dont clean features values when property is deleted. (Need to clean with admin crud view action)
 
 0.3.43          (2020-05-27)
 ----------------------------

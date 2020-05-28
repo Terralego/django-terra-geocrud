@@ -1,6 +1,7 @@
 from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -9,6 +10,7 @@ from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_accounts.tests.factories import TerraUserFactory
+from terra_geocrud.tests.factories import AttachmentCategoryFactory
 
 from terra_geocrud.models import CrudViewProperty
 from . import factories
@@ -322,3 +324,23 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         response = self.client.get(reverse('picture-list',
                                            args=(self.feature.identifier, )))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class FeatureAttachmentViewsetTesCase(APITestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+        self.feature = Feature.objects.create(layer=self.crud_view.layer,
+                                              geom='POINT(0 0)')
+        self.category = AttachmentCategoryFactory()
+        self.user = TerraUserFactory()
+        self.client.force_authenticate(self.user)
+
+    def test_feature_is_not_required_in_attachment_creation(self):
+        file = SimpleUploadedFile("file.jpg", b"file_content", content_type="image/jpg")
+        response = self.client.post(reverse('attachment-list',
+                                            args=(self.feature.identifier, )),
+                                    {"category": self.category.pk,
+                                     "legend": "file_test",
+                                     "file": file}, format='multipart')
+        self.assertEqual(response.status_code, 201, response.json())

@@ -44,3 +44,13 @@ class CrudViewAdminTestCase(TestCase):
     def test_detail_endpoint(self):
         response = self.client.get(reverse('admin:terra_geocrud_crudview_change', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_sync_schemas(self):
+        response = self.client.get(f"/admin/terra_geocrud/crudview/{self.view_1.pk}/actions/sync_schemas/",
+                                   follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_clean_feature_properties(self):
+        response = self.client.get(f"/admin/terra_geocrud/crudview/{self.view_1.pk}/actions/clean_feature_properties/",
+                                   follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

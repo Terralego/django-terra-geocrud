@@ -275,12 +275,3 @@ class CrudViewProperty(models.Model):
         return self.ui_schema.get('title',
                                   self.json_schema.get('title',
                                                        self.key.capitalize()))
-
-    def delete(self, **kwargs):
-        super().delete(**kwargs)
-
-        # delete feature property keys
-        fs = self.view.layer.features.all()
-        for f in fs:
-            f.properties.pop(self.key, None)
-            f.save()

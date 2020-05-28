@@ -1,9 +1,11 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from geostore.models import Layer, LayerExtraGeom
+from geostore.models import Layer, LayerExtraGeom, Feature, FeatureExtraGeom
+from terra_geocrud.tests.factories import CrudViewFactory
 
 from terra_geocrud.models import ExtraLayerStyle
 from .. import models
-from ..forms import CrudViewForm, CrudPropertyForm, ExtraLayerStyleForm
+from ..forms import CrudViewForm, CrudPropertyForm, ExtraLayerStyleForm, FeatureExtraGeomForm
 from ..models import CrudViewProperty
 from ..properties.schema import sync_layer_schema, sync_ui_schema
 
@@ -109,3 +111,38 @@ class CrudViewFormTestCase(TestCase):
         self.assertListEqual(sorted(list(form_2.fields['default_list_properties'].queryset.values_list('pk',
                                                                                                        flat=True))),
                              sorted([self.prop_age.pk, self.prop_country.pk]))
+
+
+class FeatureExtraGeomFormTestCase(TestCase):
+    def setUp(self) -> None:
+        self.view = CrudViewFactory()
+        self.extra_layer = LayerExtraGeom.objects.create(layer=self.view.layer,
+                                                         title="extra")
+        self.feature = Feature.objects.create(layer=self.view.layer,
+                                              geom='POINT(0 0)')
+        self.extra_geometry = FeatureExtraGeom.objects.create(feature=self.feature,
+                                                              layer_extra_geom=self.extra_layer,
+                                                              geom='POINT(0 0)')
+
+    def test_invalid_if_no_geometry_provided(self):
+        form = FeatureExtraGeomForm({"geom": None,
+                                     "geojson_file": None},
+                                    instance=self.extra_geometry,)
+        self.assertFalse(form.is_valid())
+
+    def test_file_is_always_used(self):
+        form = FeatureExtraGeomForm({
+            "geom": 'POINT(0 0)',
+            "feature": self.feature.pk,
+            "layer_extra_geom": self.extra_layer.pk
+        }, {
+            "geojson_file": SimpleUploadedFile(
+                "data.geojson",
+                b'{"type": "FeatureCollection","features": [{"type": "Feature","geometry": {"type": "Point","coordinates": [125.6, 10.1]}}]}',
+                content_type="application/json")
+        },
+            instance=self.extra_geometry
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        instance = form.save()
+        self.assertEqual(instance.geom.wkt, 'POINT (125.6 10.1)')
