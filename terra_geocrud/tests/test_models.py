@@ -3,14 +3,17 @@ from tempfile import TemporaryDirectory
 from django.contrib.gis.geos import Point
 from django.test import override_settings
 from django.test.testcases import TestCase
-from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory
-
 from geostore.models import Feature
+
 from terra_geocrud.models import AttachmentCategory, AttachmentMixin, \
     feature_attachment_directory_path, feature_picture_directory_path, CrudViewProperty
+from terra_geocrud.properties.files import get_storage
 from terra_geocrud.tests import factories
+from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory, FeatureAttachmentFactory
 from .. import models
 from ..properties.schema import sync_layer_schema, sync_ui_schema
+
+storage = get_storage()
 
 
 class CrudModelMixinTestCase(TestCase):
@@ -153,3 +156,67 @@ class AttachmentTestCase(TestCase):
     def test_picture_thumbnail(self):
         thumbnail = self.feature_picture.thumbnail
         self.assertIsNotNone(thumbnail)
+
+
+class CrudViewPropertyTestCase(TestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+        self.prop_1 = CrudViewProperty.objects.create(view=self.crud_view, key="name",
+                                                      json_schema={'type': "string", "title": "Name"},
+                                                      ui_schema={'title': 'Real name'})
+        self.prop_2 = CrudViewProperty.objects.create(view=self.crud_view, key="age",
+                                                      json_schema={'type': "integer", "title": "Age"})
+        self.prop_3 = CrudViewProperty.objects.create(view=self.crud_view, key="country",
+                                                      json_schema={'type': "string"})
+
+    def test_str(self):
+        self.assertEqual(str(self.prop_1), f"{self.prop_1.title} ({self.prop_1.key})")
+
+    def test_title_defined_in_uischema(self):
+        """ Title defined in ui schema sould be considered at first """
+        self.assertEqual(self.prop_1.title, self.prop_1.ui_schema.get('title'))
+
+    def test_title_define_in_jsonschema(self):
+        """ Title defined in json schema sould be considered if not defined in ui schema """
+        self.assertEqual(self.prop_2.title, self.prop_2.json_schema.get('title'))
+
+    def test_title_not_defined(self):
+        """ Title not defined in json or ui schema should be key capitalized """
+        self.assertEqual(self.prop_3.title, self.prop_3.key.capitalize())
+
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class FeaturePictureTestCase(TestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+        self.feature = Feature.objects.create(layer=self.crud_view.layer,
+                                              geom='POINT(0 0)')
+        self.pic = FeaturePictureFactory(feature=self.feature)
+
+    def test_image_and_thumbnail_deleted_after_deletion(self):
+        # image exists in storage
+        self.assertTrue(storage.exists(self.pic.image.name))
+        # generate thumbnail
+        thumbnail = self.pic.thumbnail
+        self.assertTrue(storage.exists(thumbnail.name))
+        # delete image
+        self.pic.delete()
+        self.assertFalse(storage.exists(self.pic.image.name))
+        self.assertFalse(storage.exists(thumbnail.name))
+
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class FeatureAttachmentTestCase(TestCase):
+    def setUp(self) -> None:
+        self.crud_view = factories.CrudViewFactory()
+        self.feature = Feature.objects.create(layer=self.crud_view.layer,
+                                              geom='POINT(0 0)')
+        self.attachment = FeatureAttachmentFactory(feature=self.feature)
+
+    def test_file_deleted_after_feature_deletion(self):
+        # file exists in storage
+        self.assertTrue(storage.exists(self.attachment.file.name))
+        # delete attachment
+        self.attachment.delete()
+        # file not in storage anymore
+        self.assertFalse(storage.exists(self.attachment.file.name))
