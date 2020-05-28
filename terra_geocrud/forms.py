@@ -14,13 +14,7 @@ def parse_geometry_file(geom_file):
     temp.write(geom_file.read())
     temp.close()
     ds = DataSource(temp.name)
-
-    if len(ds) == 0:
-        return
-    layer = ds[0]
-    if len(layer) == 0:
-        return
-    geom = layer[0].geom.clone()
+    geom = ds[0][0].geom.clone()
     geom.coord_dim = 2
     return geom.geos
 
