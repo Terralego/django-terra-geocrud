@@ -32,7 +32,7 @@ class CrudGroupView(CrudModelMixin):
     """
     Used to defined group of view in CRUD
     """
-    pictogram = models.ImageField(upload_to='crud/groups/pictograms', null=True, blank=True,
+    pictogram = models.ImageField(upload_to='terra_geocrud/groups/pictograms', null=True, blank=True,
                                   help_text=_("Picto displayed in left menu"))
 
     class Meta:
@@ -52,7 +52,7 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     layer = models.OneToOneField('geostore.Layer', on_delete=models.CASCADE, related_name='crud_view')
     templates = models.ManyToManyField('template_model.Template', related_name='crud_views', blank=True,
                                        help_text=_("Available templates for layer features document generation"))
-    pictogram = models.ImageField(upload_to='crud/views/pictograms', null=True, blank=True,
+    pictogram = models.ImageField(upload_to='terra_geocrud/views/pictograms', null=True, blank=True,
                                   help_text=_("Picto displayed in left menu"))
     map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
     ui_schema = JSONField(default=dict, blank=True, editable=False,
@@ -118,7 +118,7 @@ class FeaturePropertyDisplayGroup(models.Model):
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
     label = models.CharField(max_length=50)
     slug = models.SlugField(blank=True, editable=False)
-    pictogram = models.ImageField(upload_to='crud/feature_display_group/pictograms', null=True, blank=True)
+    pictogram = models.ImageField(upload_to='terra_geocrud/property_groups/pictograms', null=True, blank=True)
 
     def __str__(self):
         return self.label
@@ -160,7 +160,7 @@ class FeaturePropertyDisplayGroup(models.Model):
 
 class AttachmentCategory(models.Model):
     name = models.CharField(unique=True, max_length=255)
-    pictogram = models.ImageField(upload_to='crud/attachments_category/pictograms', null=True, blank=True)
+    pictogram = models.ImageField(upload_to='terra_geocrud/attachments_categories/pictograms', null=True, blank=True)
 
     def __str__(self):
         return self.name
