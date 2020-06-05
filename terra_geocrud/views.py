@@ -121,15 +121,16 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
                                      pk=self.kwargs.get('id_template'))
         content_type, _encoding = mimetypes.guess_type(template.template_file.name)
         path = Path(template.template_file.name)
+        suffix = path.suffix
         feature_name = feature.layer.crud_view.get_feature_title(feature)
         date_formatted = formats.date_format(timezone.localtime(), "SHORT_DATETIME_FORMAT")
-        new_name = f"{template.name}_{feature_name}_{date_formatted}{path.suffix}"
-
+        new_name = f"{template.name}_{feature_name}_{date_formatted}{suffix}"
         response = TemplateResponse(
             request=self.request,
             template=template.template_file.name,
             context={'object': feature},
-            **{'content_type': content_type}
+            **{'content_type': content_type,
+               'using': suffix.strip('.') if suffix in ['.odt', '.docx'] else None}
         )
         response['Content-Disposition'] = f'attachment; filename="{new_name}"'
         return response
