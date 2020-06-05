@@ -6,6 +6,7 @@ CHANGELOG
 ----------------------------
 
 * Dont clean features values when property is deleted. (Need to clean with admin crud view action)
+* Force DocumentGeneration Rendering with correct engine
 
 0.3.43          (2020-05-27)
 ----------------------------
