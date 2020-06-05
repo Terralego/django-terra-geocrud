@@ -130,7 +130,7 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
             template=template.template_file.name,
             context={'object': feature},
             **{'content_type': content_type,
-               'using': suffix.strip('.') if suffix in ['.odt', '.docx'] else None}
+               'using': suffix.strip('.') if suffix in ['.odt', '.docx'] else 'django'}
         )
         response['Content-Disposition'] = f'attachment; filename="{new_name}"'
         return response
