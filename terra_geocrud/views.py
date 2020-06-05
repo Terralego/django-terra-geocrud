@@ -127,7 +127,7 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         new_name = f"{template.name}_{feature_name}_{date_formatted}{suffix}"
         # TODO: fix 'using' key at None. Let django auto detect goog template engine
         #  (for example, by creating a specific folder for odt and docx templates
-        #  OR passign OdtEngine and DocxEngine BEFORE DjangoTemplateEngine
+        #  OR by declaring OdtEngine and DocxEngine BEFORE DjangoTemplateEngine
         response = TemplateResponse(
             request=self.request,
             template=template.template_file.name,
