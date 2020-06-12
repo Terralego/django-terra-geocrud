@@ -55,6 +55,26 @@ Run migrations
 
 you can disable and / or customize admin
 
+::
+from django.contrib import admin
+from geostore.models import Layer, Feature
+from mapbox_baselayer.admin import MapBaseLayerAdmin
+from mapbox_baselayer.models import MapBaseLayer
+
+from terra_geocrud import admin as geocrud_admin, models
+
+admin.site.register(models.CrudGroupView, geocrud_admin.CrudGroupViewAdmin)
+admin.site.register(models.CrudView, geocrud_admin.CrudViewAdmin)
+admin.site.register(models.AttachmentCategory, geocrud_admin.AttachmentCategoryAdmin)
+
+# we recommend to activate MapBaseLayerAdmin to manage map base layers
+admin.site.register(MapBaseLayer, MapBaseLayerAdmin)
+
+# we recommend to use thes admin for this geostore models
+admin.site.register(Layer, geocrud_admin.CrudLayerAdmin)
+admin.site.register(Feature, geocrud_admin.CrudFeatureAdmin)
+
+
 
 - SETTINGS :
 
