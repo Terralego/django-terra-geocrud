@@ -9,7 +9,8 @@
 django-terra-geocrud
 ====================
 
-A backend stored and API configuration for Geographic CRUD. Designed to work with [terra-admin](https://github.com/Terralego/terra-admin) CRUD module, but can be used with any frontend.
+Backend API configurator for Geographic CRUD. Based on  django-geostore
+
 
 .. toctree::
 

@@ -4,11 +4,11 @@
 
 https://django-terra-geocrud.readthedocs.io/
 
-Backend config for terra-admin CRUD
+Backend API configurator for Geographic CRUD. Based on **django-geostore**
 
-* Customize layers, feature, geometries and menu
+* Customize Menu entries, geographic layers and features
 * Customized endpoints to manage layers and features
-* Group properties, order them, define layout and style to render geometries with mapbox
+* Group feature properties, order them, define layout and style to render forms and geometries with mapbox
 
 
 ## Requirements
