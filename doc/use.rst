@@ -1,29 +1,19 @@
 Example of use
 ==============
 
-- TERRA_GEOCRUD provide its own settings url to terralego apps via /api/settings
+- django-terra-gecorud provide its own settings url
 
-like:
-::
-
-  {
-    "modules": {
-      "CRUD': {
-        "settings": "/api/crud/settings/"
-      }
-    }
-  }
-
-Settings provide default config values, and formatted list of crud group and views, ready to be displayed in frontend left menu.
+/api/crud/settings/
 
 
 - There are 4 endpoint in GEOCRUD API:
 
+
 ::
+
     settings/                     -> get ordered menu with views classified by group or not, and basic map settings
     groups/                       -> manage groups of CRUD views
     views/                        -> manage CRUD views (a view creation create its associated layer)
-    template/<template_pk>/render/<pk>/ -> fill a template with a feature
 
 - A command is available to create default views for each existing layer
 
