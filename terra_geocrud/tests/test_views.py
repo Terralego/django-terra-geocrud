@@ -9,8 +9,7 @@ from geostore import GeometryTypes
 from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
-from terra_accounts.tests.factories import TerraUserFactory
-from terra_geocrud.tests.factories import AttachmentCategoryFactory
+from terra_geocrud.tests.factories import AttachmentCategoryFactory, UserFactory
 
 from terra_geocrud.models import CrudViewProperty
 from . import factories
@@ -263,7 +262,7 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         self.attachments = factories.FeatureAttachmentFactory.create_batch(10, feature=self.feature)
         self.template = factories.TemplateDocxFactory()
         self.crud_view.templates.add(self.template)
-        self.user = TerraUserFactory()
+        self.user = UserFactory()
         self.client.force_authenticate(self.user)
 
     def test_list_endpoint(self):
@@ -333,7 +332,7 @@ class FeatureAttachmentViewsetTesCase(APITestCase):
         self.feature = Feature.objects.create(layer=self.crud_view.layer,
                                               geom='POINT(0 0)')
         self.category = AttachmentCategoryFactory()
-        self.user = TerraUserFactory()
+        self.user = UserFactory()
         self.client.force_authenticate(self.user)
 
     def test_feature_is_not_required_in_attachment_creation(self):

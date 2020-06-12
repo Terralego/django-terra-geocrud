@@ -18,17 +18,19 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
     )
 
     def ready(self):
-        super().ready()
-        # in terra lego context, we assume to render module url
-        terra_settings = getattr(settings, 'TERRA_APPLIANCE_SETTINGS', {})
-        modules = terra_settings.get('modules', {})
-        modules.update({
-            'CRUD': {
-                "settings": reverse_lazy('settings'),
-            }
-        })
-        terra_settings.update({'modules': modules})
-        setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
+        if settings.AUTH_USER_MODEL == 'terra_accounts.TerraUser':
+            # sync functionnal perms if using terra accounts auth user model
+            super().ready()
+            # in terra-admin context, we assume to render module url
+            terra_settings = getattr(settings, 'TERRA_APPLIANCE_SETTINGS', {})
+            modules = terra_settings.get('modules', {})
+            modules.update({
+                'CRUD': {
+                    "settings": reverse_lazy('settings'),
+                }
+            })
+            terra_settings.update({'modules': modules})
+            setattr(settings, 'TERRA_APPLIANCE_SETTINGS', terra_settings)
         # Thumbnails settings
         setattr(thumbnail_settings, 'THUMBNAIL_FORMAT', 'PNG')  # force PNG for thumbnail, to keep transparency
         setattr(thumbnail_settings, 'THUMBNAIL_UPSCALE', False)  # never upscale if image size < thumbnail size

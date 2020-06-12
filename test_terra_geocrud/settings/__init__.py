@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'mapbox_baselayer',
     'django_object_actions',
     'admin_ordering',
-    'terra_accounts',
     'terra_geocrud',
     'test_terra_geocrud.test_app',
 ]
@@ -66,7 +65,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'test_terra_geocrud.urls'
-AUTH_USER_MODEL = 'terra_accounts.TerraUser'
 
 TEMPLATES = [
     {
