@@ -5,6 +5,7 @@ CHANGELOG
 0.3.44.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Support Django 3.1
 * Terra Accounts User Model is not required anymore
 * Dont clean features values when property is deleted. (Need to clean with admin crud view action)
 
