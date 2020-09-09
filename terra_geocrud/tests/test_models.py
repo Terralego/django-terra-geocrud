@@ -5,8 +5,8 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from geostore.models import Feature
 
-from terra_geocrud.models import AttachmentCategory, AttachmentMixin, \
-    feature_attachment_directory_path, feature_picture_directory_path, CrudViewProperty
+from terra_geocrud.models import AttachmentCategory, feature_attachment_directory_path, \
+    feature_picture_directory_path, CrudViewProperty, FeatureAttachment
 from terra_geocrud.properties.files import get_storage
 from terra_geocrud.tests import factories
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory, FeatureAttachmentFactory
@@ -129,7 +129,7 @@ class AttachmentCategoryTestCase(TestCase):
 class AttachmentMixinTestCase(TestCase):
     def setUp(self) -> None:
         self.category = AttachmentCategory.objects.create(name='cat test')
-        self.mixin = AttachmentMixin(category=self.category, legend='test')
+        self.mixin = FeatureAttachment(category=self.category, legend='test')
 
     def test_str(self):
         self.assertEqual(str(self.mixin), 'test - (cat test)')
