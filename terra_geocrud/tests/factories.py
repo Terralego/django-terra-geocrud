@@ -7,7 +7,7 @@ from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, F
 from terra_geocrud.tests.settings import DOCX_TEMPLATE
 
 
-class TemplateDocxFactory(factory.DjangoModelFactory):
+class TemplateDocxFactory(factory.django.DjangoModelFactory):
     name = "Complex template"
     template_file = factory.django.FileField(from_path=DOCX_TEMPLATE)
 
@@ -15,7 +15,7 @@ class TemplateDocxFactory(factory.DjangoModelFactory):
         model = Template
 
 
-class CrudViewFactory(factory.DjangoModelFactory):
+class CrudViewFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "Name %03d" % n)
     order = 0
     layer = factory.SubFactory(
@@ -45,7 +45,7 @@ class CrudViewFactory(factory.DjangoModelFactory):
         model = CrudView
 
 
-class AttachmentCategoryFactory(factory.DjangoModelFactory):
+class AttachmentCategoryFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "Name %03d" % n)
     pictogram = factory.django.ImageField(color='green')
 
@@ -53,7 +53,7 @@ class AttachmentCategoryFactory(factory.DjangoModelFactory):
         model = AttachmentCategory
 
 
-class FeaturePictureFactory(factory.DjangoModelFactory):
+class FeaturePictureFactory(factory.django.DjangoModelFactory):
     image = factory.django.ImageField(color='blue')
     category = factory.SubFactory(AttachmentCategoryFactory)
 
@@ -61,7 +61,7 @@ class FeaturePictureFactory(factory.DjangoModelFactory):
         model = FeaturePicture
 
 
-class FeatureAttachmentFactory(factory.DjangoModelFactory):
+class FeatureAttachmentFactory(factory.django.DjangoModelFactory):
     file = factory.django.FileField(name='toto.pdf')
     category = factory.SubFactory(AttachmentCategoryFactory)
 
@@ -69,7 +69,7 @@ class FeatureAttachmentFactory(factory.DjangoModelFactory):
         model = FeatureAttachment
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = 'auth.User'
