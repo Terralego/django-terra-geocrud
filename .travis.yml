@@ -65,7 +65,7 @@ jobs:
     - pip install flake8
     before_script: skip
     script:
-    - flake8 terra_geocrud
+    - flake8 terra_geocrud test_terra_geocrud
 
   - stage: deploy
     before_install: skip
