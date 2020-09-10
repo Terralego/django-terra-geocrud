@@ -1,7 +1,10 @@
+try:
+    from django.db.models import JSONField
+except ImportError:  # TODO: Remove when dropping Django releases < 3.1
+    from django.contrib.postgres.fields import JSONField
 from admin_ordering.admin import OrderableAdmin
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.contrib.postgres import fields
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from django_object_actions import DjangoObjectActions
@@ -36,7 +39,7 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     form = forms.ExtraLayerStyleForm
     extra = 0
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        JSONField: {'widget': JSONEditorWidget},
     }
 
 
@@ -49,7 +52,7 @@ class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
     form = forms.CrudPropertyForm
     extra = 0
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget(height=200)},
+        JSONField: {'widget': JSONEditorWidget(height=200)},
     }
 
 
@@ -79,7 +82,7 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     )
 
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        JSONField: {'widget': JSONEditorWidget},
     }
 
     def get_readonly_fields(self, request, obj=None):
@@ -118,7 +121,7 @@ class CrudLayerAdmin(VersionAdmin):
     list_filter = ('geom_type', 'layer_groups')
     search_fields = ('pk', 'name')
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        JSONField: {'widget': JSONEditorWidget},
     }
     inlines = [LayerExtraGeomInline, ]
     readonly_fields = ('schema', )  # schema is managed with crud view properties
@@ -156,7 +159,7 @@ class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     search_fields = ('pk', 'identifier', )
     inlines = (FeatureExtraGeomInline, FeaturePictureInline, FeatureAttachmentInline)
     formfield_overrides = {
-        fields.JSONField: {'widget': JSONEditorWidget},
+        JSONField: {'widget': JSONEditorWidget},
     }
 
 
