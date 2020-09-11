@@ -1,7 +1,10 @@
 from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
-from django.contrib.postgres.fields import JSONField
+try:
+    from django.db.models import JSONField
+except ImportError:  # TODO: Remove when dropping Django releases < 3.1
+    from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.utils.functional import cached_property
