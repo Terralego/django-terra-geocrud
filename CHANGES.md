@@ -5,6 +5,7 @@ CHANGELOG
 0.3.46.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* use django-admin-thumbnails to show and manage pictograms in django admin
 
 0.3.45          (2020-09-11)
 ----------------------------
