@@ -2,6 +2,7 @@ try:
     from django.db.models import JSONField
 except ImportError:  # TODO: Remove when dropping Django releases < 3.1
     from django.contrib.postgres.fields import JSONField
+import admin_thumbnails
 from admin_ordering.admin import OrderableAdmin
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
@@ -16,10 +17,11 @@ from . import models, forms
 from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema_or_null
 
 
+@admin_thumbnails.thumbnail('pictogram')
 class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
     ordering_field = "order"
     list_editable = ["order"]
-    list_display = ['name', 'order', 'pictogram']
+    list_display = ['name', 'order', 'pictogram_thumbnail']
 
 
 class FeatureDisplayGroupTabularInline(OrderableAdmin, admin.TabularInline):
@@ -56,15 +58,16 @@ class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
     }
 
 
+@admin_thumbnails.thumbnail('pictogram')
 class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     ordering_field = "order"
     list_editable = ["order"]
     filter_horizontal = ('default_list_properties', )
     form = forms.CrudViewForm
-    list_display = ['name', 'group', 'order', 'pictogram']
+    list_display = ['name', 'group', 'order', 'pictogram_thumbnail']
     list_filter = ['group', ]
     inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
-    readonly_fields = ['ui_schema']
+    readonly_fields = ('ui_schema', )
     fieldsets = (
         (None, {'fields': (('name', 'object_name', 'object_name_plural', 'layer'), ('group', 'order', 'pictogram'))}),
         (_('UI schema & properties'), {
@@ -163,6 +166,7 @@ class CrudFeatureAdmin(VersionAdmin, OSMGeoAdmin):
     }
 
 
+@admin_thumbnails.thumbnail('pictogram')
 class AttachmentCategoryAdmin(VersionAdmin):
-    list_display = ('pk', 'name', 'pictogram')
+    list_display = ('pk', 'name', 'pictogram_thumbnail')
     search_fields = ('pk', 'name', )

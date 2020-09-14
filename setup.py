@@ -64,6 +64,7 @@ setup(
         'pillow',
         'sorl-thumbnail>=12.6.2',
         # improve configuration with django admin
+        'django-admin-thumbnails',
         'django-json-widget>=1.0.1',
         'django-admin-ordering',
         'django-object-actions',
