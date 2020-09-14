@@ -215,7 +215,7 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response._headers['content-type'][-1],
+        self.assertEqual(response['content-type'],
                          'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
 
