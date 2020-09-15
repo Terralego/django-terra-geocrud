@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-25 15:45+0000\n"
+"POT-Creation-Date: 2020-09-15 09:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -112,6 +112,12 @@ msgstr ""
 msgid "Display name in left menu"
 msgstr "Affiche le nom dans le menu de gauche"
 
+msgid "Name"
+msgstr "Nom"
+
+msgid "Order"
+msgstr "Classement"
+
 msgid "Order entry in left menu"
 msgstr "Ordonne l'entrée dans le menu de gauche"
 
@@ -124,14 +130,29 @@ msgstr "Groupe"
 msgid "Groups"
 msgstr "Groupes"
 
+msgid "Singular object name"
+msgstr "Nom d'un objet au singulier"
+
+msgid "Plural object name"
+msgstr "Nom d'un objet au pluriel"
+
 msgid "Group this entry in left menu"
 msgstr "Grouper cette entrée dans le menu de gauche"
+
+msgid "Layer"
+msgstr "Couche géographique"
+
+msgid "Document templates"
+msgstr "Gabarits de documents"
 
 msgid "Available templates for layer features document generation"
 msgstr "Gabarits disponible pour la génération de documents"
 
 msgid "Custom mapbox style for this entry"
 msgstr "Style mapbox personnalisé"
+
+msgid "Map style"
+msgstr "Style de carte MapBox"
 
 msgid ""
 "Custom ui:schema style for this entry.\n"
@@ -142,8 +163,15 @@ msgstr ""
 "                                         https://react-jsonschema-form."
 "readthedocs.io/en/latest/form-customization/"
 
+msgid "Properties in feature list"
+msgstr "Propriétés de la liste d'objets"
+
 msgid "Schema properties used in API list by default."
-msgstr "Propriétés utilisées pour le tableau des listes d'objets géographiques."
+msgstr ""
+"Propriétés utilisées pour le tableau des listes d'objets géographiques."
+
+msgid "Title property"
+msgstr "Propriété de titre des objets"
 
 msgid "Schema property used to define feature title."
 msgstr "Propriété utilisée pour le titre de l'objet géographique.'"
@@ -195,7 +223,9 @@ msgstr "URL de la liste des objets géographiques de la vue."
 
 msgid ""
 "Available properties for feature datatable. Ordered, {name: {title, type}}"
-msgstr "Propriétés disponibles pour la liste des objets géographiques. Ordonnés, {name: {title, type}}"
+msgstr ""
+"Propriétés disponibles pour la liste des objets géographiques. Ordonnés, "
+"{name: {title, type}}"
 
 msgid "Main geometry"
 msgstr "Géométrie principale"

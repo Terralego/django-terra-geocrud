@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
+
 try:
     from django.db.models import JSONField
 except ImportError:  # TODO: Remove when dropping Django releases < 3.1
@@ -21,8 +22,10 @@ from .validators import validate_schema_property
 
 
 class CrudModelMixin(models.Model):
-    name = models.CharField(max_length=100, unique=True, help_text=_("Display name in left menu"))
-    order = models.PositiveSmallIntegerField(help_text=_("Order entry in left menu"), db_index=True)
+    name = models.CharField(max_length=100, unique=True, help_text=_("Display name in left menu"),
+                            verbose_name=_('Name'))
+    order = models.PositiveSmallIntegerField(verbose_name=_("Order"),
+                                             help_text=_("Order entry in left menu"), db_index=True)
 
     def __str__(self):
         return self.name
@@ -48,24 +51,32 @@ class CrudView(FormSchemaMixin, MapStyleModelMixin, CrudModelMixin):
     """
     Used to defined ad layer's view in CRUD
     """
-    object_name = models.CharField(max_length=100, default="", blank=True, null=False)
-    object_name_plural = models.CharField(max_length=100, default="", blank=True, null=False)
-    group = models.ForeignKey(CrudGroupView, on_delete=models.SET_NULL, related_name='crud_views',
+    object_name = models.CharField(verbose_name=_("Singular object name"), max_length=100, default="",
+                                   blank=True, null=False)
+    object_name_plural = models.CharField(verbose_name=_("Plural object name"), max_length=100, default="",
+                                          blank=True, null=False)
+    group = models.ForeignKey(CrudGroupView, verbose_name=_("Group"), on_delete=models.SET_NULL,
+                              related_name='crud_views',
                               null=True, blank=True, help_text=_("Group this entry in left menu"))
-    layer = models.OneToOneField('geostore.Layer', on_delete=models.CASCADE, related_name='crud_view')
+    layer = models.OneToOneField('geostore.Layer', on_delete=models.CASCADE, related_name='crud_view',
+                                 verbose_name=_("Layer"))
     templates = models.ManyToManyField('template_model.Template', related_name='crud_views', blank=True,
+                                       verbose_name=_("Document templates"),
                                        help_text=_("Available templates for layer features document generation"))
     pictogram = models.ImageField(upload_to='terra_geocrud/views/pictograms', null=True, blank=True,
                                   help_text=_("Picto displayed in left menu"))
-    map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"))
+    map_style = JSONField(default=dict, blank=True, help_text=_("Custom mapbox style for this entry"),
+                          verbose_name=_("Map style"))
     ui_schema = JSONField(default=dict, blank=True, editable=False,
                           help_text=_("""Custom ui:schema style for this entry.
                                          https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/"""))
     # WARNING: settings is only used to wait for model definition
     settings = JSONField(default=dict, blank=True)
-    default_list_properties = models.ManyToManyField('CrudViewProperty', blank=True, related_name='used_by_list',
+    default_list_properties = models.ManyToManyField('CrudViewProperty', verbose_name=_("Properties in feature list"),
+                                                     blank=True, related_name='used_by_list',
                                                      help_text=_("Schema properties used in API list by default."),)
     feature_title_property = models.ForeignKey('CrudViewProperty', null=True, on_delete=models.SET_NULL,
+                                               verbose_name=_("Title property"),
                                                help_text=_("Schema property used to define feature title."),
                                                related_name='used_by_title', blank=True)
     visible = models.BooleanField(default=True, db_index=True, help_text=_("Keep visible if ungrouped."))

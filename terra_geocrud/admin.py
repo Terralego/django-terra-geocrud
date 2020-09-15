@@ -24,6 +24,7 @@ class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
     list_display = ['name', 'order', 'pictogram_thumbnail']
 
 
+@admin_thumbnails.thumbnail('pictogram')
 class FeatureDisplayGroupTabularInline(OrderableAdmin, admin.TabularInline):
     ordering_field = "order"
     classes = ('collapse', )
@@ -66,10 +67,10 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     form = forms.CrudViewForm
     list_display = ['name', 'group', 'order', 'pictogram_thumbnail']
     list_filter = ['group', ]
-    inlines = [CrudPropertyInline, FeatureDisplayGroupTabularInline, ExtraLayerStyleInLine]
+    inlines = [FeatureDisplayGroupTabularInline, CrudPropertyInline, ExtraLayerStyleInLine]
     readonly_fields = ('ui_schema', )
     fieldsets = (
-        (None, {'fields': (('name', 'object_name', 'object_name_plural', 'layer'), ('group', 'order', 'pictogram'))}),
+        (None, {'fields': (('name', 'object_name', 'object_name_plural', 'layer'), ('group', 'order', 'pictogram', 'pictogram_thumbnail'))}),
         (_('UI schema & properties'), {
             'fields': ('default_list_properties', 'feature_title_property', 'ui_schema'),
             'classes': ('collapse', )

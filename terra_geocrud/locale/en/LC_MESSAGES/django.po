@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-25 15:45+0000\n"
+"POT-Creation-Date: 2020-09-15 09:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -108,6 +108,12 @@ msgstr ""
 msgid "Display name in left menu"
 msgstr ""
 
+msgid "Name"
+msgstr ""
+
+msgid "Order"
+msgstr ""
+
 msgid "Order entry in left menu"
 msgstr ""
 
@@ -120,7 +126,19 @@ msgstr ""
 msgid "Groups"
 msgstr ""
 
+msgid "Singular object name"
+msgstr ""
+
+msgid "Plural object name"
+msgstr ""
+
 msgid "Group this entry in left menu"
+msgstr ""
+
+msgid "Layer"
+msgstr ""
+
+msgid "Document templates"
 msgstr ""
 
 msgid "Available templates for layer features document generation"
@@ -129,13 +147,22 @@ msgstr ""
 msgid "Custom mapbox style for this entry"
 msgstr ""
 
+msgid "Map style"
+msgstr ""
+
 msgid ""
 "Custom ui:schema style for this entry.\n"
 "                                         https://react-jsonschema-form."
 "readthedocs.io/en/latest/form-customization/"
 msgstr ""
 
+msgid "Properties in feature list"
+msgstr ""
+
 msgid "Schema properties used in API list by default."
+msgstr ""
+
+msgid "Title property"
 msgstr ""
 
 msgid "Schema property used to define feature title."

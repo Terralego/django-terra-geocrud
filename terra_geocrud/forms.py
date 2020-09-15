@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 from geostore.models import FeatureExtraGeom
 
 from . import models
+from .models import CrudView
 
 
 def parse_geometry_file(geom_file):
@@ -52,6 +53,10 @@ class CrudViewForm(forms.ModelForm):
             # limit choices to available (linked by crud view)
             self.fields['default_list_properties'].queryset = self.instance.list_available_properties.all()
             self.fields['feature_title_property'].queryset = self.instance.list_available_properties.all()
+            # can only select a layer not used by a crud view
+        else:
+            self.fields['layer'].queryset = self.fields['layer'].queryset.\
+                exclude(pk__in=CrudView.objects.values_list('layer_id', flat=True))
 
     class Meta:
         model = models.CrudView
