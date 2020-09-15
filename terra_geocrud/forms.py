@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.gis.forms import GeometryField
 from django.contrib.gis.gdal import DataSource
 from django.utils.translation import gettext as _
-from geostore.models import FeatureExtraGeom, Layer
+from geostore.models import FeatureExtraGeom
 
 from . import models
 from .models import CrudView

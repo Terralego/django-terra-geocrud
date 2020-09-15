@@ -54,7 +54,6 @@ class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
     model = models.CrudViewProperty
     form = forms.CrudPropertyForm
     extra = 0
-    raw_id_fields = ('group', )
     formfield_overrides = {
         JSONField: {'widget': JSONEditorWidget(height=200)},
     }
