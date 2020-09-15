@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'template_engines',
     'reversion',
     'sorl.thumbnail',
+    'jsonsuit.apps.JSONSuitConfig',
     'geostore',
     'mapbox_baselayer',
     'django_object_actions',
