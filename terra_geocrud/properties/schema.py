@@ -22,7 +22,7 @@ class FormSchemaMixin:
         # add default other properties
         remained_properties = list(self.properties.filter(group__isnull=True).values_list('key', flat=True))
         for prop in remained_properties:
-            generated_schema['properties'][prop] = original_schema['properties'][prop]
+            generated_schema['properties'][prop] = original_schema.get('properties', {}).get(prop)
 
         return generated_schema
 

@@ -5,6 +5,7 @@ CHANGELOG
 0.3.48.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Fix cases when layer has not yet schema definition
 
 0.3.47          (2020-09-15)
 ----------------------------
