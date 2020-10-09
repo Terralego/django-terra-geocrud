@@ -1,5 +1,4 @@
 import json
-from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
 
@@ -104,7 +103,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_feature_list_properties(self, obj):
         # TODO: keep default properties at first, then order by property title
-        default_list = list(obj.default_list_properties.values_list('key', flat=True)) or list(
+        default_list = list(
+            obj.default_list_properties.order_by('group', 'order').values_list('key', flat=True)) or list(
             obj.list_available_properties.values_list('key', flat=True))[:8]
         result = {
             prop.key: {
@@ -115,7 +115,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
             for prop in obj.list_available_properties.all()
         }
         # order by title
-        return OrderedDict(sorted(result.items(), key=lambda x: x[1]['title']))
+        return result
 
     def get_feature_endpoint(self, obj):
         return reverse('feature-list', args=(obj.layer_id,))

@@ -6,6 +6,8 @@ CHANGELOG
 ----------------------------
 
 * Fix cases when layer has not yet schema definition
+* Keep property order in feature list
+
 
 0.3.47          (2020-09-15)
 ----------------------------
