@@ -317,8 +317,9 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
         rendered_template = template_to_render.render(context)
         self.assertEqual('<draw:frame draw:name="test.png" svg:width="15.0" svg:height="15.0" '
-                         'text:anchor-type="paragraph" draw:z-index="0">'
-                         '<draw:image xlink:href="Pictures/test.png" xlink:show="embed" xlink:actuate="onLoad"/>'
+                         'text:anchor-type="paragraph" draw:z-index="37">'
+                         '<draw:image xlink:href="Pictures/test.png" xlink:type="simple" xlink:show="embed" '
+                         'xlink:actuate="onLoad" draw:mime-type="image/png" />'
                          '</draw:frame>', rendered_template)
 
     @mock.patch('requests.post')
