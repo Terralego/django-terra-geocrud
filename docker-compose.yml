@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgres:
-    image: makinacorpus/pgrouting:10-2.5-2.6
+    image: postgis/postgis:12-3.0
     environment:
       - POSTGRES_PASSWORD=travis_ci_test
       - POSTGRES_USER=travis_ci_test
