@@ -17,7 +17,7 @@ jobs:
       postgres:
         image: postgis/postgis:12-3.0
         env:
-          POSTGRES_DB: travis_ci_test        
+          POSTGRES_DB: travis_ci_test
           POSTGRES_PASSWORD: travis_ci_test
           POSTGRES_USER: travis_ci_test
         ports:
@@ -25,7 +25,6 @@ jobs:
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
-           
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
@@ -38,13 +37,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt-get -y install libproj-dev binutils gdal-bin libgdal-dev
         python -m pip install --upgrade pip setuptools wheel flake8
         pip install .[dev] -U
     - name: Lint with flake8
       run: |
         flake8 terra_geocrud test_terra_geocrud
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest
       run: |
-        ./manage.py test
+        coverage run ./manage.py test
