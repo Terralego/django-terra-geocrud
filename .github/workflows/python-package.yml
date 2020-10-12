@@ -29,14 +29,14 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         django-version: [2.2, 3.0, 3.1, dev]
-      exclude:
-        # excludes py38 on OSX
-        - django-version: dev
-          python-version: 3.8
-        - django-version: dev
-          python-version: 3.7
-        - django-version: dev
-          python-version: 3.6
+        exclude:
+          # excludes py38 on OSX
+          - django-version: dev
+            python-version: 3.8
+          - django-version: dev
+            python-version: 3.7
+          - django-version: dev
+            python-version: 3.6
 
     steps:
     - uses: actions/checkout@v2
