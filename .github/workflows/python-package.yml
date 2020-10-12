@@ -28,6 +28,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
+        django-version: [2.2, 3.0, 3.1, dev]
 
     steps:
     - uses: actions/checkout@v2
@@ -40,6 +41,11 @@ jobs:
         sudo apt-get -y install libproj-dev binutils gdal-bin libgdal-dev
         python -m pip install --upgrade pip setuptools wheel flake8
         pip install .[dev] -U
+        if [[ ${{ matrix.django-version }} == dev ]]; then
+          pip install -e git+https://github.com/django/django@master#egg=django;
+        else
+          pip install Django==${{ matrix.django-version }} -U;
+        fi
     - name: Lint with flake8
       run: |
         flake8 terra_geocrud test_terra_geocrud
