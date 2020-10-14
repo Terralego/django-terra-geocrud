@@ -55,7 +55,7 @@ setup(
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
         #'django-template-engines>=1.2.26',
-        'django-template-engines@https://github.com/Terralego/django-template-engines/archive/add_default_tags_for_pdf.tar.gz'
+        'django-template-engines@https://github.com/Terralego/django-template-engines/archive/add_default_tags_for_pdf.tar.gz',
         'django-mapbox-baselayer>=0.0.3',
         'django-geostore>=0.3.17',
         'django-terra-accounts>=0.3.8',
