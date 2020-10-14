@@ -2,8 +2,10 @@
 CHANGELOG
 =========
 
-0.3.48.dev0     (XXXX-XX-XX)
+0.3.48          (2020-10-14)
 ----------------------------
+
+* Fix case where pdf is not identified
 
 
 0.3.47          (2020-09-15)
