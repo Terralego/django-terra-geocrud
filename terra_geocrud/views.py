@@ -121,14 +121,14 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
                                      pk=self.kwargs.get('id_template'))
         content_type, _encoding = mimetypes.guess_type(template.template_file.name)
         path = Path(template.template_file.name)
-        suffix = path.suffix
+        original_suffix = path.suffix
         for suffix in path.suffixes:
             if 'pdf' in suffix:
                 content_type = "application/pdf"
-                suffix = ".pdf"
+                original_suffix = ".pdf"
         feature_name = feature.layer.crud_view.get_feature_title(feature)
         date_formatted = formats.date_format(timezone.localtime(), "SHORT_DATETIME_FORMAT")
-        new_name = f"{template.name}_{feature_name}_{date_formatted}{suffix}"
+        new_name = f"{template.name}_{feature_name}_{date_formatted}{original_suffix}"
 
         response = TemplateResponse(
             request=self.request,
