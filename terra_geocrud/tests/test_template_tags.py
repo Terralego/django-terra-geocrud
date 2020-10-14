@@ -19,7 +19,7 @@ from geostore import GeometryTypes
 
 from mapbox_baselayer.models import BaseLayerTile, MapBaseLayer
 from terra_geocrud.models import ExtraLayerStyle, CrudViewProperty
-from terra_geocrud.templatetags.map_tags import MapImageLoaderNodeURL, stored_image_base64
+from terra_geocrud.templatetags.map_tags import MapImageLoaderURLODTNode, stored_image_base64
 from terra_geocrud import settings as app_settings
 from ..properties.schema import sync_layer_schema
 
@@ -57,7 +57,7 @@ class MapImageUrlLoaderTestCase(TestCase):
         self.crud_view_point.templates.add(self.template)
         self.crud_view_line.templates.add(self.template)
 
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        self.node = MapImageLoaderURLODTNode('http://mbglrenderer/render')
 
         self.token_mapbox = app_settings.TERRA_GEOCRUD.get('map', {}).get('mapbox_access_token')
 
@@ -194,11 +194,11 @@ class StyleMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
     def test_get_value_context_line(self, token):
         self.maxDiff = None
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
-                                                                              'height': None,
-                                                                              'feature_included': None,
-                                                                              'extra_features': None,
-                                                                              'base_layer': None})
+        self.node = MapImageLoaderURLODTNode('http://mbglrenderer/render', data={'width': None,
+                                                                                 'height': None,
+                                                                                 'feature_included': None,
+                                                                                 'extra_features': None,
+                                                                                 'base_layer': None})
         style = self.node.get_data(Context({'object': self.line}))
         dict_style = {
             "version": 8,
@@ -227,11 +227,11 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
         self.maxDiff = None
         settings_terra = app_settings.TERRA_GEOCRUD
         settings_terra['MAX_ZOOM'] = 20
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
-                                                                              'height': None,
-                                                                              'feature_included': None,
-                                                                              'extra_features': None,
-                                                                              'base_layer': None})
+        self.node = MapImageLoaderURLODTNode('http://mbglrenderer/render', data={'width': None,
+                                                                                 'height': None,
+                                                                                 'feature_included': None,
+                                                                                 'extra_features': None,
+                                                                                 'base_layer': None})
 
         with override_settings(TERRA_GEOCRUD=settings_terra):
             style = self.node.get_data(Context({'object': self.point}))
@@ -259,11 +259,14 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
     def test_get_value_context_line_with_extra_features(self, token):
         self.maxDiff = None
-        self.node = MapImageLoaderNodeURL('http://mbglrenderer/render', data={'width': None,
-                                                                              'height': None,
-                                                                              'feature_included': None,
-                                                                              'base_layer': None,
-                                                                              'extra_features': FilterExpression("'test'", Parser(''))})
+        self.node = MapImageLoaderURLODTNode(
+            'http://mbglrenderer/render',
+            data={'width': None,
+                  'height': None,
+                  'feature_included': None,
+                  'base_layer': None,
+                  'extra_features': FilterExpression("'test'", Parser(''))}
+        )
         style = self.node.get_data(Context({'object': self.line}))
 
         dict_style = {
@@ -339,17 +342,17 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
 class ZoomLineMapImageUrlLoaderTestCase(TestCase):
     def test_get_zoom(self):
-        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        node = MapImageLoaderURLODTNode('http://mbglrenderer/render')
         collection = GeometryCollection(LineString([[-180, -85.06], [180, 85.06]]), srid=4326)
         self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
 
     def test_get_zoom_no_width(self):
-        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        node = MapImageLoaderURLODTNode('http://mbglrenderer/render')
         collection = GeometryCollection(LineString([[0, -85.06], [0, 85.06]]), srid=4326)
         self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
 
     def test_get_zoom_no_height(self):
-        node = MapImageLoaderNodeURL('http://mbglrenderer/render')
+        node = MapImageLoaderURLODTNode('http://mbglrenderer/render')
         collection = GeometryCollection(LineString([[-180, 0], [180, 0]]), srid=4326)
         self.assertEqual(0, node.get_zoom_bounds(1024, 1024, collection))
 
