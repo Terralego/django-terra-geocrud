@@ -201,7 +201,7 @@ def map_image_base64(parser, token):
         raise template.TemplateSyntaxError("Usage: %s" % usage)
     kwargs['request'] = 'POST'
     kwargs['data'] = get_map_data(kwargs)
-    return MapImageLoaderURLODTNode(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)
+    return MapImageLoaderURLPDFNode(f"{app_settings.TERRA_GEOCRUD['MBGLRENDERER_URL']}/render", **kwargs)
 
 
 @register.filter
