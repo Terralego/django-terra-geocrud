@@ -84,7 +84,7 @@ class MapImageLoaderBase:
         final_url = self.url
         final_request = self.request
         final_data = self.get_data(context)
-        return final_url, final_request, None, None, final_anchor, final_data
+        return final_url, final_request, None, None, final_data
 
     def get_style_base_layer(self, base_layer):
         try:
