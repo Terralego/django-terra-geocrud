@@ -54,7 +54,7 @@ setup(
         'django>=2.2',
         'django-reversion>=3.0.4',
         'django-template-model>=1.0.1',
-        'django-template-engines>=1.3.38',
+        'django-template-engines>=1.3.8',
         'django-mapbox-baselayer>=0.0.3',
         'django-geostore>=0.3.17',
         'django-terra-accounts>=0.3.8',
