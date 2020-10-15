@@ -310,7 +310,7 @@ class ContextMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
 
 @mock.patch('secrets.token_hex', side_effect=['primary', 'test'])
-class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
+class RenderMapImageUrlLoaderODTTestCase(MapImageUrlLoaderTestCase):
     @mock.patch('requests.post')
     def test_image_url_loader_object(self, mocked_post, token):
         mocked_post.return_value.status_code = 200
@@ -325,8 +325,7 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
                          'xlink:actuate="onLoad" draw:mime-type="image/png" />'
                          '</draw:frame>', rendered_template)
 
-    @mock.patch('requests.post')
-    def test_map_image_url_loader_usage(self, mocked_post, token):
+    def test_map_image_url_loader_usage(self, token):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template('{% load map_tags %}{% map_image_url_loader wrong_key="test" %}')
         self.assertEqual('Usage: {% map_image_url_loader width="5000" height="5000" feature_included=False '
@@ -335,6 +334,32 @@ class RenderMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
     def test_image_url_loader_no_object(self, token):
         context = Context({'object': self.line})
         template_to_render = Template('{% load map_tags %}{% map_image_url_loader feature_included=False %}')
+
+        rendered_template = template_to_render.render(context)
+        self.assertEqual('', rendered_template)
+
+
+class RenderMapImageUrlLoaderPDFTestCase(MapImageUrlLoaderTestCase):
+    @mock.patch('requests.post')
+    def test_image_url_loader_object(self, mocked_post):
+        mocked_post.return_value.status_code = 200
+        mocked_post.return_value.content = SMALL_PICTURE
+        context = Context({'object': self.line})
+        template_to_render = Template('{% load map_tags %}{% image_base64_from_url %}')
+
+        rendered_template = template_to_render.render(context)
+        self.assertTrue(rendered_template.startswith("data:image/png;base64,"))
+        self.assertTrue(rendered_template.endswith("="))
+
+    def test_map_image_url_loader_usage(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template('{% load map_tags %}{% image_base64_from_url wrong_key="test" %}')
+        self.assertEqual('Usage: {% image_base64_from_url width="5000" height="5000" feature_included=False '
+                         'extra_features="feature_1" base_layer="mapbaselayer_1" %}', str(cm.exception))
+
+    def test_image_url_loader_no_object(self):
+        context = Context({'object': self.line})
+        template_to_render = Template('{% load map_tags %}{% image_base64_from_url feature_included=False %}')
 
         rendered_template = template_to_render.render(context)
         self.assertEqual('', rendered_template)
