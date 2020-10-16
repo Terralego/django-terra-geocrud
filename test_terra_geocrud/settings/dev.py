@@ -14,3 +14,4 @@ MIDDLEWARE += (
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda x: True,
 }
+MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')

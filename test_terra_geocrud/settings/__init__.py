@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from tempfile import TemporaryDirectory
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEST = True
 DEBUG = True
@@ -68,6 +70,48 @@ ROOT_URLCONF = 'test_terra_geocrud.urls'
 
 TEMPLATES = [
     {
+        'BACKEND': 'template_engines.backends.odt.OdtEngine',
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                'template_model.loader.Loader',
+            ],
+        },
+    },
+    {
+        'BACKEND': 'template_engines.backends.docx.DocxEngine',
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                'template_model.loader.Loader',
+            ],
+        },
+    },
+    {
+        'BACKEND': 'template_engines.backends.weasyprint.WeasyprintEngine',
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                'template_model.loader.Loader',
+            ],
+        },
+    },
+    {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
@@ -80,8 +124,7 @@ TEMPLATES = [
             ],
         },
     },
-    {'BACKEND': 'template_engines.backends.odt.OdtEngine'},
-    {'BACKEND': 'template_engines.backends.docx.DocxEngine'},
+
 ]
 
 WSGI_APPLICATION = 'test_terra_geocrud.wsgi.application'
@@ -140,4 +183,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
+MEDIA_ROOT = TemporaryDirectory().name
