@@ -5,6 +5,8 @@ CHANGELOG
 0.3.49.dev0     (XXXX-XX-XX)
 ----------------------------
 
+* Support new "image_base64_from_url" tag to get base64 encoded image from url.
+
 
 0.3.48          (2020-10-14)
 ----------------------------

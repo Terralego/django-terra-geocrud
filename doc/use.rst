@@ -44,7 +44,12 @@ Example of use
     ::
 
         {% load map_tags %}
+        {# in odt files #}
         {% map_image_url_loader feature_included=True extra_features="Extra_feature_slug,Extra_feature_2_slug"
          base_layer="mapbox_baselayer_slug" %}
+         {# in pdf files #}
+        {% image_base64_from_url feature_included=True extra_features="Extra_feature_slug,Extra_feature_2_slug"
+         base_layer="mapbox_baselayer_slug" %}
+         image_base64_from_url
 
   You can use the other tags : width, height, anchor.

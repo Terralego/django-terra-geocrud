@@ -202,21 +202,36 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
             geom=Point(x=-0.246322800072846, y=44.5562461167907),
             properties=FEATURE_PROPERTIES,
         )
-        self.template = factories.TemplateDocxFactory.create(
-            name='Template',
+        self.template_odt = factories.TemplateDocxFactory.create(
+            name='Template ODT',
         )
-        self.crud_view.templates.add(self.template)
+        self.template_pdf = factories.TemplatePDFFactory.create(
+            name='Template PDF',
+        )
+        self.crud_view.templates.add(self.template_odt)
+        self.crud_view.templates.add(self.template_pdf)
 
-    def test_template_rendering(self):
+    def test_template_rendering_odt(self):
         response = self.client.get(
             reverse(
                 'feature-generate-template',
-                args=(self.feature.layer.pk, self.feature.identifier, self.template.pk)
+                args=(self.feature.layer.pk, self.feature.identifier, self.template_odt.pk)
             )
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'],
                          'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+    def test_template_rendering_pdf(self):
+        response = self.client.get(
+            reverse(
+                'feature-generate-template',
+                args=(self.feature.layer.pk, self.feature.identifier, self.template_pdf.pk)
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'],
+                         'application/pdf')
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

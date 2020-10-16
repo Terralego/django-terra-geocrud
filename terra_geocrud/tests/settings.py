@@ -15,7 +15,7 @@ with open(os.path.join(JSON_PATH, 'feature_properties.json'), 'rb') as feature_p
     FEATURE_PROPERTIES = json.loads(feature_properties.read())
 
 DOCX_TEMPLATE = os.path.join(TEMPLATES_PATH, 'complex_template.docx')
-
+PDF_TEMPLATE = os.path.join(TEMPLATES_PATH, 'pdf_template.pdf.html')
 SMALL_PICTURE = os.path.join(PICTURES_PATH, 'small_picture.png')
 with open(os.path.join(PICTURES_PATH, 'small_picture.png'), 'rb') as small_picture:
     SMALL_PICTURE = small_picture.read()
