@@ -93,6 +93,9 @@ def clean_properties_not_in_schema_or_null(crud_view):
 
 
 def sync_properties_in_tiles(crud_view):
-    crud_view.layer.settings['properties_filter'] = crud_view.properties.filter(include_in_tile=True)\
-        .values_list('key', flat=True)
+    property_keys = list(crud_view.properties.filter(include_in_tile=True).values_list('key', flat=True))
+    settings = crud_view.layer.settings
+    settings_tiles = settings.get('tiles', {})
+    settings_tiles.update({'properties_filter': property_keys if property_keys else None})
+    settings['tiles'] = settings_tiles
     crud_view.layer.save()
