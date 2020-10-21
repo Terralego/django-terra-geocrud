@@ -54,3 +54,8 @@ class CrudViewAdminTestCase(TestCase):
         response = self.client.get(f"/admin/terra_geocrud/crudview/{self.view_1.pk}/actions/clean_feature_properties/",
                                    follow=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_clean_sync_tile_content(self):
+        response = self.client.get(f"/admin/terra_geocrud/crudview/{self.view_1.pk}/actions/sync_tile_content/",
+                                   follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

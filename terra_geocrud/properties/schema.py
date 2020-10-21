@@ -22,7 +22,7 @@ class FormSchemaMixin:
         # add default other properties
         remained_properties = list(self.properties.filter(group__isnull=True).values_list('key', flat=True))
         for prop in remained_properties:
-            generated_schema['properties'][prop] = original_schema['properties'][prop]
+            generated_schema['properties'][prop] = original_schema.get('properties', {}).get(prop)
 
         return generated_schema
 
@@ -90,3 +90,12 @@ def clean_properties_not_in_schema_or_null(crud_view):
                     properties.pop(prop, 0)
             feat.properties = properties
             feat.save()
+
+
+def sync_properties_in_tiles(crud_view):
+    property_keys = list(crud_view.properties.filter(include_in_tile=True).values_list('key', flat=True))
+    settings = crud_view.layer.settings
+    settings_tiles = settings.get('tiles', {})
+    settings_tiles.update({'properties_filter': property_keys if property_keys else None})
+    settings['tiles'] = settings_tiles
+    crud_view.layer.save()
