@@ -265,6 +265,7 @@ class CrudViewProperty(models.Model):
     key = models.SlugField()
     json_schema = JSONField(blank=False, null=False, default=dict, validators=[validate_schema_property])
     ui_schema = JSONField(blank=True, null=False, default=dict)
+    include_in_tile = models.BooleanField(default=False)
     required = models.BooleanField(default=False)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
 

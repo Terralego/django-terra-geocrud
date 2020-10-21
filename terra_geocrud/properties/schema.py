@@ -90,3 +90,9 @@ def clean_properties_not_in_schema_or_null(crud_view):
                     properties.pop(prop, 0)
             feat.properties = properties
             feat.save()
+
+
+def sync_properties_in_tiles(crud_view):
+    crud_view.layer.settings['properties_filter'] = crud_view.properties.filter(include_in_tile=True)\
+        .values_list('key', flat=True)
+    crud_view.layer.save()

@@ -5,7 +5,7 @@ CHANGELOG
 0.3.50.dev0     (XXXX-XX-XX)
 ----------------------------
 
-* 
+* Allow to define which property should be included in vector tile
 
 
 0.3.49          (2020-10-16)

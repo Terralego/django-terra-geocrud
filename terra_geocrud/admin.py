@@ -14,7 +14,8 @@ from reversion.admin import VersionAdmin
 from sorl.thumbnail.admin import AdminInlineImageMixin
 
 from . import models, forms
-from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema_or_null
+from .properties.schema import sync_layer_schema, sync_ui_schema, clean_properties_not_in_schema_or_null, \
+    sync_properties_in_tiles
 
 
 @admin_thumbnails.thumbnail('pictogram')
@@ -112,7 +113,14 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
     clean_feature_properties.label = _("Clean features with schema")
     clean_feature_properties.short_description = _("Clean feature properties not in generated layer schema.")
 
-    change_actions = ('sync_schemas', 'clean_feature_properties')
+    def sync_tile_content(self, request, obj):
+        sync_properties_in_tiles(obj)
+        messages.success(request, _("Properties in tiles have bee synced."))
+
+    sync_tile_content.label = _("Definie properties in tiles.")
+    sync_tile_content.short_description = _("Define property marked as included in tile in layer definition..")
+
+    change_actions = ('sync_schemas', 'clean_feature_properties', 'sync_tile_content')
 
 
 class LayerExtraGeomInline(admin.TabularInline):
