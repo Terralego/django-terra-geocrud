@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-15 09:19+0000\n"
+"POT-Creation-Date: 2020-10-21 09:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,6 +65,15 @@ msgstr "Nettoyer les propriétés selon le schema"
 
 msgid "Clean feature properties not in generated layer schema."
 msgstr "Nettoyer les propriétés des objets non présents dans le json schema"
+
+msgid "Properties in tiles have been synced."
+msgstr "Les propriétés présentes dans les tuiles ont bien été définies dans la couche."
+
+msgid "Define properties in tiles."
+msgstr "Définir les propriétés présentes dans les tuiles"
+
+msgid "Define property marked as included in tile in layer definition.."
+msgstr "Définir les propriétés marquées comme incluses dans les tuiles."
 
 msgid "Picture"
 msgstr "Image"

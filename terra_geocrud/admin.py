@@ -115,9 +115,9 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
 
     def sync_tile_content(self, request, obj):
         sync_properties_in_tiles(obj)
-        messages.success(request, _("Properties in tiles have bee synced."))
+        messages.success(request, _("Properties in tiles have been synced."))
 
-    sync_tile_content.label = _("Definie properties in tiles.")
+    sync_tile_content.label = _("Define properties in tiles.")
     sync_tile_content.short_description = _("Define property marked as included in tile in layer definition..")
 
     change_actions = ('sync_schemas', 'clean_feature_properties', 'sync_tile_content')
