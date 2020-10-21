@@ -1,3 +1,5 @@
+from nested_admin.nested import NestedModelAdmin, NestedTabularInline
+
 try:
     from django.db.models import JSONField
 except ImportError:  # TODO: Remove when dropping Django releases < 3.1
@@ -26,7 +28,7 @@ class CrudGroupViewAdmin(OrderableAdmin, VersionAdmin):
 
 
 @admin_thumbnails.thumbnail('pictogram')
-class FeatureDisplayGroupTabularInline(OrderableAdmin, admin.TabularInline):
+class FeatureDisplayGroupTabularInline(OrderableAdmin, NestedTabularInline):
     ordering_field = "order"
     classes = ('collapse', )
     verbose_name = _('Display group')
@@ -35,7 +37,7 @@ class FeatureDisplayGroupTabularInline(OrderableAdmin, admin.TabularInline):
     extra = 0
 
 
-class ExtraLayerStyleInLine(admin.TabularInline):
+class ExtraLayerStyleInLine(NestedTabularInline):
     classes = ('collapse', )
     verbose_name = _('Extra layer style')
     verbose_name_plural = _('Extra layer styles')
@@ -47,7 +49,16 @@ class ExtraLayerStyleInLine(admin.TabularInline):
     }
 
 
-class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
+@admin_thumbnails.thumbnail('pictogram')
+class PropertyEnumInline(NestedTabularInline):
+    model = models.PropertyEnum
+    extra = 0
+    classes = ('collapse', )
+    verbose_name = _("Value")
+    verbose_name_plural = _("Available values. Let empty if you want to let free input.")
+
+
+class CrudPropertyInline(OrderableAdmin, NestedTabularInline):
     ordering_field = "order"
     classes = ('collapse', )
     verbose_name = _("Feature property")
@@ -58,10 +69,11 @@ class CrudPropertyInline(OrderableAdmin, admin.TabularInline):
     formfield_overrides = {
         JSONField: {'widget': JSONEditorWidget(height=200)},
     }
+    inlines = [PropertyEnumInline, ]
 
 
 @admin_thumbnails.thumbnail('pictogram')
-class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin):
+class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin, NestedModelAdmin):
     ordering_field = "order"
     list_editable = ["order"]
     filter_horizontal = ('default_list_properties', )

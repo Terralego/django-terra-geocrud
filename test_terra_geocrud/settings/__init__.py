@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'mapbox_baselayer',
     'django_object_actions',
     'admin_ordering',
+    'nested_admin',
     'terra_geocrud',
     'test_terra_geocrud.test_app',
 ]

@@ -33,6 +33,18 @@ class ExtraLayerStyleForm(forms.ModelForm):
 
 
 class CrudPropertyForm(forms.ModelForm):
+    JSON_INITIAL_CHOICES = [
+        (str({'type': 'integer'}), _('Integer')),
+        ({'type': 'number'}, _('Number')),
+        ({'type': 'boolean'}, _('Boolean')),
+        ({'type': 'string'}, _('String')),
+        ({'type': 'array'}, _('Array')),
+        ({'type': 'string', 'format': 'date'}, _('Date')),
+        ({'type': 'string', 'format': 'uri'}, _('URL')),
+        ({'type': 'string', 'format': 'email'}, _('Email')),
+        ({'type': 'string', 'format': 'data-url'}, _('File')),
+    ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:

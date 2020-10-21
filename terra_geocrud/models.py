@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
+from django.core.exceptions import ValidationError
 
 try:
     from django.db.models import JSONField
@@ -290,3 +291,29 @@ class CrudViewProperty(models.Model):
         return self.ui_schema.get('title',
                                   self.json_schema.get('title',
                                                        self.key.capitalize()))
+
+
+class PropertyEnum(models.Model):
+    value = models.CharField(max_length=250, help_text=_("Value should always be casted in property type."))
+    pictogram = models.ImageField(upload_to='terra_geocrud/enums/pictograms', null=True, blank=True,
+                                  help_text=_("Picto. associated to value."))
+    property = models.ForeignKey(CrudViewProperty, on_delete=models.CASCADE, related_name='values')
+
+    def clean(self):
+        try:
+            if self.property.json_schema.get('type') == 'integer':
+                int(self.value)
+            elif self.property.json_schema.get('type') == 'number':
+                float(self.value)
+        except ValueError:
+            raise ValidationError(
+                _(f"Value '{self.value}' should be casted as property type ({self.property.json_schema.get('type')})")
+            )
+
+    def __str__(self):
+        return self.value
+
+    class Meta:
+        unique_together = (
+            ('value', 'property')
+        )

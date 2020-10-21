@@ -68,6 +68,7 @@ setup(
         'django-json-widget>=1.0.1',
         'django-admin-ordering',
         'django-object-actions',
+        'django-nested-admin',
     ],
     tests_require=tests_require,
     extras_require={

@@ -217,3 +217,13 @@ def stored_image_base64(value):
         file_b64 = base64.encodebytes(file_bytes)
         result = f"{data_type};base64," + file_b64.decode()
         return result
+
+
+@register.filter
+def get_pictogram_url_for_value(feature, property_key):
+    property = feature.layer.crud_view.properties.get(key=property_key)
+    value = feature.properties.get(property_key)
+    if value:
+        instance = property.values.get(value=value)
+        if instance and instance.pictogram:
+            return instance.pictogram.url
