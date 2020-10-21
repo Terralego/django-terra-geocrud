@@ -6,6 +6,7 @@ CHANGELOG
 ----------------------------
 
 * Allow to define which property should be included in vector tile
+* Fix cases when layer has not yet schema definition
 
 
 0.3.49          (2020-10-16)
