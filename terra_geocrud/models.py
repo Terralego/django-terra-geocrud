@@ -2,10 +2,11 @@ from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
 from django.core.exceptions import ValidationError
+from django.db.models import FloatField, CharField, IntegerField
 from django.db.models.functions import Cast
 
 try:
-    from django.db.models import JSONField, FloatField, CharField, IntegerField
+    from django.db.models import JSONField
 except ImportError:  # TODO: Remove when dropping Django releases < 3.1
     from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -302,9 +303,11 @@ class CrudViewProperty(models.Model):
         output_field = CharField()
         if self.json_schema.get("type") == "number" or (
                 self.json_schema.get("type") == "array" and self.json_schema.get("items").get("type") == "number"):
+            # final values should be float
             output_field = FloatField()
         elif self.json_schema.get("type") == "integer" or (
                 self.json_schema.get("type") == "array" and self.json_schema.get("items").get("type") == "integer"):
+            # final values should be integer
             output_field = IntegerField()
         values = self.values.all().annotate(final_value=Cast('value', output_field=output_field))
         if values:
