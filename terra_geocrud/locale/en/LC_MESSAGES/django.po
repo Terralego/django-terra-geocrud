@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-21 10:09+0000\n"
+"POT-Creation-Date: 2020-10-22 09:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,6 +28,12 @@ msgid "Extra layer style"
 msgstr ""
 
 msgid "Extra layer styles"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "Available values. Let empty if you want to let free input."
 msgstr ""
 
 msgid "Feature property"
@@ -214,6 +220,17 @@ msgid "ExtraLayer style"
 msgstr ""
 
 msgid "ExtraLayer styles"
+msgstr ""
+
+msgid "Value should always be casted in property type."
+msgstr ""
+
+msgid "Picto. associated to value."
+msgstr ""
+
+msgid ""
+"Value '{self.value}' should be casted as property type ({self.property."
+"json_schema.get('type')})"
 msgstr ""
 
 msgid "VT styles and definitions"

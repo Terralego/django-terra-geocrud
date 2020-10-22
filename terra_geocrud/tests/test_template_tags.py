@@ -1,8 +1,11 @@
 import json
+import os
 from tempfile import TemporaryDirectory
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.gis.geos import GeometryCollection, LineString, Point
+from django.core.files.base import ContentFile
 from django.template import Context, Template
 from django.template.base import FilterExpression, Parser
 from django.template.exceptions import TemplateSyntaxError
@@ -10,6 +13,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from terra_geocrud.tests.settings import PICTURES_PATH
 
 from . import factories
 from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA, SMALL_PICTURE
@@ -18,7 +22,7 @@ from geostore.models import Feature, FeatureExtraGeom, LayerExtraGeom
 from geostore import GeometryTypes
 
 from mapbox_baselayer.models import BaseLayerTile, MapBaseLayer
-from terra_geocrud.models import ExtraLayerStyle, CrudViewProperty
+from terra_geocrud.models import ExtraLayerStyle, CrudViewProperty, PropertyEnum
 from terra_geocrud.templatetags.map_tags import MapImageLoaderURLODTNode, stored_image_base64
 from terra_geocrud import settings as app_settings
 from ..properties.schema import sync_layer_schema
@@ -408,3 +412,44 @@ class StoredBase64FileTestCase(APITestCase):
         self.feature.refresh_from_db()
         data = stored_image_base64(self.feature.properties['logo'])
         self.assertTrue(data.startswith("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9"))
+
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class PictogramURLForValueTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.picture_name = 'small_picture.png'
+        cls.crud_view = factories.CrudViewFactory()
+        cls.property = CrudViewProperty.objects.create(view=cls.crud_view, key="gender",
+                                                       json_schema={'type': "string",
+                                                                    "title": "Gender", })
+        CrudViewProperty.objects.create(view=cls.crud_view, key="other",
+                                        json_schema={'type': "string",
+                                                     "title": "Other", })
+        with open(os.path.join(PICTURES_PATH, cls.picture_name), 'rb') as picto:
+            PropertyEnum.objects.create(
+                value="M",
+                pictogram=ContentFile(picto.read(), name=cls.picture_name),
+                property=cls.property
+            )
+        sync_layer_schema(cls.crud_view)
+        cls.feature = Feature.objects.create(
+            layer=cls.crud_view.layer,
+            geom="POINT(0 0)",
+            properties={
+                "gender": "M"
+            }
+        )
+
+    def test_rendering_with_picto(self):
+        context = Context({'object': self.feature})
+        template_to_render = Template('{% load map_tags %}{{ object|get_pictogram_url_for_value:"gender" }}')
+        rendered_template = template_to_render.render(context)
+        self.assertTrue(rendered_template.startswith(settings.MEDIA_URL))
+        self.assertTrue(rendered_template.endswith(self.picture_name))
+
+    def test_rendering_without_picto(self):
+        context = Context({'object': self.feature})
+        template_to_render = Template('{% load map_tags %}{{ object|get_pictogram_url_for_value:"other" }}')
+        rendered_template = template_to_render.render(context)
+        self.assertEqual(rendered_template, "")

@@ -1,6 +1,9 @@
 from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
+from django.core.exceptions import ValidationError
+from django.db.models import FloatField, CharField, IntegerField
+from django.db.models.functions import Cast
 
 try:
     from django.db.models import JSONField
@@ -265,8 +268,8 @@ class CrudViewProperty(models.Model):
     key = models.SlugField()
     json_schema = JSONField(blank=False, null=False, default=dict, validators=[validate_schema_property])
     ui_schema = JSONField(blank=True, null=False, default=dict)
-    include_in_tile = models.BooleanField(default=False)
-    required = models.BooleanField(default=False)
+    include_in_tile = models.BooleanField(default=False, db_index=True)
+    required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     class Meta:
@@ -290,3 +293,56 @@ class CrudViewProperty(models.Model):
         return self.ui_schema.get('title',
                                   self.json_schema.get('title',
                                                        self.key.capitalize()))
+
+    @cached_property
+    def full_json_schema(self):
+        """
+        Generate full json schema by adding custom conf to store schema.
+        All keys defined in json_schema column are kept if already present.
+        """
+        output_field = CharField()
+        if self.json_schema.get("type") == "number" or (
+                self.json_schema.get("type") == "array" and self.json_schema.get("items").get("type") == "number"):
+            # final values should be float
+            output_field = FloatField()
+        elif self.json_schema.get("type") == "integer" or (
+                self.json_schema.get("type") == "array" and self.json_schema.get("items").get("type") == "integer"):
+            # final values should be integer
+            output_field = IntegerField()
+        values = self.values.all().annotate(final_value=Cast('value', output_field=output_field))
+        if values:
+            json_schema = deepcopy(self.json_schema)
+            if self.json_schema.get('type') != "array":
+                # in non array properties, enum are defined in enum key
+                json_schema.setdefault('enum', list(values.values_list('final_value', flat=True)))
+            else:
+                # in array, enum values are defined in 'items__enum' key
+                json_schema['items'].setdefault('enum', list(values.values_list('final_value', flat=True)))
+            return json_schema
+        return self.json_schema
+
+
+class PropertyEnum(models.Model):
+    value = models.CharField(max_length=250, help_text=_("Value should always be casted in property type."))
+    pictogram = models.ImageField(upload_to='terra_geocrud/enums/pictograms', null=True, blank=True,
+                                  help_text=_("Picto. associated to value."))
+    property = models.ForeignKey(CrudViewProperty, on_delete=models.CASCADE, related_name='values')
+
+    def clean(self):
+        try:
+            if self.property.json_schema.get('type') == 'integer':
+                int(self.value)
+            elif self.property.json_schema.get('type') == 'number':
+                float(self.value)
+        except ValueError:
+            raise ValidationError(
+                _(f"Value '{self.value}' should be casted as property type ({self.property.json_schema.get('type')})")
+            )
+
+    def __str__(self):
+        return self.value
+
+    class Meta:
+        unique_together = (
+            ('value', 'property'),
+        )

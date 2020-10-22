@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-21 10:09+0000\n"
+"POT-Creation-Date: 2020-10-22 09:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,12 @@ msgstr "Style de géométries annexes"
 
 msgid "Extra layer styles"
 msgstr "Style de géométries annexes"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Available values. Let empty if you want to let free input."
+msgstr "Valeurs disponibles. Laisser vide pour une saisie de donnée libre."
 
 msgid "Feature property"
 msgstr "Propriété"
@@ -225,6 +231,19 @@ msgstr "Style de géometrie annexe"
 
 msgid "ExtraLayer styles"
 msgstr "Styles de géométrie annexe"
+
+msgid "Value should always be casted in property type."
+msgstr "La valeur doit ere du même type que la propriété."
+
+msgid "Picto. associated to value."
+msgstr "Picto associé à la valeur"
+
+msgid ""
+"Value '{self.value}' should be casted as property type ({self.property."
+"json_schema.get('type')})"
+msgstr ""
+"la valeur '{self.value}' doît être de même type que la propriété ({self."
+"property.json_schema.get('type')})"
 
 msgid "VT styles and definitions"
 msgstr "Style et définition des tuiles vectorielles"

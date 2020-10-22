@@ -7,6 +7,7 @@ CHANGELOG
 
 * Allow to define which property should be included in vector tile
 * Fix cases when layer has not yet schema definition
+* Allow to define custom list choicers for poperties (enums) associated with pictograms.
 
 
 0.3.49          (2020-10-16)

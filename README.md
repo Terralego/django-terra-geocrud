@@ -26,13 +26,13 @@ Backend API configurator for Geographic CRUD. Based on **django-geostore**
 $ docker-compose build
 $ docker-compose up
 ....
-$ docker-compose run web /code/venv/bin/python3.7 ./manage.py shell
+$ docker-compose run web /code/venv/bin/python ./manage.py shell
 $ docker-compose run web coverage run ./manage.py test
 ```
 
 ### with pip :
 ```bash
-$ python3.7 -m venv venv
+$ python3 -m venv venv
 $ source activate venv/bin/activate
 pip install -e .[dev]
 ```
