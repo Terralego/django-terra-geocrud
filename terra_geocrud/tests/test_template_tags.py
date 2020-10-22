@@ -415,34 +415,6 @@ class StoredBase64FileTestCase(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
-class StoredBase64FileTestCase(APITestCase):
-    def setUp(self) -> None:
-        self.crud_view = factories.CrudViewFactory()
-        CrudViewProperty.objects.create(view=self.crud_view, key="logo",
-                                        json_schema={'type': "string",
-                                                     "title": "Logo",
-                                                     "format": "data-url"})
-        sync_layer_schema(self.crud_view)
-        self.feature = Feature.objects.create(
-            layer=self.crud_view.layer,
-            geom="POINT(0 0)"
-        )
-
-        response = self.client.patch(reverse('feature-detail',
-                                             args=(self.crud_view.layer_id,
-                                                   self.feature.identifier)),
-                                     data={"properties": {"logo": "data:image/png;name=titre_laromieu-fondblanc.jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="}},
-                                     format="json")
-        self.assertEqual(response.status_code, 200, response.__dict__)
-
-    def test_rendering(self):
-        """ b64 data is in data rendering """
-        self.feature.refresh_from_db()
-        data = stored_image_base64(self.feature.properties['logo'])
-        self.assertTrue(data.startswith("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9"))
-
-
-@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class PictogramURLForValueTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
