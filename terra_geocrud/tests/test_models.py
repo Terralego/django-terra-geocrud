@@ -1,12 +1,13 @@
 from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
+from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.test.testcases import TestCase
 from geostore.models import Feature
 
 from terra_geocrud.models import AttachmentCategory, feature_attachment_directory_path, \
-    feature_picture_directory_path, CrudViewProperty, FeatureAttachment
+    feature_picture_directory_path, CrudViewProperty, FeatureAttachment, PropertyEnum
 from terra_geocrud.properties.files import get_storage
 from terra_geocrud.tests import factories
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory, FeatureAttachmentFactory
@@ -177,7 +178,7 @@ class CrudViewPropertyTestCase(TestCase):
         self.assertEqual(self.prop_1.title, self.prop_1.ui_schema.get('title'))
 
     def test_title_define_in_jsonschema(self):
-        """ Title defined in json schema sould be considered if not defined in ui schema """
+        """ Title defined in json schema should be considered if not defined in ui schema """
         self.assertEqual(self.prop_2.title, self.prop_2.json_schema.get('title'))
 
     def test_title_not_defined(self):
@@ -220,3 +221,27 @@ class FeatureAttachmentTestCase(TestCase):
         self.attachment.delete()
         # file not in storage anymore
         self.assertFalse(storage.exists(self.attachment.file.name))
+
+
+class PropertyEnumTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.crud_view = factories.CrudViewFactory()
+        cls.prop_1 = CrudViewProperty.objects.create(view=cls.crud_view, key="age",
+                                                     json_schema={'type': "integer", "title": "Age"})
+        cls.prop_2 = CrudViewProperty.objects.create(view=cls.crud_view, key="height",
+                                                     json_schema={'type': "number", "title": "Height"})
+
+    def test_bad_number_value(self):
+        prop = PropertyEnum(value="France", property=self.prop_2)
+        with self.assertRaises(ValidationError):
+            prop.clean()
+
+    def test_bad_integer_value(self):
+        prop = PropertyEnum(value="France", property=self.prop_1)
+        with self.assertRaises(ValidationError):
+            prop.clean()
+
+    def test_str(self):
+        prop = PropertyEnum(value="France", property=self.prop_1)
+        self.assertEqual(str(prop), "France")

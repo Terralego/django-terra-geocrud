@@ -33,7 +33,7 @@ class FormSchemaMixin:
         """
         ui_schema = deepcopy(self.ui_schema)
 
-        groups = self.feature_display_groups.all()
+        groups = self.feature_display_groups.all().prefetch_related('group_properties')
         for group in groups:
             # each field defined in ui schema should be placed in group key
             ui_schema[group.slug] = {'ui:order': []}
@@ -57,11 +57,15 @@ class FormSchemaMixin:
 
 def sync_layer_schema(crud_view):
     """ sync layer schema with properties defined by crud view properties """
-    properties = crud_view.properties.all()
-    crud_view.layer.schema = {"properties": {
-        prop.key: prop.json_schema for prop in properties
-    }, 'required': list(properties.filter(required=True).values_list('key', flat=True))}
-    # required fields
+    properties = crud_view.properties.all().prefetch_related('values')
+    crud_view.layer.schema = {
+        "properties": {
+            prop.key: prop.full_json_schema for prop in properties
+        },
+        # required fields
+        'required': list(properties.filter(required=True).values_list('key', flat=True))
+    }
+
     crud_view.layer.save()
 
 

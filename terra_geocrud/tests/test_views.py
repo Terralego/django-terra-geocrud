@@ -9,9 +9,11 @@ from geostore import GeometryTypes
 from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
 from rest_framework import status
 from rest_framework.test import APITestCase
+from terra_geocrud.properties.schema import sync_layer_schema
+
 from terra_geocrud.tests.factories import AttachmentCategoryFactory, UserFactory
 
-from terra_geocrud.models import CrudViewProperty
+from terra_geocrud.models import CrudViewProperty, PropertyEnum
 from . import factories
 from .settings import FEATURE_PROPERTIES, LAYER_SCHEMA
 from .. import models, settings as app_settings
@@ -164,6 +166,51 @@ class CrudViewSetTestCase(APITestCase):
         )
         group_1.delete()
         group_2.delete()
+
+    def test_json_schema(self):
+        prop_country = CrudViewProperty.objects.create(view=self.view_1, key="country",
+                                                       json_schema={'type': "string", "title": "Country"})
+        prop_themes = CrudViewProperty.objects.create(view=self.view_1, key="themes",
+                                                      json_schema={'type': "array", "items": {"type": "string"}})
+        PropertyEnum.objects.create(value="France", property=prop_country)
+        PropertyEnum.objects.create(value="Spain", property=prop_country)
+        PropertyEnum.objects.create(value="Theme 1", property=prop_themes)
+        PropertyEnum.objects.create(value="Theme 2", property=prop_themes)
+        sync_ui_schema(self.view_1)
+        sync_layer_schema(self.view_1)
+        response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertDictEqual(
+            data['form_schema'],
+            {'properties': {'country': {'enum': ['Spain', 'France'],
+                                        'title': 'Country',
+                                        'type': 'string'},
+                            "themes": {"type": "array",
+                                       "items": {
+                                           "type": "string",
+                                           "enum": ["Theme 2", "Theme 1"]
+                                       }}},
+             'required': []})
+
+    def test_property_enum_are_casted(self):
+        prop_1 = CrudViewProperty.objects.create(view=self.view_1, key="age2",
+                                                 json_schema={'type': "integer", "title": "Age"})
+        prop_2 = CrudViewProperty.objects.create(view=self.view_1, key="height2",
+                                                 json_schema={'type': "number", "title": "Height"})
+        PropertyEnum.objects.create(value="1", property=prop_1)
+        PropertyEnum.objects.create(value="2", property=prop_1)
+        PropertyEnum.objects.create(value="1.1", property=prop_2)
+        PropertyEnum.objects.create(value="2", property=prop_2)
+        sync_ui_schema(self.view_1)
+        sync_layer_schema(self.view_1)
+        response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertListEqual(sorted(data['form_schema']['properties']['age2']['enum']),
+                             sorted([1, 2]))
+        self.assertListEqual(sorted(data['form_schema']['properties']['height2']['enum']),
+                             sorted([1.1, 2]))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

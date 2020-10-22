@@ -2,9 +2,10 @@ from copy import deepcopy
 
 from django.contrib.gis.db.models import Extent
 from django.core.exceptions import ValidationError
+from django.db.models.functions import Cast
 
 try:
-    from django.db.models import JSONField
+    from django.db.models import JSONField, FloatField, CharField, IntegerField
 except ImportError:  # TODO: Remove when dropping Django releases < 3.1
     from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -266,8 +267,8 @@ class CrudViewProperty(models.Model):
     key = models.SlugField()
     json_schema = JSONField(blank=False, null=False, default=dict, validators=[validate_schema_property])
     ui_schema = JSONField(blank=True, null=False, default=dict)
-    include_in_tile = models.BooleanField(default=False)
-    required = models.BooleanField(default=False)
+    include_in_tile = models.BooleanField(default=False, db_index=True)
+    required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     class Meta:
@@ -291,6 +292,31 @@ class CrudViewProperty(models.Model):
         return self.ui_schema.get('title',
                                   self.json_schema.get('title',
                                                        self.key.capitalize()))
+
+    @cached_property
+    def full_json_schema(self):
+        """
+        Generate full json schema by adding custom conf to store schema.
+        All keys defined in json_schema column are kept if already present.
+        """
+        output_field = CharField()
+        if self.json_schema.get("type") == "number" or (
+                self.json_schema.get("type") == "array" and self.json_schema.get("items").get("type") == "number"):
+            output_field = FloatField()
+        elif self.json_schema.get("type") == "integer" or (
+                self.json_schema.get("type") == "array" and self.json_schema.get("items").get("type") == "integer"):
+            output_field = IntegerField()
+        values = self.values.all().annotate(final_value=Cast('value', output_field=output_field))
+        if values:
+            json_schema = deepcopy(self.json_schema)
+            if self.json_schema.get('type') != "array":
+                # in non array properties, enum are defined in enum key
+                json_schema.setdefault('enum', list(values.values_list('final_value', flat=True)))
+            else:
+                # in array, enum values are defined in 'items__enum' key
+                json_schema['items'].setdefault('enum', list(values.values_list('final_value', flat=True)))
+            return json_schema
+        return self.json_schema
 
 
 class PropertyEnum(models.Model):
