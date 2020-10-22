@@ -1,4 +1,4 @@
-FROM makinacorpus/geodjango:bionic-3.7
+FROM makinacorpus/geodjango:bionic-3.6
 
 RUN apt-get update -qq && apt-get install -y -qq \
     libjpeg62 libjpeg62-dev zlib1g-dev libcairo2 libpango-1.0-0 \
@@ -10,7 +10,7 @@ COPY . /code/src
 RUN chown -R django:django /code
 
 USER django
-RUN python3.7 -m venv /code/venv
+RUN python3.6 -m venv /code/venv
 
 WORKDIR /code/src
 
