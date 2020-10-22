@@ -344,5 +344,5 @@ class PropertyEnum(models.Model):
 
     class Meta:
         unique_together = (
-            ('value', 'property')
+            ('value', 'property'),
         )
