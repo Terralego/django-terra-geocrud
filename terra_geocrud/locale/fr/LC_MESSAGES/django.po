@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-21 14:17+0000\n"
+"POT-Creation-Date: 2020-10-22 09:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,10 +31,10 @@ msgid "Extra layer styles"
 msgstr "Style de géométries annexes"
 
 msgid "Value"
-msgstr ""
+msgstr "Valeur"
 
 msgid "Available values. Let empty if you want to let free input."
-msgstr ""
+msgstr "Valeurs disponibles. Laisser vide pour une saisie de donnée libre."
 
 msgid "Feature property"
 msgstr "Propriété"
@@ -121,33 +121,6 @@ msgstr "GEOCRUD: Peut modifier une feature"
 
 msgid "GEOCRUD: Can delete feature"
 msgstr "GEOCRUD: Peut supprimer une feature"
-
-msgid "Integer"
-msgstr "Nombre entier"
-
-msgid "Number"
-msgstr "Nombre réel"
-
-msgid "Boolean"
-msgstr "Booléen"
-
-msgid "String"
-msgstr "Chaîne de caractères"
-
-msgid "Array"
-msgstr "Tableau"
-
-msgid "Date"
-msgstr "Date"
-
-msgid "URL"
-msgstr "URL"
-
-msgid "Email"
-msgstr "Email"
-
-msgid "File"
-msgstr "Fichier"
 
 msgid "You should define geometry with drawing or file."
 msgstr ""
@@ -269,8 +242,8 @@ msgid ""
 "Value '{self.value}' should be casted as property type ({self.property."
 "json_schema.get('type')})"
 msgstr ""
-"la valeur '{self.value}' doît être de même type que la propriété ({self.property."
-"json_schema.get('type')})"
+"la valeur '{self.value}' doît être de même type que la propriété ({self."
+"property.json_schema.get('type')})"
 
 msgid "VT styles and definitions"
 msgstr "Style et définition des tuiles vectorielles"

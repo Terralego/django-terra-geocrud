@@ -21,7 +21,6 @@ CHANGELOG
 
 * Fix case where pdf is not identified
 
-* Fix cases when layer has not yet schema definition
 
 0.3.47          (2020-09-15)
 ----------------------------

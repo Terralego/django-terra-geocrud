@@ -227,3 +227,4 @@ def get_pictogram_url_for_value(feature, property_key):
         instance = property.values.get(value=value)
         if instance and instance.pictogram:
             return instance.pictogram.url
+    return ""
