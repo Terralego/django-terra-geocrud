@@ -8,9 +8,11 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils import formats, timezone
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
+from geostore import settings as geostore_settings
 from geostore.models import Feature
-from geostore.views import FeatureViewSet, LayerViewSet
+from geostore.views import FeatureViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
@@ -20,6 +22,9 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from . import models, serializers, settings as app_settings
+
+# use BaseViewsSet as defined in geostore settings. using django-geostore-routing change this value
+LayerViewSet = import_string(geostore_settings.GEOSTORE_LAYER_VIEWSSET)
 
 
 def set_reversion_user(_reversion, user):
