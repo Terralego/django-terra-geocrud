@@ -4,9 +4,11 @@ from copy import deepcopy
 from pathlib import Path
 
 from django.template.defaultfilters import date
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from geostore import settings as geostore_settings
 from geostore.models import LayerExtraGeom
-from geostore.serializers import LayerSerializer, FeatureSerializer, FeatureExtraGeomSerializer
+from geostore.serializers import FeatureSerializer, FeatureExtraGeomSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
@@ -16,6 +18,10 @@ from . import models
 from .map.styles import get_default_style
 from .properties.files import store_feature_files
 from .properties.utils import serialize_group_properties
+
+# use base serializer as defined in geostore settings. using django-geostore-routing change this value
+
+LayerSerializer = import_string(geostore_settings.GEOSTORE_LAYER_SERIALIZER)
 
 
 class BaseUpdatableMixin(serializers.ModelSerializer):
