@@ -10,11 +10,11 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
     name = 'terra_geocrud'
     verbose_name = _('Geographic Editor Config')
     permissions = (
-        ("can_manage_views", _("GEOCRUD: Can create / edit / delete views / groups and associated layers.")),
-        ("can_view_feature", _("GEOCRUD: Can read feature detail.")),
-        ("can_add_feature", _("GEOCRUD: Can create feature")),
-        ("can_change_feature", _("GEOCRUD: Can change feature")),
-        ("can_delete_feature", _("GEOCRUD: Can delete feature")),
+        ("Crud", "can_manage_views", _("CRUD: Can create / edit / delete views / groups and associated layers.")),
+        ("Crud", "can_view_feature", _("CRUD: Can read feature detail.")),
+        ("Crud", "can_add_feature", _("CRUD: Can create feature")),
+        ("Crud", "can_change_feature", _("CRUD: Can change feature")),
+        ("Crud", "can_delete_feature", _("CRUD: Can delete feature")),
     )
 
     def ready(self):
