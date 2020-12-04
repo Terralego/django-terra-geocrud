@@ -2,8 +2,11 @@
 CHANGELOG
 =========
 
-1.0.1.dev0      (XXXX-XX-XX)
+1.0.1           (2020-12-04)
 ----------------------------
+
+* Compaitiblity with terra-accounts >= 1.0 and terra-settings >= 1.0
+* Compatibility with django-mapbox-baselayers last version
 
 
 1.0.0           (2020-10-28)
