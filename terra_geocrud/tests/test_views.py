@@ -221,7 +221,7 @@ class CrudSettingsViewTestCase(TestCase):
         self.view_1 = factories.CrudViewFactory(name="View 1", order=0, group=self.group_1)
         self.view_2 = factories.CrudViewFactory(name="View 2", order=0, group=self.group_2)
         self.view_3 = factories.CrudViewFactory(name="View 3", order=1, group=self.group_2)
-        self.response = self.client.get(reverse('settings'))
+        self.response = self.client.get(reverse('crud-settings'))
 
     def test_endpoint_access(self):
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)

@@ -149,15 +149,22 @@ class StyleMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
         dict_style = {
             "version": 8,
-            "sources":
-                {"baselayercustom": {"type": "raster",
-                                     "tiles": ["test.test"],
-                                     'attribution': '',
-                                     'tileSize': 512,
-                                     "minzoom": 0,
-                                     "maxzoom": 22, }},
-            "layers": [
-                {"id": "baselayercustom-background", "type": "raster", "source": "baselayercustom"}]
+            "sources": {
+                "baselayercustom": {
+                    "type": "raster",
+                    "tiles": ["test.test"],
+                    'attribution': '',
+                    'tileSize': 512,
+                    "minzoom": 0,
+                    "maxzoom": 22,
+                }
+            },
+            'glyphs': 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
+            "layers": [{
+                "id": "baselayercustom-background",
+                "type": "raster",
+                "source": "baselayercustom"
+            }]
         }
 
         self.assertDictEqual(dict_style, self.node.get_style(self.line, False, [''], None))
@@ -170,15 +177,22 @@ class StyleMapImageUrlLoaderTestCase(MapImageUrlLoaderTestCase):
 
         dict_style = {
             "version": 8,
-            "sources":
-                {"otherlayercustom": {"type": "raster",
-                                      "attribution": "",
-                                      "tileSize": 512,
-                                      "tiles": ["test.test"],
-                                      "minzoom": 0,
-                                      "maxzoom": 22}},
-            "layers": [
-                {"id": "otherlayercustom-background", "type": "raster", "source": "otherlayercustom"}]
+            "sources": {
+                "otherlayercustom": {
+                    "type": "raster",
+                    "attribution": "",
+                    "tileSize": 512,
+                    "tiles": ["test.test"],
+                    "minzoom": 0,
+                    "maxzoom": 22
+                }
+            },
+            'glyphs': 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
+            "layers": [{
+                "id": "otherlayercustom-background",
+                "type": "raster",
+                "source": "otherlayercustom"
+            }]
         }
 
         self.assertDictEqual(dict_style, self.node.get_style(self.line, False, [''], 'otherlayercustom'))
