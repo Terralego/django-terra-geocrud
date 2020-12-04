@@ -26,7 +26,7 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
             modules = terra_settings.get('modules', {})
             modules.update({
                 'CRUD': {
-                    "settings": reverse_lazy('settings'),
+                    "settings": reverse_lazy('crud-settings'),
                 }
             })
             terra_settings.update({'modules': modules})
