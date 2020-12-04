@@ -16,5 +16,5 @@ router.register(r'features/(?P<identifier>[0-9a-f-]+)/attachments',
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('settings/', views.CrudSettingsApiView.as_view(), name="settings"),
+    path('settings/', views.CrudSettingsApiView.as_view(), name="crud-settings"),
 ]
