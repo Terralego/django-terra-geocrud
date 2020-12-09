@@ -1,9 +1,12 @@
+from unittest.case import skipIf
+
 from django.test import TestCase
 from geostore.models import LayerExtraGeom, FeatureExtraGeom, Feature
+from geostore.settings import GEOSTORE_EXPORT_CELERY_ASYNC
 
 from terra_geocrud import models
 from terra_geocrud.properties.schema import sync_layer_schema, sync_ui_schema
-from terra_geocrud.serializers import CrudFeatureExtraGeomSerializer, CrudFeatureDetailSerializer
+from terra_geocrud.serializers import CrudFeatureExtraGeomSerializer, CrudFeatureDetailSerializer, CrudViewSerializer
 from terra_geocrud.tests import factories
 from terra_geocrud.tests.factories import CrudViewFactory
 
@@ -67,3 +70,27 @@ class CrudFeatureSerializer(TestCase):
         """ Bad value should not raise exception when formatting attempt """
         display_value = self.serializer.data['display_properties']['__default__']['properties']['date_start']['display_value']
         self.assertEqual('test', display_value)
+
+
+class CrudViewSerializerTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.crud_view = factories.CrudViewFactory()
+        sync_layer_schema(cls.crud_view)
+        sync_ui_schema(cls.crud_view)
+
+    @skipIf(not GEOSTORE_EXPORT_CELERY_ASYNC, 'Test with export sync only')
+    def test_exports_with_async_mode(self,):
+        serializer = CrudViewSerializer(self.crud_view)
+        data = serializer.data
+        self.assertDictEqual(data['exports'], {
+            "GeoJSON": f"/api/crud/layers/{self.crud_view.layer_id}/geojson/",
+            "KML": f"/api/crud/layers/{self.crud_view.layer_id}/kml/",
+            "Shape": f"/api/crud/layers/{self.crud_view.layer_id}/shapefile_async/",
+        })
+
+    @skipIf(GEOSTORE_EXPORT_CELERY_ASYNC, 'Test with export async only')
+    def test_exports_without_async_mode(self):
+        serializer = CrudViewSerializer(self.crud_view)
+        data = serializer.data
+        self.assertIsNone(data['exports'], data)

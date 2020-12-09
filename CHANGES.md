@@ -4,6 +4,8 @@ CHANGELOG
 1.0.2.dev0      (XXXX-XX-XX)
 ----------------------------
 
+* Provide right url for async exports
+
 
 1.0.1           (2020-12-04)
 ----------------------------

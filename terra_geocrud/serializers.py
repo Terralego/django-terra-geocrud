@@ -8,7 +8,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from geostore import settings as geostore_settings
 from geostore.models import LayerExtraGeom
-from geostore.serializers import FeatureSerializer, FeatureExtraGeomSerializer
+from geostore.serializers import FeatureSerializer, FeatureExtraGeomSerializer, GeometryFileAsyncSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
@@ -96,13 +96,10 @@ class CrudViewSerializer(serializers.ModelSerializer):
         return data
 
     def get_exports(self, obj):
-        return [{
-            "name": "shapefile",
-            "url": reverse('layer-shapefile', args=[obj.layer_id, ])
-        }, {
-            "name": "geojson",
-            "url": reverse('feature-list', kwargs={'layer': obj.layer_id, 'format': 'geojson'})
-        }]
+        if not geostore_settings.GEOSTORE_EXPORT_CELERY_ASYNC:
+            return None
+        serializer = GeometryFileAsyncSerializer(obj.layer)
+        return serializer.data
 
     def get_extent(self, obj):
         # TODO: use annotated extent
