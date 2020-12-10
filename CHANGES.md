@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.2.dev0      (XXXX-XX-XX)
+1.0.2           (2020-12-10)
 ----------------------------
 
 * Provide right url for async exports
