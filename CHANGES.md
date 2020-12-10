@@ -1,10 +1,10 @@
 CHANGELOG
 =========
 
-1.0.3.dev0      (XXXX-XX-XX)
+1.0.3           (2020-12-10)
 ----------------------------
 
-*
+* Remove compatibility with terra-accounts <= 1.0
 
 
 1.0.2           (2020-12-10)
