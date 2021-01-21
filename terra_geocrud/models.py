@@ -346,3 +346,18 @@ class PropertyEnum(models.Model):
         unique_together = (
             ('value', 'property'),
         )
+
+
+class RoutingSettings(models.Model):
+    label = models.CharField(max_length=250, help_text=_("Label that will be shown on the list"))
+    provider = models.CharField(max_length=250, help_text=_("Provider's name"), choices=(("Mapbox", _("Mapbox")),
+                                                                                         ("Geostore", _("Geostore"))))
+    layer = models.OneToOneField('geostore.Layer', related_name='routing_settings', on_delete=models.CASCADE, null=True)
+    mapbox_transit = models.CharField(max_length=250, help_text=_("Mabox transit"), choices=(("Driving", _("Driving")),
+                                                                                             ("Walking", _("Walking")),
+                                                                                             ("Walking", _("Cycling"))
+                                                                                             ), null=True)
+    crud_view = models.ForeignKey(CrudView, related_name='routing_settings', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.label
