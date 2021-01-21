@@ -76,8 +76,8 @@ jobs:
     - name: Test with coverage
       run: |
         if [[ ${{ matrix.postgres }} == 'postgis/postgis:10-2.5' ]]; then
-          coverage run ./manage.py test
-          coverage run -a ./manage.py test --settings=test_terra_geocrud.settings.async terra_geocrud.tests.test_serializers.CrudViewSerializerTestCase.test_exports_with_async_mode
+          coverage run ./manage.py test --exlude-tag=routing
+          coverage run -a ./manage.py test --exlude-tag=routing --settings=test_terra_geocrud.settings.async terra_geocrud.tests.test_serializers.CrudViewSerializerTestCase.test_exports_with_async_mode
         else
           coverage run ./manage.py test --tag=routing --settings=test_terra_geocrud.settings.routing
         fi
