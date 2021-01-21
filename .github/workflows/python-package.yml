@@ -17,14 +17,26 @@ jobs:
     strategy:
       matrix:
         python-version: [ 3.6, 3.8 ]
-        django-version: [ 2.2, 3.1, 3.2, dev ]
+        django-version: [ 2.2, 3.1 ]
         postgres: [ 'postgis/postgis:10-2.5', 'pgrouting/pgrouting:10-2.5-2.6.3' ]
         experimental: [false]
         include:
           - django-version: dev
             experimental: true
+            python-version: 3.8
+            postgres: 'postgis/postgis:10-2.5'
+          - django-version: dev
+            experimental: true
+            python-version: 3.8
+            postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
           - django-version: 3.2
             experimental: true
+            python-version: 3.8
+            postgres: 'postgis/postgis:10-2.5'
+          - django-version: 3.2
+            experimental: true
+            python-version: 3.8
+            postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
     services:
       postgres:
         image: ${{ matrix.postgres }}
