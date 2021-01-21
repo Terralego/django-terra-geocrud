@@ -47,7 +47,7 @@ jobs:
       run: |
         sudo apt-get -y install libproj-dev binutils gdal-bin libgdal-dev
         python -m pip install --upgrade pip setuptools wheel
-        if [[ ${{ matrix.routing }} ]]; then
+        if [[ ${{ matrix.routing }} == true ]]; then
           pip install .[dev,routing] -U
         else
           pip install .[dev] -U
@@ -62,7 +62,7 @@ jobs:
       run: |
         coverage run ./manage.py test --exclude-tag=routing
         coverage run -a ./manage.py test --exclude-tag=routing --settings=test_terra_geocrud.settings.async terra_geocrud.tests.test_serializers.CrudViewSerializerTestCase.test_exports_with_async_mode
-        if [[ ${{ matrix.routing }} ]]; then
+        if [[ ${{ matrix.routing }} == true ]]; then
           coverage run ./manage.py test --tag=routing --settings=test_terra_geocrud.settings.routing
         fi
     - name: Coverage upload
