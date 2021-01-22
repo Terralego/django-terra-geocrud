@@ -11,6 +11,7 @@ except ImportError:  # TODO: Remove when dropping Django releases < 3.1
     from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
+from django.db.models import UniqueConstraint, Q
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -346,3 +347,64 @@ class PropertyEnum(models.Model):
         unique_together = (
             ('value', 'property'),
         )
+
+
+class RoutingSettings(models.Model):
+    CHOICES_EXTERNAL = (("mapbox", _("Mapbox")), )
+    CHOICES = CHOICES_EXTERNAL + (("geostore", _("Geostore")), )
+    label = models.CharField(max_length=250, help_text=_("Label that will be shown on the list"))
+    provider = models.CharField(max_length=250, help_text=_("Provider's name"), choices=CHOICES)
+    layer = models.ForeignKey('geostore.Layer', related_name='routing_settings', on_delete=models.PROTECT, blank=True,
+                              null=True)
+    mapbox_transit = models.CharField(max_length=250, help_text=_("Mabox transit"), choices=(("driving", _("Driving")),
+                                                                                             ("walking", _("Walking")),
+                                                                                             ("cycling", _("Cycling"))
+                                                                                             ), blank=True)
+    crud_view = models.ForeignKey(CrudView, related_name='routing_settings', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.label
+
+    class Meta:
+        unique_together = (
+            ('label', 'crud_view'),
+            ('layer', 'crud_view'),
+        )
+        constraints = [
+            UniqueConstraint(fields=['provider', 'layer'], condition=Q(layer__isnull=False),
+                             name='check_provider_layer'
+                             ),
+            UniqueConstraint(fields=['provider', 'mapbox_transit'], condition=~Q(mapbox_transit=''),
+                             name='check_provider_mapbox_transit'
+                             ),
+        ]
+
+    def clean(self):
+        if self.layer and not self.layer.routable:
+            raise ValidationError(
+                _("You should define layer with a routable layer")
+            )
+        if self.mapbox_transit and self.layer:
+            raise ValidationError(
+                _("You shouldn't define layer and mapbox_transit")
+            )
+        if self.provider == "mapbox" and self.layer or self.provider == "geostore" and self.mapbox_transit:
+            raise ValidationError(
+                _("You use the wrong provider")
+            )
+        if self.provider == "mapbox" and not self.mapbox_transit:
+            raise ValidationError(
+                _("You should define a mapbox_transit with this provider")
+            )
+        if self.provider == "geostore" and not self.layer:
+            raise ValidationError(
+                _("You should define a layer with this provider")
+            )
+        if RoutingSettings.objects.filter(Q(mapbox_transit=self.mapbox_transit) & ~Q(mapbox_transit='')).exclude(label=self.label):
+            raise ValidationError(
+                _("This transit is already used")
+            )
+        if RoutingSettings.objects.filter(Q(layer=self.layer) & Q(layer__isnull=False)).exclude(label=self.label):
+            raise ValidationError(
+                _("This layer is already used")
+            )

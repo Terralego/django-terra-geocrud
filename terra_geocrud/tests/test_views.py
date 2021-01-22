@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import tag, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_geocrud.properties.schema import sync_layer_schema
 
-from terra_geocrud.tests.factories import AttachmentCategoryFactory, UserFactory
+from terra_geocrud.tests.factories import AttachmentCategoryFactory, UserFactory, RoutingSettingsFactory
 
 from terra_geocrud.models import CrudViewProperty, PropertyEnum
 from . import factories
@@ -211,6 +211,27 @@ class CrudViewSetTestCase(APITestCase):
                              sorted([1, 2]))
         self.assertListEqual(sorted(data['form_schema']['properties']['height2']['enum']),
                              sorted([1.1, 2]))
+
+    def test_routing_settings_crudview_detail(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit="driving", crud_view=self.view_1)
+        response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        routing_settings = data['routing_settings']
+
+        self.assertEqual(routing_settings[0]['provider']['name'], "mapbox")
+        self.assertEqual(routing_settings[0]['provider']['options']["transit"], 'driving')
+
+    @tag('routing', "Only geostore routing")
+    def test_routing_settings_geostorecrudview_detail(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.view_2.layer, crud_view=self.view_1)
+        response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        routing_settings = data['routing_settings']
+
+        self.assertEqual(routing_settings[0]['provider']['name'], "geostore")
+        self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[self.view_2.layer.pk]))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

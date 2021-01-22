@@ -65,6 +65,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
     feature_list_properties = serializers.SerializerMethodField(
         help_text=_("Available properties for feature datatable. Ordered, {name: {title, type}}")
     )
+    routing_settings = serializers.SerializerMethodField()
 
     def get_object_name(self, obj):
         return obj.object_name if obj.object_name else obj.name
@@ -123,6 +124,23 @@ class CrudViewSerializer(serializers.ModelSerializer):
     def get_feature_endpoint(self, obj):
         return reverse('feature-list', args=(obj.layer_id,))
 
+    def get_routing_settings(self, obj):
+        data = []
+        for routing_setting in obj.routing_settings.all():
+            label = routing_setting.label
+            options = {}
+            if routing_setting.provider == "mapbox":
+                options["transit"] = routing_setting.mapbox_transit
+            else:
+                options["url"] = reverse('layer-route', args=[routing_setting.layer.pk])
+            data.append({"label": label,
+                         "provider": {
+                             "name": routing_setting.provider,
+                             "options": options
+                         }
+                         })
+        return data
+
     class Meta:
         model = models.CrudView
         fields = (
@@ -130,7 +148,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
             'pictogram', 'order', 'map_style',
             'form_schema', 'ui_schema', 'settings', 'layer',
             'feature_endpoint', 'extent', 'exports',
-            'feature_list_properties', 'map_layers'
+            'feature_list_properties', 'map_layers',
+            'routing_settings'
         )
 
 

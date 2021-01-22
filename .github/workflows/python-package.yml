@@ -12,10 +12,34 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        python-version: [ 3.6, 3.8 ]
+        django-version: [ 2.2, 3.1 ]
+        postgres: [ 'postgis/postgis:10-2.5', 'pgrouting/pgrouting:10-2.5-2.6.3' ]
+        experimental: [false]
+        include:
+          - django-version: dev
+            experimental: true
+            python-version: 3.8
+            postgres: 'postgis/postgis:10-2.5'
+          - django-version: dev
+            experimental: true
+            python-version: 3.8
+            postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
+          - django-version: 3.2a1
+            experimental: true
+            python-version: 3.8
+            postgres: 'postgis/postgis:10-2.5'
+          - django-version: 3.2a1
+            experimental: true
+            python-version: 3.8
+            postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
     services:
       postgres:
-        image: postgis/postgis:10-2.5
+        image: ${{ matrix.postgres }}
         env:
           POSTGRES_DB: travis_ci_test
           POSTGRES_PASSWORD: travis_ci_test
@@ -25,13 +49,7 @@ jobs:
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
-    strategy:
-      matrix:
-        python-version: [3.6, 3.8]
-        django-version: [2.2, 3.1, dev]
-        include:
-          - django-version: dev
-            experimental: true
+
 
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +62,11 @@ jobs:
       run: |
         sudo apt-get -y install libproj-dev binutils gdal-bin libgdal-dev
         python -m pip install --upgrade pip setuptools wheel
-        pip install .[dev] -U
+        if [[ '${{ matrix.postgres }}' == 'pgrouting/pgrouting:10-2.5-2.6.3' ]]; then
+          pip install .[dev,routing] -U
+        else
+          pip install .[dev] -U
+        fi
         if [[ ${{ matrix.django-version }} == dev ]]; then
           pip install -e git+https://github.com/django/django@master#egg=django;
         else
@@ -53,9 +75,12 @@ jobs:
 
     - name: Test with coverage
       run: |
-        coverage run ./manage.py test
-        coverage run -a ./manage.py test --settings=test_terra_geocrud.settings.async terra_geocrud.tests.test_serializers.CrudViewSerializerTestCase.test_exports_with_async_mode
-
+        if [[ '${{ matrix.postgres }}' == 'postgis/postgis:10-2.5' ]]; then
+          coverage run ./manage.py test --exclude-tag=routing
+          coverage run -a ./manage.py test --exclude-tag=routing --settings=test_terra_geocrud.settings.async terra_geocrud.tests.test_serializers.CrudViewSerializerTestCase.test_exports_with_async_mode
+        else
+          coverage run ./manage.py test --tag=routing --settings=test_terra_geocrud.settings.routing
+        fi
     - name: Coverage upload
       run: |
         pip install codecov

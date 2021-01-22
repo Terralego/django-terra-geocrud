@@ -3,7 +3,7 @@ from template_model.models import Template
 
 from geostore import GeometryTypes
 from geostore.tests.factories import LayerFactory
-from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment
+from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment, RoutingSettings
 from terra_geocrud.tests.settings import DOCX_TEMPLATE, PDF_TEMPLATE
 
 
@@ -90,3 +90,10 @@ class UserFactory(factory.django.DjangoModelFactory):
         kwargs.update({'password': kwargs.get('password', '123456')})
         manager = cls._get_manager(model_class)
         return manager.create_user(*args, **kwargs)
+
+
+class RoutingSettingsFactory(factory.django.DjangoModelFactory):
+    label = factory.Sequence(lambda n: "Label %03d" % n)
+
+    class Meta:
+        model = RoutingSettings

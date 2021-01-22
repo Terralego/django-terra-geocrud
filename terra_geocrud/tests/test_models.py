@@ -2,15 +2,18 @@ from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.test import override_settings
 from django.test.testcases import TestCase
 from geostore.models import Feature
+from geostore.tests.factories import LayerFactory
 
 from terra_geocrud.models import AttachmentCategory, feature_attachment_directory_path, \
     feature_picture_directory_path, CrudViewProperty, FeatureAttachment, PropertyEnum
 from terra_geocrud.properties.files import get_storage
 from terra_geocrud.tests import factories
-from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory, FeatureAttachmentFactory
+from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory, FeatureAttachmentFactory, \
+    RoutingSettingsFactory
 from .. import models
 from ..properties.schema import sync_layer_schema, sync_ui_schema
 
@@ -245,3 +248,72 @@ class PropertyEnumTestCase(TestCase):
     def test_str(self):
         prop = PropertyEnum(value="France", property=self.prop_1)
         self.assertEqual(str(prop), "France")
+
+
+class RoutingSettingsTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.layer = LayerFactory(routable=True)
+        cls.crud_view = factories.CrudViewFactory()
+
+    def test_str(self):
+        setting = RoutingSettingsFactory.create(provider="mapbox", mapbox_transit="driving",
+                                                crud_view=self.crud_view, label="MapBox Driving")
+        self.assertEqual(str(setting), "MapBox Driving")
+
+    def test_provider_mapbox_with_layer(self):
+        setting = RoutingSettingsFactory.create(provider="mapbox", layer=self.layer,
+                                                crud_view=self.crud_view)
+        with self.assertRaises(ValidationError):
+            setting.clean()
+
+    def test_provider_geostore_with_transit(self):
+        setting = RoutingSettingsFactory.create(provider="geostore", mapbox_transit='cycling',
+                                                crud_view=self.crud_view)
+        with self.assertRaises(ValidationError):
+            setting.clean()
+
+    def test_provider_mapbox_without_transit(self):
+        setting = RoutingSettingsFactory.create(provider="mapbox", crud_view=self.crud_view)
+        with self.assertRaises(ValidationError):
+            setting.clean()
+
+    def test_provider_geostore_without_layer(self):
+        setting = RoutingSettingsFactory.create(provider="geostore", crud_view=self.crud_view)
+        with self.assertRaises(ValidationError):
+            setting.clean()
+
+    def test_provider_with_layer_and_transit(self):
+        layer = LayerFactory(routable=True)
+        setting = RoutingSettingsFactory.create(provider="geostore", mapbox_transit='cycling',
+                                                layer=layer, crud_view=self.crud_view)
+        with self.assertRaises(ValidationError):
+            setting.clean()
+
+    def test_layer_not_routable(self):
+        layer = LayerFactory(routable=False)
+        setting = RoutingSettingsFactory.create(provider="geostore", layer=layer, crud_view=self.crud_view)
+        with self.assertRaises(ValidationError):
+            setting.clean()
+
+    def test_same_transit_clean(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.build(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        with self.assertRaisesRegex(ValidationError, 'This transit is already used'):
+            setting.clean()
+
+    def test_same_layer_clean(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.build(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        with self.assertRaisesRegex(ValidationError, 'This layer is already used'):
+            setting.clean()
+
+    def test_same_transit(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        with self.assertRaises(IntegrityError):
+            RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+
+    def test_same_layer(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        with self.assertRaises(IntegrityError):
+            RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)

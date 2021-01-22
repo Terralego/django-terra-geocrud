@@ -72,6 +72,7 @@ setup(
     ],
     tests_require=tests_require,
     extras_require={
+        'routing': ['django-geostore-routing'],
         'dev': tests_require + [
             'django-debug-toolbar',
         ]

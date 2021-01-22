@@ -52,7 +52,7 @@ class CrudGroupViewSet(ReversionMixin, viewsets.ModelViewSet):
 
 
 class CrudViewViewSet(ReversionMixin, viewsets.ModelViewSet):
-    queryset = models.CrudView.objects.all()
+    queryset = models.CrudView.objects.prefetch_related('routing_settings')
     serializer_class = serializers.CrudViewSerializer
 
 
