@@ -254,8 +254,6 @@ class RoutingSettingsTestCase(TestCase):
     def setUpTestData(cls):
         cls.layer = LayerFactory(routable=True)
         cls.crud_view = factories.CrudViewFactory()
-        cls.settings = RoutingSettingsFactory.create(provider="geostore", layer=cls.layer,
-                                                     crud_view=cls.crud_view)
 
     def test_str(self):
         setting = RoutingSettingsFactory.create(provider="mapbox", mapbox_transit="driving",
