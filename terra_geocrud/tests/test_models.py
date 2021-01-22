@@ -263,7 +263,7 @@ class RoutingSettingsTestCase(TestCase):
         self.assertEqual(str(setting), "MapBox Driving")
 
     def test_provider_mapbox_with_layer(self):
-        setting = RoutingSettingsFactory.create(provider="mapbox", layer=self.crud_view.layer,
+        setting = RoutingSettingsFactory.create(provider="mapbox", layer=self.layer,
                                                 crud_view=self.crud_view)
         with self.assertRaises(ValidationError):
             setting.clean()
@@ -287,7 +287,7 @@ class RoutingSettingsTestCase(TestCase):
     def test_provider_with_layer_transit(self):
         layer = LayerFactory(routable=False)
         setting = RoutingSettingsFactory.create(provider="geostore", mapbox_transit='cycling',
-                                                layer=self.crud_view.layer, crud_view=self.crud_view)
+                                                layer=layer, crud_view=self.crud_view)
         with self.assertRaises(ValidationError):
             setting.clean()
 

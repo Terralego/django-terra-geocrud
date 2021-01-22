@@ -11,6 +11,7 @@ except ImportError:  # TODO: Remove when dropping Django releases < 3.1
     from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
+from django.db.models import UniqueConstraint, Q
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -368,10 +369,15 @@ class RoutingSettings(models.Model):
         unique_together = (
             ('label', 'crud_view'),
             ('layer', 'crud_view'),
-            ('provider', 'mapbox_transit'),
-            ('provider', 'layer')
         )
-
+        constraints = [
+            UniqueConstraint(fields=['provider', 'layer'], condition=Q(layer__isnull=False),
+                             name='check_provider_layer'
+                             ),
+            UniqueConstraint(fields=['provider', 'mapbox_transit'], condition=~Q(mapbox_transit=''),
+                             name='check_provider_mapbox_transit'
+                             ),
+        ]
 
     def clean(self):
         layer = self.layer
