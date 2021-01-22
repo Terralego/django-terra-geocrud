@@ -4,7 +4,7 @@ CHANGELOG
 1.0.5.dev0      (XXXX-XX-XX)
 ----------------------------
 
-* 
+* Fix constraints different crudviews for routing settings
 
 
 1.0.4           (2021-01-22)
