@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.4.dev0      (XXXX-XX-XX)
+1.0.4           (2021-01-22)
 ----------------------------
 
 * Add routing settings for each crudview
