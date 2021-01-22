@@ -282,8 +282,8 @@ class RoutingSettingsTestCase(TestCase):
         with self.assertRaises(ValidationError):
             setting.clean()
 
-    def test_provider_with_layer_transit(self):
-        layer = LayerFactory(routable=False)
+    def test_provider_with_layer_and_transit(self):
+        layer = LayerFactory(routable=True)
         setting = RoutingSettingsFactory.create(provider="geostore", mapbox_transit='cycling',
                                                 layer=layer, crud_view=self.crud_view)
         with self.assertRaises(ValidationError):
