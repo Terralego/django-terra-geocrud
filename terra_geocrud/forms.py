@@ -1,13 +1,14 @@
 import tempfile
 
 from django import forms
+from django.conf import settings
 from django.contrib.gis.forms import GeometryField
 from django.contrib.gis.gdal import DataSource
 from django.utils.translation import gettext as _
-from geostore.models import FeatureExtraGeom
+from geostore.models import FeatureExtraGeom, Layer
 
 from . import models
-from .models import CrudView
+from .models import CrudView, RoutingSettings
 
 
 def parse_geometry_file(geom_file):
@@ -92,4 +93,19 @@ class FeatureExtraGeomForm(forms.ModelForm):
 
     class Meta:
         model = FeatureExtraGeom
+        fields = "__all__"
+
+
+class RoutingSettingsForm(forms.ModelForm):
+    layer = forms.ModelChoiceField(queryset=Layer.objects.filter(routable=True), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'geostore_routing' not in settings.INSTALLED_APPS:
+            self.fields['layer'].widget = forms.HiddenInput()
+            self.fields['provider'] = forms.ChoiceField(choices=RoutingSettings.CHOICES_EXTERNAL,
+                                                        required=True)
+
+    class Meta:
+        model = RoutingSettings
         fields = "__all__"

@@ -349,9 +349,10 @@ class PropertyEnum(models.Model):
 
 
 class RoutingSettings(models.Model):
+    CHOICES_EXTERNAL = (("mapbox", _("Mapbox")), )
+    CHOICES = CHOICES_EXTERNAL + (("geostore", _("Geostore")), )
     label = models.CharField(max_length=250, help_text=_("Label that will be shown on the list"))
-    provider = models.CharField(max_length=250, help_text=_("Provider's name"), choices=(("mapbox", _("Mapbox")),
-                                                                                         ("geostore", _("Geostore"))))
+    provider = models.CharField(max_length=250, help_text=_("Provider's name"), choices=CHOICES)
     layer = models.ForeignKey('geostore.Layer', related_name='routing_settings', on_delete=models.PROTECT, blank=True,
                               null=True)
     mapbox_transit = models.CharField(max_length=250, help_text=_("Mabox transit"), choices=(("driving", _("Driving")),
@@ -367,6 +368,8 @@ class RoutingSettings(models.Model):
         unique_together = (
             ('label', 'crud_view'),
             ('layer', 'crud_view'),
+            ('provider', 'mapbox_transit'),
+            ('provider', 'layer')
         )
 
 

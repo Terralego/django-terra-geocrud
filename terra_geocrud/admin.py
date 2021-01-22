@@ -72,6 +72,15 @@ class CrudPropertyInline(OrderableAdmin, NestedTabularInline):
     inlines = [PropertyEnumInline, ]
 
 
+class RoutingSettingsInLine(NestedTabularInline):
+    classes = ('collapse',)
+    verbose_name = _('Routing setting')
+    verbose_name_plural = _('Routing settings')
+    model = models.RoutingSettings
+    extra = 0
+    form = forms.RoutingSettingsForm
+
+
 @admin_thumbnails.thumbnail('pictogram')
 class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin, NestedModelAdmin):
     ordering_field = "order"
@@ -80,7 +89,7 @@ class CrudViewAdmin(OrderableAdmin, DjangoObjectActions, VersionAdmin, NestedMod
     form = forms.CrudViewForm
     list_display = ['name', 'group', 'order', 'pictogram_thumbnail']
     list_filter = ['group', ]
-    inlines = [FeatureDisplayGroupTabularInline, CrudPropertyInline, ExtraLayerStyleInLine]
+    inlines = [FeatureDisplayGroupTabularInline, CrudPropertyInline, ExtraLayerStyleInLine, RoutingSettingsInLine]
     readonly_fields = ('ui_schema', )
     fieldsets = (
         (None, {'fields': (('name', 'object_name', 'object_name_plural', 'layer'), ('group', 'order', 'pictogram', 'pictogram_thumbnail'))}),
