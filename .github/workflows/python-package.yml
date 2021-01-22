@@ -29,11 +29,11 @@ jobs:
             experimental: true
             python-version: 3.8
             postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
-          - django-version: 3.2
+          - django-version: 3.2a1
             experimental: true
             python-version: 3.8
             postgres: 'postgis/postgis:10-2.5'
-          - django-version: 3.2
+          - django-version: 3.2a1
             experimental: true
             python-version: 3.8
             postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
