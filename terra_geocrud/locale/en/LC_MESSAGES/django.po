@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-22 09:29+0000\n"
+"POT-Creation-Date: 2021-01-22 14:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,6 +40,12 @@ msgid "Feature property"
 msgstr ""
 
 msgid "Feature properties"
+msgstr ""
+
+msgid "Routing setting"
+msgstr ""
+
+msgid "Routing settings"
 msgstr ""
 
 msgid "UI schema & properties"
@@ -101,20 +107,19 @@ msgstr ""
 msgid "Geographic Editor Config"
 msgstr ""
 
-msgid ""
-"GEOCRUD: Can create / edit / delete views / groups and associated layers."
+msgid "CRUD: Can create / edit / delete views / groups and associated layers."
 msgstr ""
 
-msgid "GEOCRUD: Can read feature detail."
+msgid "CRUD: Can read feature detail."
 msgstr ""
 
-msgid "GEOCRUD: Can create feature"
+msgid "CRUD: Can create feature"
 msgstr ""
 
-msgid "GEOCRUD: Can change feature"
+msgid "CRUD: Can change feature"
 msgstr ""
 
-msgid "GEOCRUD: Can delete feature"
+msgid "CRUD: Can delete feature"
 msgstr ""
 
 msgid "You should define geometry with drawing or file."
@@ -231,6 +236,51 @@ msgstr ""
 msgid ""
 "Value '{self.value}' should be casted as property type ({self.property."
 "json_schema.get('type')})"
+msgstr ""
+
+msgid "Mapbox"
+msgstr ""
+
+msgid "Geostore"
+msgstr ""
+
+msgid "Label that will be shown on the list"
+msgstr ""
+
+msgid "Provider's name"
+msgstr ""
+
+msgid "Mabox transit"
+msgstr ""
+
+msgid "Driving"
+msgstr ""
+
+msgid "Walking"
+msgstr ""
+
+msgid "Cycling"
+msgstr ""
+
+msgid "You should define layer with a routable layer"
+msgstr ""
+
+msgid "You shouldn't define layer and mapbox_transit"
+msgstr ""
+
+msgid "You use the wrong provider"
+msgstr ""
+
+msgid "You should define a mapbox_transit with this provider"
+msgstr ""
+
+msgid "You should define a layer with this provider"
+msgstr ""
+
+msgid "This transit is already used"
+msgstr ""
+
+msgid "This layer is already used"
 msgstr ""
 
 msgid "VT styles and definitions"

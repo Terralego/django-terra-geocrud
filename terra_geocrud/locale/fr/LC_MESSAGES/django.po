@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-22 09:29+0000\n"
+"POT-Creation-Date: 2021-01-22 14:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,6 +41,16 @@ msgstr "Propriété"
 
 msgid "Feature properties"
 msgstr "Propriétés"
+
+#, fuzzy
+#| msgid "Other settings"
+msgid "Routing setting"
+msgstr "Autres réglages"
+
+#, fuzzy
+#| msgid "Other settings"
+msgid "Routing settings"
+msgstr "Autres réglages"
 
 msgid "UI schema & properties"
 msgstr "Propriété et UI schema"
@@ -104,22 +114,32 @@ msgstr "Géométrie annexes"
 msgid "Geographic Editor Config"
 msgstr "Config. Editeur Géographique"
 
-msgid ""
-"GEOCRUD: Can create / edit / delete views / groups and associated layers."
+#, fuzzy
+#| msgid ""
+#| "GEOCRUD: Can create / edit / delete views / groups and associated layers."
+msgid "CRUD: Can create / edit / delete views / groups and associated layers."
 msgstr ""
 "GEOCRUD: Peut créer / éditier / supprimer les vues / groupes et layers "
 "associés."
 
-msgid "GEOCRUD: Can read feature detail."
+#, fuzzy
+#| msgid "GEOCRUD: Can read feature detail."
+msgid "CRUD: Can read feature detail."
 msgstr "GEOCRUD: Peut lire les détails d'une feature"
 
-msgid "GEOCRUD: Can create feature"
+#, fuzzy
+#| msgid "GEOCRUD: Can create feature"
+msgid "CRUD: Can create feature"
 msgstr "GEOCRUD: Peut créer des features"
 
-msgid "GEOCRUD: Can change feature"
+#, fuzzy
+#| msgid "GEOCRUD: Can change feature"
+msgid "CRUD: Can change feature"
 msgstr "GEOCRUD: Peut modifier une feature"
 
-msgid "GEOCRUD: Can delete feature"
+#, fuzzy
+#| msgid "GEOCRUD: Can delete feature"
+msgid "CRUD: Can delete feature"
 msgstr "GEOCRUD: Peut supprimer une feature"
 
 msgid "You should define geometry with drawing or file."
@@ -244,6 +264,60 @@ msgid ""
 msgstr ""
 "la valeur '{self.value}' doît être de même type que la propriété ({self."
 "property.json_schema.get('type')})"
+
+msgid "Mapbox"
+msgstr "Mapbox"
+
+msgid "Geostore"
+msgstr "Geostore"
+
+msgid "Label that will be shown on the list"
+msgstr "Étiquette qui sera affichée sur la liste"
+
+msgid "Provider's name"
+msgstr "Nom du fournisseur"
+
+msgid "Mabox transit"
+msgstr "Mabox transit"
+
+msgid "Driving"
+msgstr "Voiture"
+
+msgid "Walking"
+msgstr "Marche"
+
+msgid "Cycling"
+msgstr "Vélo"
+
+#, fuzzy
+#| msgid "You should define geometry with drawing or file."
+msgid "You should define layer with a routable layer"
+msgstr ""
+"You devez définir la géométrie en la déssinant ou en fournissant un fichier."
+
+msgid "You shouldn't define layer and mapbox_transit"
+msgstr "Vous ne devez pas définir layer et mapbox_transit en même temps"
+
+msgid "You use the wrong provider"
+msgstr "Vous utilisez le mauvais provider"
+
+#, fuzzy
+#| msgid "You should define geometry with drawing or file."
+msgid "You should define a mapbox_transit with this provider"
+msgstr ""
+"Vous devez définir la géométrie en la déssinant ou en fournissant un fichier."
+
+#, fuzzy
+#| msgid "You should define geometry with drawing or file."
+msgid "You should define a layer with this provider"
+msgstr ""
+"Vous devez définir la géométrie en la déssinant ou en fournissant un fichier."
+
+msgid "This transit is already used"
+msgstr "Ce transit est déjà utilisé"
+
+msgid "This layer is already used"
+msgstr "Cette couche est déjà utilisé"
 
 msgid "VT styles and definitions"
 msgstr "Style et définition des tuiles vectorielles"
