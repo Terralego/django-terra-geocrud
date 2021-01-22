@@ -371,10 +371,10 @@ class RoutingSettings(models.Model):
             ('layer', 'crud_view'),
         )
         constraints = [
-            UniqueConstraint(fields=['provider', 'layer'], condition=Q(layer__isnull=False),
+            UniqueConstraint(fields=['provider', 'layer', 'crud_view'], condition=Q(layer__isnull=False),
                              name='check_provider_layer'
                              ),
-            UniqueConstraint(fields=['provider', 'mapbox_transit'], condition=~Q(mapbox_transit=''),
+            UniqueConstraint(fields=['provider', 'mapbox_transit', 'crud_view'], condition=~Q(mapbox_transit=''),
                              name='check_provider_mapbox_transit'
                              ),
         ]
@@ -400,11 +400,13 @@ class RoutingSettings(models.Model):
             raise ValidationError(
                 _("You should define a layer with this provider")
             )
-        if RoutingSettings.objects.filter(Q(mapbox_transit=self.mapbox_transit) & ~Q(mapbox_transit='')).exclude(label=self.label):
+        if RoutingSettings.objects.filter(Q(mapbox_transit=self.mapbox_transit) & ~Q(mapbox_transit=''),
+                                          crud_view=self.crud_view).exclude(label=self.label):
             raise ValidationError(
                 _("This transit is already used")
             )
-        if RoutingSettings.objects.filter(Q(layer=self.layer) & Q(layer__isnull=False)).exclude(label=self.label):
+        if RoutingSettings.objects.filter(Q(layer=self.layer) & Q(layer__isnull=False),
+                                          crud_view=self.crud_view).exclude(label=self.label):
             raise ValidationError(
                 _("This layer is already used")
             )

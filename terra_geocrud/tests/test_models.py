@@ -255,6 +255,7 @@ class RoutingSettingsTestCase(TestCase):
     def setUpTestData(cls):
         cls.layer = LayerFactory(routable=True)
         cls.crud_view = factories.CrudViewFactory()
+        cls.other_crud_view = factories.CrudViewFactory()
 
     def test_str(self):
         setting = RoutingSettingsFactory.create(provider="mapbox", mapbox_transit="driving",
@@ -317,3 +318,29 @@ class RoutingSettingsTestCase(TestCase):
         RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
         with self.assertRaises(IntegrityError):
             RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+
+    def test_same_transit_different_crud_view(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling',
+                                                crud_view=self.other_crud_view, label="Other")
+        self.assertEqual(str(setting), 'Other')
+
+    def test_same_layer_different_crud_view(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling',
+                                                crud_view=self.other_crud_view, label="Other")
+        self.assertEqual(str(setting), 'Other')
+
+    def test_same_transit_clean_different_crud_view(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.build(provider="mapbox", mapbox_transit='cycling',
+                                               crud_view=self.other_crud_view, label="Other")
+        setting.clean()
+        self.assertEqual(str(setting), 'Other')
+
+    def test_same_layer_clean_different_crud_view(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.build(provider="geostore", layer=self.layer, crud_view=self.other_crud_view,
+                                               label="Other")
+        setting.clean()
+        self.assertEqual(str(setting), 'Other')
