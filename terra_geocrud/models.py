@@ -380,11 +380,10 @@ class RoutingSettings(models.Model):
         ]
 
     def clean(self):
-        if self.layer:
-            if not self.layer.routable:
-                raise ValidationError(
-                    _("You should define layer with a routable layer")
-                )
+        if self.layer and not self.layer.routable:
+            raise ValidationError(
+                _("You should define layer with a routable layer")
+            )
         if self.mapbox_transit and self.layer:
             raise ValidationError(
                 _("You shouldn't define layer and mapbox_transit")
