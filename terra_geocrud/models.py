@@ -380,28 +380,32 @@ class RoutingSettings(models.Model):
         ]
 
     def clean(self):
-        layer = self.layer
-        mapbox_transit = self.mapbox_transit
-        provider = self.provider
-
-        if layer:
-            if not layer.routable:
+        if self.layer:
+            if not self.layer.routable:
                 raise ValidationError(
                     _("You should define layer with a routable layer")
                 )
-        if mapbox_transit and layer:
+        if self.mapbox_transit and self.layer:
             raise ValidationError(
                 _("You shouldn't define layer and mapbox_transit")
             )
-        if provider == "mapbox" and layer or provider == "geostore" and mapbox_transit:
+        if self.provider == "mapbox" and self.layer or self.provider == "geostore" and self.mapbox_transit:
             raise ValidationError(
                 _("You use the wrong provider")
             )
-        if provider == "mapbox" and not mapbox_transit:
+        if self.provider == "mapbox" and not self.mapbox_transit:
             raise ValidationError(
                 _("You should define a mapbox_transit with this provider")
             )
-        if provider == "geostore" and not layer:
+        if self.provider == "geostore" and not self.layer:
             raise ValidationError(
                 _("You should define a layer with this provider")
+            )
+        if RoutingSettings.objects.filter(Q(mapbox_transit=self.mapbox_transit) & ~Q(mapbox_transit='')).exclude(label=self.label):
+            raise ValidationError(
+                _("This transit is already used")
+            )
+        if RoutingSettings.objects.filter(Q(layer=self.layer) & Q(layer__isnull=False)).exclude(label=self.label):
+            raise ValidationError(
+                _("This layer is already used")
             )

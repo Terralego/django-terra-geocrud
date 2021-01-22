@@ -2,6 +2,7 @@ from tempfile import TemporaryDirectory
 
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.test import override_settings
 from django.test.testcases import TestCase
 from geostore.models import Feature
@@ -294,3 +295,25 @@ class RoutingSettingsTestCase(TestCase):
         setting = RoutingSettingsFactory.create(provider="geostore", layer=layer, crud_view=self.crud_view)
         with self.assertRaises(ValidationError):
             setting.clean()
+
+    def test_same_transit_clean(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.build(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        with self.assertRaisesRegex(ValidationError, 'This transit is already used'):
+            setting.clean()
+
+    def test_same_layer_clean(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        setting = RoutingSettingsFactory.build(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        with self.assertRaisesRegex(ValidationError, 'This layer is already used'):
+            setting.clean()
+
+    def test_same_transit(self):
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+        with self.assertRaises(IntegrityError):
+            RoutingSettingsFactory.create(provider="mapbox", mapbox_transit='cycling', crud_view=self.crud_view)
+
+    def test_same_layer(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
+        with self.assertRaises(IntegrityError):
+            RoutingSettingsFactory.create(provider="geostore", layer=self.layer, crud_view=self.crud_view)
