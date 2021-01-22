@@ -126,16 +126,16 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
     def get_routing_settings(self, obj):
         data = []
-        for settings in obj.routing_settings.all():
-            label = settings.label
+        for routing_setting in obj.routing_settings.all():
+            label = routing_setting.label
             options = {}
-            if settings.provider == "Mapbox":
-                options["transit"] = settings.mapbox_transit
+            if routing_setting.provider == "mapbox":
+                options["transit"] = routing_setting.mapbox_transit
             else:
-                options["url"] = reverse('layer-route', args=[settings.layer.pk])
+                options["url"] = reverse('layer-route', args=[routing_setting.layer.pk])
             data.append({"label": label,
                          "provider": {
-                             "name": settings.provider,
+                             "name": routing_setting.provider,
                              "options": options
                          }
                          })

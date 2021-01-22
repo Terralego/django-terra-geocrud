@@ -212,19 +212,26 @@ class CrudViewSetTestCase(APITestCase):
         self.assertListEqual(sorted(data['form_schema']['properties']['height2']['enum']),
                              sorted([1.1, 2]))
 
-    @tag('routing', "Only routing ")
     def test_routing_settings_crudview_detail(self):
-        RoutingSettingsFactory.create(provider="Mapbox", mapbox_transit="driving", crud_view=self.view_1)
-        RoutingSettingsFactory.create(provider="Geostore", layer=self.view_2.layer, crud_view=self.view_1)
+        RoutingSettingsFactory.create(provider="mapbox", mapbox_transit="driving", crud_view=self.view_1)
         response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         routing_settings = data['routing_settings']
 
-        self.assertEqual(routing_settings[0]['provider']['name'], "Geostore")
+        self.assertEqual(routing_settings[0]['provider']['name'], "mapbox")
+        self.assertEqual(routing_settings[0]['provider']['options']["transit"], 'driving')
+
+    @tag('routing', "Only geostore routing")
+    def test_routing_settings_geostorecrudview_detail(self):
+        RoutingSettingsFactory.create(provider="geostore", layer=self.view_2.layer, crud_view=self.view_1)
+        response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        routing_settings = data['routing_settings']
+
+        self.assertEqual(routing_settings[0]['provider']['name'], "geostore")
         self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[self.view_2.layer.pk]))
-        self.assertEqual(routing_settings[1]['provider']['name'], "Mapbox")
-        self.assertEqual(routing_settings[1]['provider']['options']["transit"], 'driving')
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

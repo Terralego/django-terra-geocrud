@@ -368,3 +368,31 @@ class RoutingSettings(models.Model):
             ('label', 'crud_view'),
             ('layer', 'crud_view'),
         )
+
+
+    def clean(self):
+        layer = self.layer
+        mapbox_transit = self.mapbox_transit
+        provider = self.provider
+
+        if layer:
+            if not layer.routable:
+                raise ValidationError(
+                    _("You should define layer with a routable layer")
+                )
+        if mapbox_transit and layer:
+            raise ValidationError(
+                _("You shouldn't define layer and mapbox_transit")
+            )
+        if provider == "mapbox" and layer or provider == "geostore" and mapbox_transit:
+            raise ValidationError(
+                _("You use the wrong provider")
+            )
+        if provider == "mapbox" and not mapbox_transit:
+            raise ValidationError(
+                _("You should define a mapbox_transit with this provider")
+            )
+        if provider == "geostore" and not layer:
+            raise ValidationError(
+                _("You should define a layer with this provider")
+            )
