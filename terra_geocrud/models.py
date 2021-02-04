@@ -306,7 +306,9 @@ class CrudViewProperty(models.Model):
         )
         constraints = [
             CheckConstraint(check=(
-                    Q(required=True, editable=True) | Q(required=False, editable=True) | Q(required=False, editable=False)),
+                Q(required=True, editable=True)
+                | Q(required=False, editable=True)
+                | Q(required=False, editable=False)),
                 name='check_required_editable'),
         ]
 
