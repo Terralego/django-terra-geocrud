@@ -8,7 +8,7 @@ from terra_geocrud.thumbnail_backends import ThumbnailDataFileBackend
 thumbnail_backend = ThumbnailDataFileBackend()
 
 
-def serialize_group_properties(feature, final_properties):
+def serialize_group_properties(feature, final_properties, editables_properties):
     properties = {}
 
     for key, value in final_properties.items():
@@ -48,14 +48,14 @@ def serialize_group_properties(feature, final_properties):
                 data = date(value_date, 'SHORT_DATE_FORMAT')
             except ValueError:
                 pass
-
+        ui_schema = feature.layer.crud_view.ui_schema.get(key, {})
+        ui_schema['editable'] = editables_properties[key]
         properties.update({key: {
             "display_value": data,
             "type": data_type,
             "title": feature.layer.get_property_title(key),
             "value": feature.properties.get(key),
             "schema": feature.layer.schema.get('properties', {}).get(key),
-            "ui_schema": feature.layer.crud_view.ui_schema.get(key, {})
+            "ui_schema": ui_schema
         }})
-
     return properties
