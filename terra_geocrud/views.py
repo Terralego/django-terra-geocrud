@@ -12,7 +12,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from geostore import models as geostore_models
 from geostore import settings as geostore_settings
-from geostore.views import FeatureViewSet, LayerViewSet
+from geostore.views import FeatureViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action

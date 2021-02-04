@@ -7,7 +7,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from geostore import settings as geostore_settings
 from geostore.models import LayerExtraGeom
-from geostore.serializers import LayerSerializer, FeatureSerializer, FeatureExtraGeomSerializer, GeometryFileAsyncSerializer
+from geostore.serializers import FeatureSerializer, FeatureExtraGeomSerializer, GeometryFileAsyncSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_gis import serializers as geo_serializers
