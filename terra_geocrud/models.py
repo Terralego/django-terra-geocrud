@@ -286,9 +286,9 @@ class CrudViewProperty(models.Model):
             GinIndex(name='ui_schema_index', fields=['ui_schema'], opclasses=['jsonb_path_ops']),
         )
         constraints = [
-            CheckConstraint(check=(Q(required=True, editable=True) |
-                                   Q(required=False, editable=True) |
-                                   Q(required=False, editable=False)), name='check_required_editable'),
+            CheckConstraint(check=(
+                    Q(required=True, editable=True) | Q(required=False, editable=True) | Q(required=False, editable=False)),
+                name='check_required_editable'),
         ]
 
     def __str__(self):
