@@ -58,6 +58,7 @@ setup(
         'django-mapbox-baselayer>=0.0.3',
         'django-geostore>=0.5.0',
         'django-terra-accounts>=1.0.1',
+        'django-terra-utils',
         'djangorestframework-gis',
         'djangorestframework',
         'requests[security]',
