@@ -11,6 +11,7 @@ from django.utils import formats, timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from geostore import settings as geostore_settings
+from geostore.models import Feature
 from geostore.views import FeatureViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
