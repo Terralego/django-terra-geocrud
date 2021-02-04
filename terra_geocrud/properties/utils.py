@@ -8,34 +8,38 @@ from terra_geocrud.thumbnail_backends import ThumbnailDataFileBackend
 thumbnail_backend = ThumbnailDataFileBackend()
 
 
+def generate_thumbnail_from_image(value, data, data_type):
+    # generate / get thumbnail for image
+    if not value:
+        return data, data_type
+    try:
+        # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
+        infos, content = get_info_content(value)
+        storage_file_path = get_storage_path_from_infos(infos)
+        data['url'] = get_storage_file_url(storage_file_path)
+
+        if infos and infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
+            # apply special cases for images
+            data_type = 'image'
+            try:
+                data.update({
+                    "thumbnail": thumbnail_backend.get_thumbnail(storage_file_path,
+                                                                 "500x500",
+                                                                 upscale=False).url
+                })
+            except ValueError:
+                pass
+    except IndexError:
+        pass
+    return data, data_type
+
+
 def get_data_url_date(value, data_format):
     if data_format == 'data-url':
         # apply special cases for files
         data_type = 'file'
         data = {"url": None}
-        if value:
-            # generate / get thumbnail for image
-            try:
-                # try to get file info from "data:image/png;xxxxxxxxxxxxx" data
-                infos, content = get_info_content(value)
-                storage_file_path = get_storage_path_from_infos(infos)
-                data['url'] = get_storage_file_url(storage_file_path)
-
-                if infos and infos.split(';')[0].split(':')[1].split('/')[0] == 'image':
-                    # apply special cases for images
-                    data_type = 'image'
-                    try:
-                        data.update({
-                            "thumbnail": thumbnail_backend.get_thumbnail(storage_file_path,
-                                                                         "500x500",
-                                                                         upscale=False).url
-                        })
-                        return data, data_type
-                    except ValueError:
-                        pass
-            except IndexError:
-                pass
-        return data, data_type
+        return generate_thumbnail_from_image(value, data, data_type)
     elif data_format == "date":
         data_type = 'date'
         try:
