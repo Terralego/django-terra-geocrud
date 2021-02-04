@@ -51,6 +51,16 @@ class CrudFeatureSerializer(TestCase):
                 "format": "date"
             }
         )
+        models.CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="not_editable",
+            required=False,
+            editable=False,
+            json_schema={
+                'type': "string",
+                "title": "Not editable",
+            }
+        )
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={
                                                   "date_start": "test",
@@ -70,6 +80,14 @@ class CrudFeatureSerializer(TestCase):
         """ Bad value should not raise exception when formatting attempt """
         display_value = self.serializer.data['display_properties']['__default__']['properties']['date_start']['display_value']
         self.assertEqual('test', display_value)
+
+    def test_editable(self):
+        """ Bad value should not raise exception when formatting attempt """
+        properties = self.serializer.data['display_properties']['__default__']['properties']
+        not_editable = properties['not_editable']['ui_schema']['editable']
+        self.assertEqual(False, not_editable)
+        date_editable = properties['date_start']['ui_schema']['editable']
+        self.assertEqual(True, date_editable)
 
 
 class CrudViewSerializerTestCase(TestCase):
