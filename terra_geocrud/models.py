@@ -272,6 +272,7 @@ class CrudViewProperty(models.Model):
     include_in_tile = models.BooleanField(default=False, db_index=True)
     required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
+    editable = models.BooleanField(default=True)
 
     class Meta:
         unique_together = (
