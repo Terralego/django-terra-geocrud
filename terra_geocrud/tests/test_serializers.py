@@ -84,9 +84,9 @@ class CrudFeatureSerializer(TestCase):
     def test_editable(self):
         """ Bad value should not raise exception when formatting attempt """
         properties = self.serializer.data['display_properties']['__default__']['properties']
-        not_editable = properties['not_editable']['ui_schema']['editable']
+        not_editable = properties['not_editable']['editable']
         self.assertEqual(False, not_editable)
-        date_editable = properties['date_start']['ui_schema']['editable']
+        date_editable = properties['date_start']['editable']
         self.assertEqual(True, date_editable)
 
 

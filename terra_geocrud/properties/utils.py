@@ -57,14 +57,13 @@ def serialize_group_properties(feature, final_properties, editables_properties):
     for key, value in final_properties.items():
         data_format = feature.layer.schema.get('properties', {}).get(key, {}).get('format')
         data, data_type = get_data_url_date(value, data_format)
-        ui_schema = feature.layer.crud_view.ui_schema.get(key, {})
-        ui_schema['editable'] = editables_properties[key]
         properties.update({key: {
             "display_value": data,
             "type": data_type,
             "title": feature.layer.get_property_title(key),
             "value": feature.properties.get(key),
             "schema": feature.layer.schema.get('properties', {}).get(key),
-            "ui_schema": ui_schema
+            "ui_schema": feature.layer.crud_view.ui_schema.get(key, {}),
+            "editable": editables_properties[key]
         }})
     return properties
