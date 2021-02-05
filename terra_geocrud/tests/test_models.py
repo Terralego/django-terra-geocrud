@@ -188,6 +188,32 @@ class CrudViewPropertyTestCase(TestCase):
         """ Title not defined in json or ui schema should be key capitalized """
         self.assertEqual(self.prop_3.title, self.prop_3.key.capitalize())
 
+    def test_constraint_required_editable(self):
+        prop = CrudViewProperty.objects.create(view=self.crud_view, key="required_editable", json_schema={},
+                                               ui_schema={}, editable=True, required=True)
+        self.assertIsNotNone(prop)
+
+    def test_constraint_not_required_not_editable(self):
+        prop = CrudViewProperty.objects.create(view=self.crud_view, key="required_editable", json_schema={},
+                                               ui_schema={}, editable=False, required=False)
+        self.assertIsNotNone(prop)
+
+    def test_constraint_not_required_editable(self):
+        prop = CrudViewProperty.objects.create(view=self.crud_view, key="not_required_editable", json_schema={},
+                                               ui_schema={}, editable=True, required=False)
+        self.assertIsNotNone(prop)
+
+    def test_constraint_required_not_editable(self):
+        with self.assertRaises(IntegrityError):
+            CrudViewProperty.objects.create(view=self.crud_view, key="required_not_editable", json_schema={},
+                                            ui_schema={}, editable=False, required=True)
+
+    def test_validation_error_required_editable(self):
+        prop = CrudViewProperty(view=self.crud_view, key="required_not_editable", json_schema={},
+                                ui_schema={}, editable=False, required=True)
+        with self.assertRaises(ValidationError):
+            prop.clean()
+
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class FeaturePictureTestCase(TestCase):

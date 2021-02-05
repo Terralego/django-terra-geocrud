@@ -11,7 +11,7 @@ except ImportError:  # TODO: Remove when dropping Django releases < 3.1
     from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
-from django.db.models import UniqueConstraint, Q
+from django.db.models import CheckConstraint, UniqueConstraint, Q
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -272,6 +272,7 @@ class CrudViewProperty(models.Model):
     include_in_tile = models.BooleanField(default=False, db_index=True)
     required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
+    editable = models.BooleanField(default=True)
 
     class Meta:
         unique_together = (
@@ -284,9 +285,22 @@ class CrudViewProperty(models.Model):
             GinIndex(name='json_schema_index', fields=['json_schema'], opclasses=['jsonb_path_ops']),
             GinIndex(name='ui_schema_index', fields=['ui_schema'], opclasses=['jsonb_path_ops']),
         )
+        constraints = [
+            CheckConstraint(check=(
+                Q(required=True, editable=True)
+                | Q(required=False, editable=True)
+                | Q(required=False, editable=False)),
+                name='check_required_editable'),
+        ]
 
     def __str__(self):
         return f"{self.title} ({self.key})"
+
+    def clean(self):
+        if self.required and not self.editable:
+            raise ValidationError(
+                _("Property cannot be required but not editable")
+            )
 
     @property
     def title(self):

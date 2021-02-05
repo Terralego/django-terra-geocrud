@@ -408,6 +408,10 @@ class StoredBase64FileTestCase(APITestCase):
                                         json_schema={'type': "string",
                                                      "title": "Logo",
                                                      "format": "data-url"})
+        CrudViewProperty.objects.create(view=self.crud_view, key="no_value",
+                                        json_schema={'type': "string",
+                                                     "title": 'no_value',
+                                                     "format": "data-url"})
         sync_layer_schema(self.crud_view)
         self.feature = Feature.objects.create(
             layer=self.crud_view.layer,
@@ -426,6 +430,18 @@ class StoredBase64FileTestCase(APITestCase):
         self.feature.refresh_from_db()
         data = stored_image_base64(self.feature.properties['logo'])
         self.assertTrue(data.startswith("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9"))
+
+    def test_wrong_rendering(self):
+        """ rendering does work when document/pdf with data-url format"""
+        response = self.client.patch(reverse('feature-detail',
+                                             args=(self.crud_view.layer_id,
+                                                   self.feature.identifier)),
+                                     data={"properties": {"logo": "data;name=titre_laromieu-fondblanc.jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="}},
+                                     format="json")
+        self.assertEqual(response.status_code, 200, response.__dict__)
+        self.feature.refresh_from_db()
+        data = stored_image_base64(self.feature.properties['logo'])
+        self.assertTrue(data.startswith("data;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9"))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)

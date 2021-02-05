@@ -174,8 +174,8 @@ class FeatureDisplayPropertyGroup(serializers.ModelSerializer):
             prop.key: feature.properties.get(prop.key)
             for prop in obj.group_properties.all()
         }
-
-        return serialize_group_properties(feature, final_properties)
+        editable = {prop.key: prop.editable for prop in obj.group_properties.all()}
+        return serialize_group_properties(feature, final_properties, editable)
 
     class Meta:
         model = models.FeaturePropertyDisplayGroup
@@ -341,7 +341,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                 prop.key: obj.properties.get(prop.key)
                 for prop in remained_properties
             }
-            properties = serialize_group_properties(obj, final_properties)
+            editable = {prop.key: prop.editable for prop in remained_properties}
+            properties = serialize_group_properties(obj, final_properties, editable)
 
             results['__default__'] = {
                 "title": "",
