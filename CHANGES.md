@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.6.dev0      (XXXX-XX-XX)
+1.0.6           (2021-02-11)
 ----------------------------
 
 * Add field editable on crud view properties
