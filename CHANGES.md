@@ -4,7 +4,7 @@ CHANGELOG
 1.0.7.dev0      (XXXX-XX-XX)
 ----------------------------
 
-* 
+* Fix relation with crud views
 
 
 1.0.6           (2021-02-11)

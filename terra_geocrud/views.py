@@ -12,6 +12,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from geostore import settings as geostore_settings
 from geostore.models import Feature
+from geostore.serializers import FeatureSerializer
 from geostore.views import FeatureViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
@@ -115,6 +116,8 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
     def get_serializer_class(self):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
+        if self.action == 'relation':
+            return FeatureSerializer
         return serializers.CrudFeatureListSerializer
 
     @action(detail=True, methods=['get'], permission_classes=[],
@@ -143,6 +146,10 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         )
         response['Content-Disposition'] = f'attachment; filename="{new_name}"'
         return response
+
+    @action(detail=True, url_path=r'relation/(?P<id_relation>[\d-]+)/features')
+    def relation(self, request, *args, **kwargs):
+        return super().relation(request, *args, **kwargs)
 
 
 class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):
