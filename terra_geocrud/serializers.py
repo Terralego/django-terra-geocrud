@@ -283,6 +283,14 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     pictures = serializers.SerializerMethodField()
     geometries = serializers.SerializerMethodField()
 
+    def get_relations(self, obj):
+        return {
+            relation.name: reverse('feature-relation',
+                                   args=(obj.layer_id, obj.identifier, relation.pk))
+            for relation in obj.layer.relations_as_origin.all()
+            if hasattr(relation.destination, 'crud_view') and hasattr(relation.origin, 'crud_view')
+        }
+
     def get_pictures(self, obj):
         """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
         return [{
