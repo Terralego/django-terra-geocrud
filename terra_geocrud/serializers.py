@@ -208,7 +208,7 @@ class CrudFeatureListSerializer(BaseUpdatableMixin, FeatureSerializer):
             relation.name: reverse('feature-relation',
                                    args=(obj.layer_id, obj.identifier, relation.pk))
             for relation in obj.layer.relations_as_origin.all()
-            if hasattr(relation.destination, 'crud_view') and hasattr(relation.origin, 'crud_view')
+            if hasattr(relation.destination, 'crud_view')
         }
 
     class Meta(FeatureSerializer.Meta):
@@ -288,7 +288,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             relation.name: reverse('feature-relation',
                                    args=(obj.layer_id, obj.identifier, relation.pk))
             for relation in obj.layer.relations_as_origin.all()
-            if hasattr(relation.destination, 'crud_view') and hasattr(relation.origin, 'crud_view')
+            if hasattr(relation.destination, 'crud_view')
         }
 
     def get_pictures(self, obj):
