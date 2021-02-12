@@ -1,4 +1,5 @@
 from tempfile import TemporaryDirectory
+from unittest.mock import patch, PropertyMock
 
 from django.contrib.gis.geos import Point
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -6,7 +7,8 @@ from django.test import tag, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
-from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom
+from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom, LayerRelation
+from geostore.tests.factories import LayerFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_geocrud.properties.schema import sync_layer_schema
@@ -406,6 +408,82 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         response = self.client.get(reverse('picture-list',
                                            args=(self.feature.identifier, )))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
+    def test_featurerelation_without_crud_view(self, mocked):
+        mocked.return_value = True
+        layer_destination = LayerFactory.create()
+        feature_destination = Feature.objects.create(geom=Point(0, 0, srid=4326), layer=layer_destination)
+        intersect_relation = LayerRelation.objects.create(
+            relation_type='distance',
+            origin=self.crud_view.layer,
+            destination=layer_destination,
+            settings={"distance": 100}
+        )
+        self.feature.sync_relations(intersect_relation.pk)
+        response = self.client.get(reverse('feature-relation', args=(self.crud_view.layer_id,
+                                                                     self.feature.identifier,
+                                                                     intersect_relation.pk)))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()[0]['identifier'], str(feature_destination.identifier))
+
+    @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
+    def test_relations_featurelist_crud_view_do_not_show(self, mocked):
+        mocked.return_value = True
+        layer_destination = LayerFactory.create()
+        crud_view = factories.CrudViewFactory()
+        LayerRelation.objects.create(
+            name='layer_view',
+            relation_type='distance',
+            origin=self.crud_view.layer,
+            destination=layer_destination,
+            settings={"distance": 100}
+        )
+        layer_rel = LayerRelation.objects.create(
+            name='view_view',
+            relation_type='distance',
+            origin=self.crud_view.layer,
+            destination=crud_view.layer,
+            settings={"distance": 100}
+        )
+        response = self.client.get(reverse('feature-list', args=(self.crud_view.layer_id, )), data={}, format="json")
+        url_relation = reverse('feature-relation', args=(self.crud_view.layer_id,
+                                                         self.feature.identifier,
+                                                         layer_rel.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()[0]['relations']['view_view'], url_relation)
+        self.assertEqual(len(response.json()[0]['relations']), 1)
+
+    @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
+    def test_relations_featuredtail_crud_view_do_not_show(self, mocked):
+        mocked.return_value = True
+        layer_destination = LayerFactory.create()
+        crud_view = factories.CrudViewFactory()
+        LayerRelation.objects.create(
+            name='layer_view',
+            relation_type='distance',
+            origin=self.crud_view.layer,
+            destination=layer_destination,
+            settings={"distance": 100}
+        )
+        layer_rel = LayerRelation.objects.create(
+            name='view_view',
+            relation_type='distance',
+            origin=self.crud_view.layer,
+            destination=crud_view.layer,
+            settings={"distance": 100}
+        )
+        response = self.client.get(reverse('feature-detail',
+                                           args=(self.crud_view.layer_id,
+                                                 self.feature.identifier)),
+                                   format="json")
+        url_relation = reverse('feature-relation', args=(self.crud_view.layer_id,
+                                                         self.feature.identifier,
+                                                         layer_rel.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['relations']['view_view'], url_relation)
+        self.assertEqual(len(response.json()['relations']), 1)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
