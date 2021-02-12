@@ -11,7 +11,8 @@ from django.utils import formats, timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from geostore import settings as geostore_settings
-from geostore.models import Feature
+from geostore.models import Feature, Layer
+from geostore.serializers import FeatureSerializer
 from geostore.views import FeatureViewSet
 from mapbox_baselayer.models import MapBaseLayer
 from rest_framework import viewsets, filters
@@ -100,6 +101,7 @@ class CrudSettingsApiView(APIView):
 
 class CrudLayerViewSet(LayerViewSet):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
+    queryset = Layer.objects.exclude(crud_view__isnull=True)
 
 
 class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
@@ -115,6 +117,8 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
     def get_serializer_class(self):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
+        if self.action == 'relation':
+            return FeatureSerializer
         return serializers.CrudFeatureListSerializer
 
     @action(detail=True, methods=['get'], permission_classes=[],
