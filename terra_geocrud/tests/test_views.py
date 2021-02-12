@@ -305,6 +305,19 @@ class CrudRenderPointTemplateDetailViewTestCase(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
+class CrudLayerViewsSetTestCase(APITestCase):
+    def setUp(self):
+        self.crud_view = factories.CrudViewFactory()
+        self.layer = LayerFactory.create()
+
+    def test_list_endpoint(self):
+        # Should show only crud_view
+        response_list = self.client.get(reverse('layer-list'), format="json")
+        data = response_list.json()
+        self.assertEqual(len(data), 1)
+
+
+@override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudFeatureViewsSetTestCase(APITestCase):
     def setUp(self):
         self.crud_view = factories.CrudViewFactory()
@@ -521,6 +534,37 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()[0]['relations']['view_view'], url_relation)
         self.assertEqual(len(response.json()[0]['relations']), 1)
+
+    def test_relations_featurelist_no_crud_view_boths(self):
+        layer_destination = LayerFactory.create()
+        layer_origin = LayerFactory.create()
+        LayerRelation.objects.create(
+            name='layer_layer',
+            relation_type='distance',
+            origin=layer_origin,
+            destination=layer_destination,
+            settings={"distance": 100}
+        )
+        response = self.client.get(reverse('feature-list', args=(self.crud_view.layer_id, )), data={}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()[0]['relations']), 0)
+
+    def test_relations_featuredetail_no_crud_view_boths(self):
+        layer_destination = LayerFactory.create()
+        layer_origin = LayerFactory.create()
+        LayerRelation.objects.create(
+            name='layer_layer',
+            relation_type='distance',
+            origin=layer_origin,
+            destination=layer_destination,
+            settings={"distance": 100}
+        )
+        response = self.client.get(reverse('feature-detail',
+                                           args=(self.crud_view.layer_id,
+                                                 self.feature.identifier)),
+                                   format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()['relations']), 0)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
