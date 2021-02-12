@@ -5,6 +5,7 @@ CHANGELOG
 ----------------------------
 
 * Fix relation with crud views
+* Add admin relations
 
 
 1.0.6           (2021-02-11)
