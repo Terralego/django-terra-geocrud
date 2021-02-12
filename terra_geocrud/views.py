@@ -147,10 +147,6 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         response['Content-Disposition'] = f'attachment; filename="{new_name}"'
         return response
 
-    @action(detail=True, url_path=r'relation/(?P<id_relation>[\d-]+)/features')
-    def relation(self, request, *args, **kwargs):
-        return super().relation(request, *args, **kwargs)
-
 
 class CrudAttachmentCategoryViewSet(ReversionMixin, viewsets.ModelViewSet):
     queryset = models.AttachmentCategory.objects.all()
