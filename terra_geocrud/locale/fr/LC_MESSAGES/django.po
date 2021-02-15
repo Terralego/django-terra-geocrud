@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-22 14:11+0000\n"
+"POT-Creation-Date: 2021-02-15 11:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,15 +42,11 @@ msgstr "Propriété"
 msgid "Feature properties"
 msgstr "Propriétés"
 
-#, fuzzy
-#| msgid "Other settings"
 msgid "Routing setting"
-msgstr "Autres réglages"
+msgstr "Réglage de routage"
 
-#, fuzzy
-#| msgid "Other settings"
 msgid "Routing settings"
-msgstr "Autres réglages"
+msgstr "Réglages de routage"
 
 msgid "UI schema & properties"
 msgstr "Propriété et UI schema"
@@ -93,6 +89,12 @@ msgstr "Définir les propriétés présentes dans les tuiles"
 msgid "Define property marked as included in tile in layer definition.."
 msgstr "Définir les propriétés marquées comme incluses dans les tuiles."
 
+msgid "Relation"
+msgstr "Relation"
+
+msgid "Relations"
+msgstr "Relations"
+
 msgid "Picture"
 msgstr "Image"
 
@@ -114,33 +116,22 @@ msgstr "Géométrie annexes"
 msgid "Geographic Editor Config"
 msgstr "Config. Editeur Géographique"
 
-#, fuzzy
-#| msgid ""
-#| "GEOCRUD: Can create / edit / delete views / groups and associated layers."
 msgid "CRUD: Can create / edit / delete views / groups and associated layers."
 msgstr ""
-"GEOCRUD: Peut créer / éditier / supprimer les vues / groupes et layers "
+"CRUD: Peut créer / éditer / supprimer les vues / groupes et couches de données "
 "associés."
 
-#, fuzzy
-#| msgid "GEOCRUD: Can read feature detail."
 msgid "CRUD: Can read feature detail."
-msgstr "GEOCRUD: Peut lire les détails d'une feature"
+msgstr "CRUD: Peut lire les détails d'un objet"
 
-#, fuzzy
-#| msgid "GEOCRUD: Can create feature"
 msgid "CRUD: Can create feature"
-msgstr "GEOCRUD: Peut créer des features"
+msgstr "CRUD: Peut créer des objets"
 
-#, fuzzy
-#| msgid "GEOCRUD: Can change feature"
 msgid "CRUD: Can change feature"
-msgstr "GEOCRUD: Peut modifier une feature"
+msgstr "CRUD: Peut modifier un objet"
 
-#, fuzzy
-#| msgid "GEOCRUD: Can delete feature"
 msgid "CRUD: Can delete feature"
-msgstr "GEOCRUD: Peut supprimer une feature"
+msgstr "CRUD: Peut supprimer un objet"
 
 msgid "You should define geometry with drawing or file."
 msgstr ""
@@ -252,6 +243,9 @@ msgstr "Style de géometrie annexe"
 msgid "ExtraLayer styles"
 msgstr "Styles de géométrie annexe"
 
+msgid "Property cannot be required but not editable"
+msgstr "La propriété ne peut être obligatoire et non-éditable"
+
 msgid "Value should always be casted in property type."
 msgstr "La valeur doit ere du même type que la propriété."
 
@@ -289,11 +283,9 @@ msgstr "Marche"
 msgid "Cycling"
 msgstr "Vélo"
 
-#, fuzzy
-#| msgid "You should define geometry with drawing or file."
 msgid "You should define layer with a routable layer"
 msgstr ""
-"You devez définir la géométrie en la déssinant ou en fournissant un fichier."
+"Vous devez choisir une couche de données routable."
 
 msgid "You shouldn't define layer and mapbox_transit"
 msgstr "Vous ne devez pas définir layer et mapbox_transit en même temps"
@@ -301,17 +293,13 @@ msgstr "Vous ne devez pas définir layer et mapbox_transit en même temps"
 msgid "You use the wrong provider"
 msgstr "Vous utilisez le mauvais provider"
 
-#, fuzzy
-#| msgid "You should define geometry with drawing or file."
 msgid "You should define a mapbox_transit with this provider"
 msgstr ""
-"Vous devez définir la géométrie en la déssinant ou en fournissant un fichier."
+"Vous devez définir un type de transit pour ce fournisseur de routage."
 
-#, fuzzy
-#| msgid "You should define geometry with drawing or file."
 msgid "You should define a layer with this provider"
 msgstr ""
-"Vous devez définir la géométrie en la déssinant ou en fournissant un fichier."
+"Vous devez définir une couche de données pour ce fournisseur de routage."
 
 msgid "This transit is already used"
 msgstr "Ce transit est déjà utilisé"
