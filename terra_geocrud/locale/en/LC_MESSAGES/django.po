@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-22 14:11+0000\n"
+"POT-Creation-Date: 2021-02-15 11:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,6 +84,12 @@ msgid "Define properties in tiles."
 msgstr ""
 
 msgid "Define property marked as included in tile in layer definition.."
+msgstr ""
+
+msgid "Relation"
+msgstr ""
+
+msgid "Relations"
 msgstr ""
 
 msgid "Picture"
@@ -225,6 +231,9 @@ msgid "ExtraLayer style"
 msgstr ""
 
 msgid "ExtraLayer styles"
+msgstr ""
+
+msgid "Property cannot be required but not editable"
 msgstr ""
 
 msgid "Value should always be casted in property type."
