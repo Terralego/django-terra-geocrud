@@ -4,7 +4,7 @@ CHANGELOG
 1.0.8.dev0      (XXXX-XX-XX)
 ----------------------------
 
-*
+* Update french translations
 
 
 1.0.7           (2021-02-12)
