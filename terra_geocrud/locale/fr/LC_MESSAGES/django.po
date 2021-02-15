@@ -295,7 +295,7 @@ msgstr "Vous utilisez le mauvais provider"
 
 msgid "You should define a mapbox_transit with this provider"
 msgstr ""
-"Vous devez définir un type de transit pour ce forunisseur de routage."
+"Vous devez définir un type de transit pour ce fournisseur de routage."
 
 msgid "You should define a layer with this provider"
 msgstr ""
