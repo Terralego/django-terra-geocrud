@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.8.dev0      (XXXX-XX-XX)
+1.0.8           (2020-02-16)
 ----------------------------
 
 * Update french translations
