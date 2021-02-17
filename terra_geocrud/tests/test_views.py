@@ -226,14 +226,15 @@ class CrudViewSetTestCase(APITestCase):
 
     @tag('routing', "Only geostore routing")
     def test_routing_settings_geostorecrudview_detail(self):
-        RoutingSettingsFactory.create(provider="geostore", layer=self.view_2.layer, crud_view=self.view_1)
+        layer = LayerFactory.create()
+        RoutingSettingsFactory.create(provider="geostore", layer=layer, crud_view=self.view_1)
         response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         routing_settings = data['routing_settings']
 
         self.assertEqual(routing_settings[0]['provider']['name'], "geostore")
-        self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[self.view_2.layer.pk]))
+        self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[layer.pk]))
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
