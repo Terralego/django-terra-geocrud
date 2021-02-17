@@ -101,7 +101,11 @@ class CrudSettingsApiView(APIView):
 
 class CrudLayerViewSet(LayerViewSet):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
-    queryset = Layer.objects.exclude(crud_view__isnull=True)
+
+    def get_queryset(self):
+        if self.action == 'route':
+            return Layer.objects.all()
+        return Layer.objects.exclude(crud_view__isnull=True)
 
 
 class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
