@@ -104,7 +104,7 @@ class CrudLayerViewSet(LayerViewSet):
 
     def get_queryset(self):
         if self.action == 'route':
-            return Layer.objects.all()
+            return Layer.objects.filter(routable=True)
         return Layer.objects.exclude(crud_view__isnull=True)
 
 
