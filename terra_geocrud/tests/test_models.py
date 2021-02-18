@@ -190,51 +190,51 @@ class CrudViewPropertyTestCase(TestCase):
 
     def test_constraint_required_editable(self):
         prop = CrudViewProperty.objects.create(view=self.crud_view, key="required_editable", json_schema={},
-                                               ui_schema={}, editable=True, required=True, func='test')
+                                               ui_schema={}, editable=True, required=True)
         self.assertIsNotNone(prop)
 
     def test_constraint_not_required_not_editable(self):
         prop = CrudViewProperty.objects.create(view=self.crud_view, key="required_editable", json_schema={},
-                                               ui_schema={}, editable=False, required=False, func='test')
+                                               ui_schema={}, editable=False, required=False, function_path='test')
         self.assertIsNotNone(prop)
 
     def test_constraint_not_required_editable(self):
         prop = CrudViewProperty.objects.create(view=self.crud_view, key="not_required_editable", json_schema={},
-                                               ui_schema={}, editable=True, required=False, func='test')
+                                               ui_schema={}, editable=True, required=False)
         self.assertIsNotNone(prop)
 
     def test_constraint_required_not_editable(self):
         with self.assertRaises(IntegrityError):
             CrudViewProperty.objects.create(view=self.crud_view, key="required_not_editable", json_schema={},
-                                            ui_schema={}, editable=False, required=True, func='test')
+                                            ui_schema={}, editable=False, required=True, function_path='test')
 
     def test_validation_error_required_editable(self):
         prop = CrudViewProperty(view=self.crud_view, key="required_not_editable", json_schema={},
-                                ui_schema={}, editable=False, required=True, func='test')
+                                ui_schema={}, editable=False, required=True, function_path='test')
         with self.assertRaises(ValidationError):
             prop.clean()
 
     def test_constraint_not_editable_func(self):
         prop = CrudViewProperty.objects.create(view=self.crud_view, key="not_editable_func", json_schema={},
-                                               ui_schema={}, editable=False, func='test')
+                                               ui_schema={}, editable=False, function_path='test')
         self.assertIsNotNone(prop)
 
     def test_constraint_editable_func(self):
-        prop = CrudViewProperty.objects.create(view=self.crud_view, key="editable_func", json_schema={},
-                                               ui_schema={}, editable=True, func='test')
-        self.assertIsNotNone(prop)
+        with self.assertRaises(IntegrityError):
+            prop = CrudViewProperty.objects.create(view=self.crud_view, key="editable_func", json_schema={},
+                                                   ui_schema={}, editable=True, function_path='test')
 
     def test_constraint_editable_not_func(self):
         prop = CrudViewProperty.objects.create(view=self.crud_view, key="editable_not_func", json_schema={},
-                                               ui_schema={}, editable=True, func='')
+                                               ui_schema={}, editable=True, function_path='')
         self.assertIsNotNone(prop)
 
     def test_constraint_not_editable_not_func(self):
-        with self.assertRaises(IntegrityError):
-            CrudViewProperty.objects.create(view=self.crud_view, key="not_editable_not_func", json_schema={},
-                                            ui_schema={}, editable=False)
+        prop = CrudViewProperty.objects.create(view=self.crud_view, key="not_editable_not_func", json_schema={},
+                                               ui_schema={}, editable=False)
+        self.assertIsNotNone(prop)
 
-    def test_validation_error_not_editable_not_func(self):
+    def test_validation_error_editable_func(self):
         prop = CrudViewProperty(view=self.crud_view, key="not_editable_not_func", json_schema={},
                                 ui_schema={}, editable=False)
         with self.assertRaises(ValidationError):

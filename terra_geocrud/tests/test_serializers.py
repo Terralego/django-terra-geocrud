@@ -60,7 +60,6 @@ class CrudFeatureSerializer(TestCase):
                 'type': "string",
                 "title": "Not editable",
             },
-            func='test'
         )
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={

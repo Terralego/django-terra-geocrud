@@ -22,7 +22,7 @@ from terra_geocrud.map.styles import MapStyleModelMixin
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.schema import FormSchemaMixin
-from .validators import validate_schema_property
+from .validators import validate_schema_property, validate_function_path
 
 
 class CrudModelMixin(models.Model):
@@ -273,7 +273,7 @@ class CrudViewProperty(models.Model):
     required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
     editable = models.BooleanField(default=True)
-    func = models.CharField(max_length=255, blank=True)
+    function_path = models.CharField(max_length=255, blank=True, validators=[validate_function_path])
 
     class Meta:
         unique_together = (
@@ -293,7 +293,9 @@ class CrudViewProperty(models.Model):
                 | Q(required=False, editable=False)),
                 name='check_required_editable'),
             CheckConstraint(check=(
-                ~Q(editable=False, func='')), name='check_func_not_editable'),
+                Q(editable=True, function_path='')
+                | Q(editable=False, function_path='')
+                | Q(editable=False) & ~Q(function_path='')), name='check_function_path_not_editable'),
         ]
 
     def __str__(self):
@@ -304,7 +306,7 @@ class CrudViewProperty(models.Model):
             raise ValidationError(
                 _("Property cannot be required but not editable")
             )
-        if not self.editable and not self.func:
+        if not self.editable and not self.function_path:
             raise ValidationError(
                 _("Property not editable need a function to populate it")
             )
