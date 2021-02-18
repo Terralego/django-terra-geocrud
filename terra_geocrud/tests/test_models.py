@@ -221,8 +221,8 @@ class CrudViewPropertyTestCase(TestCase):
 
     def test_constraint_editable_func(self):
         with self.assertRaises(IntegrityError):
-            prop = CrudViewProperty.objects.create(view=self.crud_view, key="editable_func", json_schema={},
-                                                   ui_schema={}, editable=True, function_path='test')
+            CrudViewProperty.objects.create(view=self.crud_view, key="editable_func", json_schema={},
+                                            ui_schema={}, editable=True, function_path='test')
 
     def test_constraint_editable_not_func(self):
         prop = CrudViewProperty.objects.create(view=self.crud_view, key="editable_not_func", json_schema={},
