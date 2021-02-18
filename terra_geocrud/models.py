@@ -273,6 +273,7 @@ class CrudViewProperty(models.Model):
     required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
     editable = models.BooleanField(default=True)
+    func = models.CharField(max_length=255, blank=True)
 
     class Meta:
         unique_together = (
@@ -291,6 +292,8 @@ class CrudViewProperty(models.Model):
                 | Q(required=False, editable=True)
                 | Q(required=False, editable=False)),
                 name='check_required_editable'),
+            CheckConstraint(check=(
+                ~Q(editable=False, func='')), name='check_func_not_editable'),
         ]
 
     def __str__(self):
@@ -300,6 +303,10 @@ class CrudViewProperty(models.Model):
         if self.required and not self.editable:
             raise ValidationError(
                 _("Property cannot be required but not editable")
+            )
+        if not self.editable and not self.func:
+            raise ValidationError(
+                _("Property not editable need a function to populate it")
             )
 
     @property
