@@ -235,9 +235,6 @@ class CrudViewSetTestCase(APITestCase):
 
         self.assertEqual(routing_settings[0]['provider']['name'], "geostore")
         self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[layer.pk]))
-        # TODO: Remove when geostore-routing viewpoint's route do not force permission_classes=[IsAuthenticated]
-        self.user = UserFactory()
-        self.client.force_authenticate(self.user)
 
         response = self.client.post(reverse('layer-route', args=[layer.pk]), {'geom': 'SRID=2154;LINESTRING(0 0, 1 1)', })
         data = response.json()
