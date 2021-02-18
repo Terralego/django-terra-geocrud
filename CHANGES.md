@@ -4,7 +4,7 @@ CHANGELOG
 1.0.9.dev0      (XXXX-XX-XX)
 ----------------------------
 
-* 
+* Fix routing queryset get all layers not only with crud_view
 
 1.0.8           (2020-02-16)
 ----------------------------

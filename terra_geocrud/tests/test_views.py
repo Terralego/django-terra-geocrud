@@ -226,14 +226,22 @@ class CrudViewSetTestCase(APITestCase):
 
     @tag('routing', "Only geostore routing")
     def test_routing_settings_geostorecrudview_detail(self):
-        RoutingSettingsFactory.create(provider="geostore", layer=self.view_2.layer, crud_view=self.view_1)
+        layer = LayerFactory.create(routable=True)
+        RoutingSettingsFactory.create(provider="geostore", layer=layer, crud_view=self.view_1)
         response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         routing_settings = data['routing_settings']
 
         self.assertEqual(routing_settings[0]['provider']['name'], "geostore")
-        self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[self.view_2.layer.pk]))
+        self.assertEqual(routing_settings[0]['provider']['options']['url'], reverse('layer-route', args=[layer.pk]))
+        # TODO: Remove when geostore-routing viewpoint's route do not force permission_classes=[IsAuthenticated]
+        self.user = UserFactory()
+        self.client.force_authenticate(self.user)
+
+        response = self.client.post(reverse('layer-route', args=[layer.pk]), {'geom': 'SRID=2154;LINESTRING(0 0, 1 1)', })
+        data = response.json()
+        self.assertNotEqual(data, {'detail': 'Not found.'})
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
