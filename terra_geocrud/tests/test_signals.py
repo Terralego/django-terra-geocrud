@@ -1,3 +1,5 @@
+from ..properties.schema import sync_layer_schema
+
 from geostore import GeometryTypes
 from geostore.models import Layer, LayerExtraGeom, Feature, FeatureExtraGeom
 from geostore.tests.factories import LayerFactory
@@ -16,12 +18,18 @@ class CalculatedPropertiesTest(TestCase):
                                             "properties": {"name": {"type": "string", "title": "Name"}}
                                             })
         self.crud_view = CrudViewFactory(layer=layer)
-        self.prop_name = CrudViewProperty.objects.create(
+        self.prop_length = CrudViewProperty.objects.create(
             view=self.crud_view, key="length",
             editable=False,
             json_schema={'type': "integer", "title": "Length"},
             function_path='test_terra_geocrud.functions_test.get_length'
         )
+        self.prop_name = CrudViewProperty.objects.create(
+            view=self.crud_view, key="name",
+            editable=True,
+            json_schema={'type': "string", "title": "Name"}
+        )
+        sync_layer_schema(self.crud_view)
         self.feature = Feature.objects.create(
             layer=self.crud_view.layer,
             properties={'name': 'toto'},
@@ -33,3 +41,13 @@ class CalculatedPropertiesTest(TestCase):
         self.feature.geom = LineString((0, 0), (10, 0))
         self.feature.save()
         self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 10.0})
+
+    def test_signal_function_with_validation_error(self):
+        self.prop_length.json_schema['type'] = "string"
+        self.prop_length.save()
+        sync_layer_schema(self.crud_view)
+        print("haii")
+        self.feature.geom = LineString((0, 0), (10, 0))
+        self.feature.save()
+
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
