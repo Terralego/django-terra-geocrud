@@ -34,3 +34,4 @@ class TerraCrudConfig(PermissionRegistrationMixin, AppConfig):
         # Thumbnails settings
         setattr(thumbnail_settings, 'THUMBNAIL_FORMAT', 'PNG')  # force PNG for thumbnail, to keep transparency
         setattr(thumbnail_settings, 'THUMBNAIL_UPSCALE', False)  # never upscale if image size < thumbnail size
+        import terra_geocrud.signals  # NOQA

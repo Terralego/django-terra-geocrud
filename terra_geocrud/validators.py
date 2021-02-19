@@ -17,7 +17,12 @@ def validate_schema_property(value):
 
 def validate_function_path(value):
     if value:
-        module = import_module('.functions', 'terra_geocrud')
-        if not hasattr(module, value):
+        val = value.split('.')
+        function = val[-1]
+        module_path = '.'.join(val[:-1])
+        if not module_path:
+            raise ValidationError(message="function should be in a package")
+        module = import_module(module_path)
+        if not hasattr(module, function):
             raise ValidationError(message="function does not exist")
     return value
