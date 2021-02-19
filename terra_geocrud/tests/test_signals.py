@@ -19,7 +19,7 @@ class CalculatedPropertiesTest(TestCase):
         self.prop_name = CrudViewProperty.objects.create(
             view=self.crud_view, key="length",
             editable=False,
-            json_schema={'type': "string", "title": "Length"},
+            json_schema={'type': "integer", "title": "Length"},
             function_path='test_terra_geocrud.functions_test.get_length'
         )
         self.feature = Feature.objects.create(
@@ -29,13 +29,7 @@ class CalculatedPropertiesTest(TestCase):
         )
 
     def test_signal(self):
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': '1.0'})
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
         self.feature.geom = LineString((0, 0), (10, 0))
         self.feature.save()
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': '10.0'})
-
-        self.prop_name.json_schema['type'] = "integer"
-        self.prop_name.save()
-        self.feature.save()
-
         self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 10.0})

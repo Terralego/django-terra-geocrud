@@ -5,12 +5,6 @@ from django.dispatch import receiver
 from geostore.models import Feature
 
 
-json_schema_cast = {
-    "integer": int,
-    "string": str
-}
-
-
 @receiver(post_save, sender=Feature)
 def save_feature(sender, instance, **kwargs):
     if kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields'):
@@ -22,8 +16,6 @@ def save_feature(sender, instance, **kwargs):
                 function = val[-1]
                 module_path = '.'.join(val[:-1])
                 module = import_module(module_path)
-                prop_cast = prop.json_schema.get('type')
-                cast = json_schema_cast.get(prop_cast)
                 value = getattr(module, function)(instance)
-                instance.properties[prop.key] = cast(value)
+                instance.properties[prop.key] = value
         instance.save(update_fields=['properties'])
