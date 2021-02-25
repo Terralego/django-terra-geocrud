@@ -1,10 +1,9 @@
 from ..properties.schema import sync_layer_schema
 
 from geostore import GeometryTypes
-from geostore.models import Layer, LayerExtraGeom, Feature, FeatureExtraGeom
 from geostore.tests.factories import LayerFactory
 from django.test import TestCase
-from django.contrib.gis.geos import Point, LineString
+from django.contrib.gis.geos import LineString
 
 from terra_geocrud.models import CrudViewProperty
 from terra_geocrud.tests.factories import CrudViewFactory
