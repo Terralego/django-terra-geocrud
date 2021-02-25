@@ -282,7 +282,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     attachments = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
     geometries = serializers.SerializerMethodField()
-    routing_information = serializers.JSONField(source='routing_information.route_description')
+    routing_information = serializers.JSONField(source='routing_information.route_description', required=False)
 
     def create(self, validated_data):
         routing_information = validated_data.pop('routing_information', {})
@@ -299,8 +299,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
         models.RoutingInformations.objects.update_or_create(feature=instance,
                                                             defaults={'route_description': route_description.get(
-                                                             'route_description',
-                                                             {})})
+                                                                'route_description',
+                                                                {})})
         for key in validated_data:
             setattr(instance, key, validated_data[key])
         instance.save()
