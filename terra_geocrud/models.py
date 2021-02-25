@@ -432,4 +432,4 @@ class RoutingInformations(models.Model):
     route_description = JSONField(blank=True, null=False, default=dict)
 
     def __str__(self):
-        return f"Routing infos : {self.feature}"
+        return f"Routing infos : {self.feature.identifier}"

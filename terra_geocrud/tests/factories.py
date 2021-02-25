@@ -2,8 +2,9 @@ import factory
 from template_model.models import Template
 
 from geostore import GeometryTypes
-from geostore.tests.factories import LayerFactory
-from terra_geocrud.models import CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment, RoutingSettings
+from geostore.tests.factories import FeatureFactory, LayerFactory
+from terra_geocrud.models import (CrudView, FeaturePicture, AttachmentCategory, FeatureAttachment,
+                                  RoutingSettings, RoutingInformations)
 from terra_geocrud.tests.settings import DOCX_TEMPLATE, PDF_TEMPLATE
 
 
@@ -97,3 +98,11 @@ class RoutingSettingsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = RoutingSettings
+
+
+class RoutingInformationFactory(factory.django.DjangoModelFactory):
+    route_description = factory.Dict({'route_description': 'description'})
+    feature = factory.SubFactory(FeatureFactory)
+
+    class Meta:
+        model = RoutingInformations

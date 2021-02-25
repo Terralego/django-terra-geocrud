@@ -13,7 +13,7 @@ from terra_geocrud.models import AttachmentCategory, feature_attachment_director
 from terra_geocrud.properties.files import get_storage
 from terra_geocrud.tests import factories
 from terra_geocrud.tests.factories import CrudViewFactory, FeaturePictureFactory, FeatureAttachmentFactory, \
-    RoutingSettingsFactory
+    RoutingSettingsFactory, RoutingInformationFactory
 from .. import models
 from ..properties.schema import sync_layer_schema, sync_ui_schema
 
@@ -370,3 +370,13 @@ class RoutingSettingsTestCase(TestCase):
                                                label="Other")
         setting.clean()
         self.assertEqual(str(setting), 'Other')
+
+
+class RoutingInformationTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.routing_information = RoutingInformationFactory.create()
+
+    def test_str(self):
+        self.assertEqual(str(self.routing_information),
+                         f'Routing infos : {self.routing_information.feature.identifier}')
