@@ -1,6 +1,5 @@
-from importlib import import_module
-
 from django.core.exceptions import ValidationError
+from django.utils.module_loading import import_string
 
 from geostore.validators import validate_json_schema
 
@@ -17,12 +16,8 @@ def validate_schema_property(value):
 
 def validate_function_path(value):
     if value:
-        val = value.split('.')
-        function = val[-1]
-        module_path = '.'.join(val[:-1])
-        if not module_path:
-            raise ValidationError(message="function should be in a package")
-        module = import_module(module_path)
-        if not hasattr(module, function):
+        try:
+            import_string(value)
+        except ImportError:
             raise ValidationError(message="function does not exist")
     return value
