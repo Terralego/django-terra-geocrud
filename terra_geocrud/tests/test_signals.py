@@ -5,7 +5,7 @@ from geostore import GeometryTypes
 from geostore.models import Feature, LayerRelation
 from geostore.tests.factories import LayerFactory
 from django.test import TestCase
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import LineString
 
 from terra_geocrud.models import CrudViewProperty
 from terra_geocrud.tests.factories import CrudViewFactory
