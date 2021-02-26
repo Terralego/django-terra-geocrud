@@ -34,6 +34,5 @@ def change_props(instance):
 
 @receiver(post_save, sender=Feature)
 def save_feature(sender, instance, **kwargs):
-    if kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields'):
-        if hasattr(instance.layer, 'crud_view'):
-            change_props(instance)
+    if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(instance.layer, 'crud_view'):
+        change_props(instance)
