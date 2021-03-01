@@ -19,5 +19,5 @@ def validate_function_path(value):
         try:
             import_string(value)
         except ImportError:
-            raise ValidationError(message="function does not exist")
+            raise ValidationError(message=f"function {value} does not exist")
     return value

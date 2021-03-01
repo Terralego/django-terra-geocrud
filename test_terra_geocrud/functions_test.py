@@ -4,7 +4,4 @@ def get_length(feature):
 
 
 def get_cities(feature):
-    cities = []
-    for feature in feature.relations['cities']:
-        cities.append(feature.destination.properties['name'])
-    return cities
+    return list(feature.get_stored_relation_qs(1).values_list('properties__name', flat=True))
