@@ -4,7 +4,7 @@ CHANGELOG
 1.0.10.dev0     (XXXX-XX-XX)
 ----------------------------
 
-*
+* Add routing informations on each features
 
 
 1.0.9           (2020-02-18)
