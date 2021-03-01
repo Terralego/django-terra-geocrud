@@ -289,9 +289,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
 
         feature = Feature.objects.create(**validated_data)
         models.RoutingInformations.objects.create(feature=feature,
-                                                  defaults={'route_description': routing_information.get(
-                                                      'route_description',
-                                                      {})})
+                                                  route_description=routing_information.get('route_description',
+                                                                                            {}))
         return feature
 
     def update(self, instance, validated_data):
