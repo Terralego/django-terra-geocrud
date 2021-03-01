@@ -15,8 +15,4 @@ class Migration(migrations.Migration):
             name='function_path',
             field=models.CharField(blank=True, max_length=255),
         ),
-        migrations.AddConstraint(
-            model_name='crudviewproperty',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('editable', True), ('function_path', '')), models.Q(('editable', False), ('function_path', '')), models.Q(('editable', False), models.Q(_negated=True, function_path='')), _connector='OR'), name='check_function_path_not_editable'),
-        ),
     ]
