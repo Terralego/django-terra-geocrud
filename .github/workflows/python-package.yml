@@ -21,14 +21,15 @@ jobs:
         postgres: [ 'postgis/postgis:10-2.5', 'pgrouting/pgrouting:10-2.5-2.6.3' ]
         experimental: [false]
         include:
-          - django-version: dev
-            experimental: true
-            python-version: 3.8
-            postgres: 'postgis/postgis:10-2.5'
-          - django-version: dev
-            experimental: true
-            python-version: 3.8
-            postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
+          #TODO: Fix when github action do not show failed for the workflow with continue-on-error
+          #- django-version: dev
+          #  experimental: true
+          #  python-version: 3.8
+          #  postgres: 'postgis/postgis:10-2.5'
+          #- django-version: dev
+          #  experimental: true
+          #  python-version: 3.8
+          #  postgres: 'pgrouting/pgrouting:10-2.5-2.6.3'
           - django-version: 3.2a1
             experimental: true
             python-version: 3.8
