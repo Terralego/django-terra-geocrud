@@ -10,7 +10,7 @@ from geostore.models import Feature
 logger = logging.getLogger(__name__)
 
 
-def clean_props(instance, prop):
+def compute_properties(instance, prop):
     value = import_string(prop.function_path)(instance)
     old_value = instance.properties.get(prop.key)
     instance.properties[prop.key] = value
@@ -29,7 +29,7 @@ def change_props(instance):
     if crud_view:
         props = crud_view.properties.filter(editable=False).exclude(function_path='')
         for prop in props:
-            clean_props(instance, prop)
+            compute_properties(instance, prop)
 
 
 @receiver(post_save, sender=Feature)
