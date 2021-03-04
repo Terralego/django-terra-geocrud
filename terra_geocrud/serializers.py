@@ -7,7 +7,7 @@ from django.template.defaultfilters import date
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from geostore import settings as geostore_settings
-from geostore.models import LayerExtraGeom
+from geostore.models import Feature, LayerExtraGeom
 from geostore.serializers import FeatureSerializer, FeatureExtraGeomSerializer, GeometryFileAsyncSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -282,6 +282,28 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     attachments = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
     geometries = serializers.SerializerMethodField()
+    routing_information = serializers.JSONField(source='routing_information.route_description', required=False)
+
+    def create(self, validated_data):
+        routing_information = validated_data.pop('routing_information', {})
+
+        feature = Feature.objects.create(**validated_data)
+        models.RoutingInformations.objects.create(feature=feature,
+                                                  route_description=routing_information.get('route_description',
+                                                                                            {}))
+        return feature
+
+    def update(self, instance, validated_data):
+        route_description = validated_data.pop('routing_information', {})
+
+        models.RoutingInformations.objects.update_or_create(feature=instance,
+                                                            defaults={'route_description': route_description.get(
+                                                                'route_description',
+                                                                {})})
+        for key in validated_data:
+            setattr(instance, key, validated_data[key])
+        instance.save()
+        return instance
 
     def get_relations(self, obj):
         return {
@@ -430,7 +452,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return data
 
     class Meta(FeatureSerializer.Meta):
-        exclude = ('source', 'target', 'layer',)
+        exclude = ('source', 'target', 'layer')
         fields = None
 
 

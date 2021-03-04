@@ -571,6 +571,25 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['relations']), 0)
 
+    def test_route_description_featuredetail(self):
+        data = {
+            "routing_information": {"whatever": ["whatever"]},
+            "geom": "POINT(0 1)"
+        }
+        response = self.client.patch(reverse('feature-detail',
+                                             args=(self.crud_view.layer_id,
+                                                   self.feature.identifier)),
+                                     data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        json_response = response.json()
+        self.assertEqual(json_response['routing_information'], {"whatever": ["whatever"]})
+        self.assertEqual(json_response['geom'], {'type': 'Point', 'coordinates': [0.0, 1.0]})
+
+        response = self.client.get(reverse('feature-detail',
+                                           args=(self.crud_view.layer_id,
+                                                 self.feature.identifier)),
+                                   format="json")
+
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class FeatureAttachmentViewsetTesCase(APITestCase):

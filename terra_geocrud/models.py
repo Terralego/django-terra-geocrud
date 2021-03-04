@@ -424,3 +424,12 @@ class RoutingSettings(models.Model):
             raise ValidationError(
                 _("This layer is already used")
             )
+
+
+class RoutingInformations(models.Model):
+    feature = models.OneToOneField('geostore.Feature', on_delete=models.CASCADE,
+                                   related_name='routing_information')
+    route_description = JSONField(blank=True, null=False, default=dict)
+
+    def __str__(self):
+        return f"Routing infos : {self.feature.identifier}"
