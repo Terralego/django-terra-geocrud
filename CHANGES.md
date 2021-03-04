@@ -1,20 +1,20 @@
 CHANGELOG
 =========
 
-1.0.10.dev0     (XXXX-XX-XX)
+1.0.10          (2021-03-04)
 ----------------------------
 
 * Add routing informations on each features
 * Add calculated properties
 
 
-1.0.9           (2020-02-18)
+1.0.9           (2021-02-18)
 ----------------------------
 
 * Fix routing queryset get all layers not only with crud_view
 
 
-1.0.8           (2020-02-16)
+1.0.8           (2021-02-16)
 ----------------------------
 
 * Update french translations
