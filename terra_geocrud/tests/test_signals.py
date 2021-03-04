@@ -70,11 +70,10 @@ class CalculatedPropertiesTest(TestCase):
 
         sync_layer_schema(self.crud_view)
         sync_layer_schema(crud_view)
-        Feature.objects.create(
-            layer=layer,
-            properties={'name': 'City'},
-            geom=LineString((0, 0), (10, 0))
-        )
+
+        self.feature.save()
+
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
 
         distance_rel = LayerRelation.objects.create(
             name='cities',
@@ -83,7 +82,21 @@ class CalculatedPropertiesTest(TestCase):
             destination=crud_view.layer,
             settings={"distance": 100}
         )
+        self.feature.save()
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
+
+        feature = Feature.objects.create(
+            layer=layer,
+            properties={},
+            geom=LineString((0, 0), (10, 0))
+        )
+
         self.feature.sync_relations(distance_rel.pk)
         self.feature.save()
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
 
+        feature.properties = {'name': 'City'}
+        feature.save()
+        self.feature.sync_relations(distance_rel.pk)
+        self.feature.save()
         self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': ['City']})
