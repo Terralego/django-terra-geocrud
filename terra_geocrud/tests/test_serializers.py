@@ -59,7 +59,7 @@ class CrudFeatureSerializer(TestCase):
             json_schema={
                 'type': "string",
                 "title": "Not editable",
-            }
+            },
         )
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={

@@ -5,6 +5,7 @@ CHANGELOG
 ----------------------------
 
 * Add routing informations on each features
+* Add calculated properties
 
 
 1.0.9           (2020-02-18)

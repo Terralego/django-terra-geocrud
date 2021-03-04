@@ -214,6 +214,11 @@ class CrudViewPropertyTestCase(TestCase):
         with self.assertRaises(ValidationError):
             prop.clean()
 
+    def test_constraint_not_editable_func(self):
+        prop = CrudViewProperty.objects.create(view=self.crud_view, key="not_editable_func", json_schema={},
+                                               ui_schema={}, editable=False)
+        self.assertIsNotNone(prop)
+
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class FeaturePictureTestCase(TestCase):

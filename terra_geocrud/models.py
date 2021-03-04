@@ -22,7 +22,7 @@ from terra_geocrud.map.styles import MapStyleModelMixin
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.schema import FormSchemaMixin
-from .validators import validate_schema_property
+from .validators import validate_schema_property, validate_function_path
 
 
 class CrudModelMixin(models.Model):
@@ -273,6 +273,7 @@ class CrudViewProperty(models.Model):
     required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
     editable = models.BooleanField(default=True)
+    function_path = models.CharField(max_length=255, blank=True, validators=[validate_function_path])
 
     class Meta:
         unique_together = (
