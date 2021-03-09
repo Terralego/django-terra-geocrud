@@ -4,13 +4,16 @@ from unittest.mock import patch, PropertyMock
 from geostore import GeometryTypes
 from geostore.models import Feature, LayerRelation
 from geostore.tests.factories import LayerFactory
-from django.test import TestCase
+from django.test import override_settings, TestCase
+
 from django.contrib.gis.geos import LineString
 
 from terra_geocrud.models import CrudViewProperty
 from terra_geocrud.tests.factories import CrudViewFactory
 
 
+@patch('terra_geocrud.signals.execute_async_func')
+@patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
 class CalculatedPropertiesTest(TestCase):
     def setUp(self) -> None:
         layer = LayerFactory.create(geom_type=GeometryTypes.LineString,
@@ -31,19 +34,32 @@ class CalculatedPropertiesTest(TestCase):
             json_schema={'type': "string", "title": "Name"}
         )
         sync_layer_schema(self.crud_view)
-        self.feature = Feature.objects.create(
-            layer=self.crud_view.layer,
-            properties={'name': 'toto'},
-            geom=LineString((0, 0), (1, 0))
-        )
+        with patch('terra_geocrud.signals.execute_async_func') as mocked_async:
+            self.add_side_effect_async(mocked_async)
+            with patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock) as mocked:
+                mocked.return_value = True
+                self.feature = Feature.objects.create(
+                    layer=self.crud_view.layer,
+                    properties={'name': 'toto'},
+                    geom=LineString((0, 0), (1, 0))
+                )
 
-    def test_signal(self):
+    def add_side_effect_async(self, mocked):
+        def side_effect_async(async_func, args=()):
+            async_func(*args)
+        mocked.side_effect = side_effect_async
+
+    def test_signal(self, property_mocked, async_mocked):
+        property_mocked.return_value = True
+        self.add_side_effect_async(async_mocked)
         self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
         self.feature.geom = LineString((0, 0), (10, 0))
         self.feature.save()
         self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 10.0})
 
-    def test_signal_function_with_validation_error(self):
+    def test_signal_function_with_validation_error(self, property_mocked, async_mocked):
+        property_mocked.return_value = True
+        self.add_side_effect_async(async_mocked)
         self.prop_length.json_schema['type'] = "string"
         self.prop_length.save()
         sync_layer_schema(self.crud_view)
@@ -52,9 +68,9 @@ class CalculatedPropertiesTest(TestCase):
 
         self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
 
-    @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
-    def test_signal_function_with_relation(self, mocked):
-        mocked.return_value = True
+    def test_signal_function_with_relation(self, property_mocked, async_mocked):
+        property_mocked.return_value = True
+        self.add_side_effect_async(async_mocked)
         layer = LayerFactory.create(geom_type=GeometryTypes.LineString,
                                     schema={"type": "object",
                                             "required": ["name", ],
