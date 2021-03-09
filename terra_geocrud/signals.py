@@ -16,4 +16,5 @@ signals.post_save.disconnect(save_feature, sender=Feature)
 def save_feature(sender, instance, **kwargs):
     if app_settings.GEOSTORE_RELATION_CELERY_ASYNC:
         kwargs['relation_id'] = None
+        kwargs.pop('signal')
         execute_async_func(feature_update_relations_destinations, (instance.pk, kwargs))
