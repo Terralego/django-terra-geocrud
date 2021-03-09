@@ -4,6 +4,8 @@ from celery import shared_task
 from django.core.exceptions import ValidationError
 from django.utils.module_loading import import_string
 
+from geostore.models import Feature
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +33,10 @@ def change_props(instance):
 
 
 @shared_task
-def feature_update_relations_destinations(instance, kwargs):
+def feature_update_relations_destinations(feature_id, kwargs):
     """ Update all feature layer relations as origin """
-    instance.sync_relations(kwargs['relation_id'])
-    if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(instance.layer, 'crud_view'):
-        change_props(instance)
+    feature = Feature.objects.get(pk=feature_id)
+    feature.sync_relations(kwargs['relation_id'])
+    if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(feature.layer, 'crud_view'):
+        change_props(feature)
     return True
