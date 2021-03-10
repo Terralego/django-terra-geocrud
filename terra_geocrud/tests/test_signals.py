@@ -52,10 +52,12 @@ class CalculatedPropertiesTest(TestCase):
     def test_signal(self, property_mocked, async_mocked):
         property_mocked.return_value = True
         self.add_side_effect_async(async_mocked)
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
+        feature = Feature.objects.get(pk=self.feature.pk)
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0})
         self.feature.geom = LineString((0, 0), (10, 0))
         self.feature.save()
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 10.0})
+        feature = Feature.objects.get(pk=self.feature.pk)
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 10.0})
 
     def test_signal_function_with_validation_error(self, property_mocked, async_mocked):
         property_mocked.return_value = True
@@ -63,10 +65,14 @@ class CalculatedPropertiesTest(TestCase):
         self.prop_length.json_schema['type'] = "string"
         self.prop_length.save()
         sync_layer_schema(self.crud_view)
-        self.feature.geom = LineString((0, 0), (10, 0))
-        self.feature.save()
 
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
+        feature = Feature.objects.get(pk=self.feature.pk)
+        feature.geom = LineString((0, 0), (10, 0))
+        feature.save()
+
+        feature = Feature.objects.get(pk=self.feature.pk)
+
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0})
 
     def test_signal_function_with_relation(self, property_mocked, async_mocked):
         property_mocked.return_value = True
@@ -89,8 +95,8 @@ class CalculatedPropertiesTest(TestCase):
 
         self.feature.save()
 
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
-
+        feature = Feature.objects.get(pk=self.feature.pk)
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
         distance_rel = LayerRelation.objects.create(
             name='cities',
             relation_type='distance',
@@ -99,9 +105,11 @@ class CalculatedPropertiesTest(TestCase):
             settings={"distance": 100}
         )
         self.feature.save()
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
 
-        feature = Feature.objects.create(
+        feature = Feature.objects.get(pk=self.feature.pk)
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
+
+        feature_intersect = Feature.objects.create(
             layer=layer,
             properties={},
             geom=LineString((0, 0), (10, 0))
@@ -109,10 +117,12 @@ class CalculatedPropertiesTest(TestCase):
 
         self.feature.sync_relations(distance_rel.pk)
         self.feature.save()
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
+        feature = Feature.objects.get(pk=self.feature.pk)
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
 
-        feature.properties = {'name': 'City'}
-        feature.save()
+        feature_intersect.properties = {'name': 'City'}
+        feature_intersect.save()
         self.feature.sync_relations(distance_rel.pk)
         self.feature.save()
-        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': ['City']})
+        feature = Feature.objects.get(pk=self.feature.pk)
+        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': ['City']})
