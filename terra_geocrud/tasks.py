@@ -4,7 +4,7 @@ from celery import shared_task
 from django.core.exceptions import ValidationError
 from django.utils.module_loading import import_string
 
-from geostore.models import Feature
+from geostore.models import Feature, LayerRelation
 
 
 logger = logging.getLogger(__name__)
@@ -39,4 +39,15 @@ def feature_update_relations_destinations(feature_id, kwargs):
     feature.sync_relations(kwargs['relation_id'])
     if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(feature.layer, 'crud_view'):
         change_props(feature)
+    return True
+
+
+@shared_task
+def layer_relations_set_destinations(relation_id):
+    """ Update all feature layer as origin for a relation """
+    relation = LayerRelation.objects.get(pk=relation_id)
+    kwargs = {"relation_id": relation_id}
+    for feature_id in relation.origin.features.values_list('pk', flat=True):
+        feature_update_relations_destinations.delay(feature_id, kwargs)
+
     return True
