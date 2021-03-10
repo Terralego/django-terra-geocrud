@@ -1,5 +1,5 @@
 from django.db.models.signals import post_save
-from django.dispatch import receiver, Signal
+from django.dispatch import receiver
 from django.db.models import signals
 
 from geostore import settings as app_settings

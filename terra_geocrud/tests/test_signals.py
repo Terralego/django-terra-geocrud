@@ -4,7 +4,7 @@ from unittest.mock import patch, PropertyMock
 from geostore import GeometryTypes
 from geostore.models import Feature, LayerRelation
 from geostore.tests.factories import LayerFactory
-from django.test import override_settings, TestCase
+from django.test import TestCase
 
 from django.contrib.gis.geos import LineString
 
@@ -15,7 +15,8 @@ from terra_geocrud.tests.factories import CrudViewFactory
 @patch('terra_geocrud.signals.execute_async_func')
 @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
 class CalculatedPropertiesTest(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
+
         layer = LayerFactory.create(geom_type=GeometryTypes.LineString,
                                     schema={"type": "object",
                                             "required": ["name", ],
