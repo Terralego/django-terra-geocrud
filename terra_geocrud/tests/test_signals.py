@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.contrib.gis.geos import LineString, Polygon
 
 from terra_geocrud.models import CrudViewProperty
-from terra_geocrud.tasks import feature_update_relations_destinations
+from terra_geocrud.tasks import feature_update_relations_destinations, feature_update_relations_origins
 from terra_geocrud.tests.factories import CrudViewFactory
 
 
@@ -305,7 +305,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         self.add_side_effect_async(async_mocked)
         self.feature_long.save()
 
-        f = Feature.objects.create(
+        Feature.objects.create(
             layer=self.layer_city,
             properties={"name": "Ville 0 0 2"},
             geom=Polygon(((0, 0), (5, 0),
@@ -315,3 +315,30 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         feature = Feature.objects.get(pk=self.feature_long.pk)
 
         self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 0 0 2'], 'name': 'tata'})
+
+    @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
+    @patch('terra_geocrud.tasks.feature_update_relations_origins.delay')
+    def test_signal_destination_delete(self, async_delay_origins, async_delay_destinations, property_mocked, async_mocked):
+        def side_effect_async_destinations(feature_id, kwargs):
+            feature_update_relations_destinations(feature_id, kwargs)
+
+        def side_effect_async_origins(feature_id, kwargs):
+            feature_update_relations_origins(feature_id, kwargs)
+
+        async_delay_destinations.side_effect = side_effect_async_destinations
+        async_delay_origins.side_effect = side_effect_async_origins
+        property_mocked.return_value = True
+        self.add_side_effect_async(async_mocked)
+        self.feature_long.save()
+
+        feature = Feature.objects.create(
+            layer=self.layer_city,
+            properties={"name": "Ville 0 0 2"},
+            geom=Polygon(((0, 0), (5, 0),
+                          (5, 5), (0, 5),
+                          (0, 0)))
+        )
+        feature.delete()
+        feature = Feature.objects.get(pk=self.feature_long.pk)
+
+        self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
