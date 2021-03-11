@@ -212,12 +212,12 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
                                             "properties": {"name": {"type": "string", "title": "Name"}}
                                             })
         self.crud_view = CrudViewFactory(layer=layer)
-        layer = LayerFactory.create(geom_type=GeometryTypes.Polygon,
-                                    schema={"type": "object",
-                                            "required": ["name", ],
-                                            "properties": {"name": {"type": "string", "title": "Name"}}
-                                            })
-        crud_view = CrudViewFactory.create(layer=layer)
+        self.layer_city = LayerFactory.create(geom_type=GeometryTypes.Polygon,
+                                              schema={"type": "object",
+                                                      "required": ["name", ],
+                                                      "properties": {"name": {"type": "string", "title": "Name"}}
+                                                      })
+        crud_view = CrudViewFactory.create(layer=self.layer_city)
         with patch('terra_geocrud.tasks.feature_update_relations_destinations.delay'):
             self.layer_relation = LayerRelation.objects.create(
                 name='cities',
@@ -254,7 +254,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
                     geom=LineString((0, 0), (10, 10))
                 )
         Feature.objects.create(
-            layer=layer,
+            layer=self.layer_city,
             properties={"name": "Ville 0 0"},
             geom=Polygon(((0, 0), (5, 0),
                          (5, 5), (0, 5),
@@ -262,7 +262,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
         )
         Feature.objects.create(
-            layer=layer,
+            layer=self.layer_city,
             properties={"name": "Ville 5 5"},
             geom=Polygon(((5, 5), (10, 5),
                          (10, 10), (5, 10),
@@ -270,7 +270,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         )
 
         Feature.objects.create(
-            layer=layer,
+            layer=self.layer_city,
             properties={"name": "Ville 11 11"},
             geom=Polygon(((11, 11), (12, 11),
                          (12, 12), (11, 12),
@@ -278,7 +278,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         )
 
     @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
-    def test_signal_start_end_cities(self, async_delay, property_mocked, async_mocked):
+    def test_signal_layer_relation_create(self, async_delay, property_mocked, async_mocked):
         def side_effect_async(feature_id, kwargs):
             feature_update_relations_destinations(feature_id, kwargs)
         async_delay.side_effect = side_effect_async
@@ -295,3 +295,23 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
         feature = Feature.objects.get(pk=self.feature_long.pk)
         self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 11 11'], 'name': 'tata'})
+
+    @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
+    def test_signal_destination_create(self, async_delay, property_mocked, async_mocked):
+        def side_effect_async(feature_id, kwargs):
+            feature_update_relations_destinations(feature_id, kwargs)
+        async_delay.side_effect = side_effect_async
+        property_mocked.return_value = True
+        self.add_side_effect_async(async_mocked)
+        self.feature_long.save()
+
+        f = Feature.objects.create(
+            layer=self.layer_city,
+            properties={"name": "Ville 0 0 2"},
+            geom=Polygon(((0, 0), (5, 0),
+                          (5, 5), (0, 5),
+                          (0, 0)))
+        )
+        feature = Feature.objects.get(pk=self.feature_long.pk)
+
+        self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 0 0 2'], 'name': 'tata'})
