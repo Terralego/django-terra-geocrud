@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import date
 
 from terra_geocrud.properties.files import get_info_content, get_storage_path_from_infos, get_storage_file_url
@@ -57,11 +58,24 @@ def serialize_group_properties(feature, final_properties, editables_properties):
     for key, value in final_properties.items():
         data_format = feature.layer.schema.get('properties', {}).get(key, {}).get('format')
         data, data_type = get_data_url_date(value, data_format)
+
+        # if value associated for property match, and has picto, use it in <img> tag
+        value = feature.properties.get(key)
+
+        # find if associated property has explicit values
+        try:
+            crud_property = feature.layer.crud_view.properties.get(key=key)
+            value_match = crud_property.values.get(value=value)
+            if value_match and value_match.pictogram:
+                data = f'<img src="{value_match.pictogram.url}"> {data}'
+        except ObjectDoesNotExist:
+            pass
+
         properties.update({key: {
             "display_value": data,
             "type": data_type,
             "title": feature.layer.get_property_title(key),
-            "value": feature.properties.get(key),
+            "value": value,
             "schema": feature.layer.schema.get('properties', {}).get(key),
             "ui_schema": feature.layer.crud_view.ui_schema.get(key, {}),
             "editable": editables_properties[key]

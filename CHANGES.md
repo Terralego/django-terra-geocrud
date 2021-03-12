@@ -4,7 +4,7 @@ CHANGELOG
 1.0.12.dev0     (XXXX-XX-XX)
 ----------------------------
 
-*
+* Use defined pictograms in values in display properties
 
 1.0.11          (2021-03-12)
 ----------------------------
