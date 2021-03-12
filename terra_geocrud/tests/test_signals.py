@@ -59,19 +59,16 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
                     geom=LineString((0, 0), (10, 10))
                 )
 
-    def save_feature(self, pk):
-        feature = Feature.objects.get(pk=pk)
-        feature.save()
-
     def test_signal(self, property_mocked, async_mocked, mock_delay):
         property_mocked.return_value = True
         self.add_side_effect_async(async_mocked)
-        feature = Feature.objects.get(pk=self.feature.pk)
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0})
+        self.feature.refresh_from_db()
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
         self.feature.geom = LineString((0, 0), (10, 0))
         self.feature.save()
-        feature = Feature.objects.get(pk=self.feature.pk)
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 10.0})
+        self.feature.refresh_from_db()
+
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 10.0})
 
     def test_signal_function_with_validation_error(self, property_mocked, async_mocked, mock_delay):
         property_mocked.return_value = True
@@ -84,9 +81,9 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
         feature.geom = LineString((0, 0), (10, 0))
         feature.save()
 
-        feature = Feature.objects.get(pk=self.feature.pk)
+        self.feature.refresh_from_db()
 
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0})
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0})
 
     def test_signal_function_with_relation(self, property_mocked, async_mocked, mock_delay):
         property_mocked.return_value = True
@@ -108,10 +105,10 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
         sync_layer_schema(crud_view)
 
         self.feature.save()
+        self.feature.refresh_from_db()
 
-        feature = Feature.objects.get(pk=self.feature.pk)
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
-        distance_rel = LayerRelation.objects.create(
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
+        LayerRelation.objects.create(
             name='cities',
             relation_type='distance',
             origin=self.crud_view.layer,
@@ -120,8 +117,8 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
         )
         self.feature.save()
 
-        feature = Feature.objects.get(pk=self.feature.pk)
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
+        self.feature.refresh_from_db()
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
 
         feature_intersect = Feature.objects.create(
             layer=layer,
@@ -129,17 +126,20 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
             geom=LineString((0, 0), (10, 0))
         )
 
-        self.feature.sync_relations(distance_rel.pk)
+        self.feature.refresh_from_db()
         self.feature.save()
-        feature = Feature.objects.get(pk=self.feature.pk)
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
+        self.feature.refresh_from_db()
+
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': []})
 
         feature_intersect.properties = {'name': 'City'}
         feature_intersect.save()
 
+        self.feature.refresh_from_db()
         self.feature.save()
-        feature = Feature.objects.get(pk=self.feature.pk)
-        self.assertEqual(feature.properties, {'name': 'toto', 'length': 1.0, 'cities': ['City']})
+        self.feature.refresh_from_db()
+
+        self.assertEqual(self.feature.properties, {'name': 'toto', 'length': 1.0, 'cities': ['City']})
 
     def test_signal_start_end_cities(self, property_mocked, async_mocked, mock_delay):
         property_mocked.return_value = True
@@ -175,10 +175,11 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
         sync_layer_schema(self.crud_view)
         sync_layer_schema(crud_view)
 
-        self.save_feature(self.feature_long.pk)
+        self.feature_long.refresh_from_db()
+        self.feature_long.save()
+        self.feature_long.refresh_from_db()
 
-        feature = Feature.objects.get(pk=self.feature_long.pk)
-        self.assertEqual(feature.properties, {'name': 'tata', 'first_city': '', 'last_city': ''})
+        self.assertEqual(self.feature_long.properties, {'name': 'tata', 'first_city': '', 'last_city': ''})
 
         Feature.objects.create(
             layer=layer,
@@ -195,7 +196,9 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
                          (10, 10), (5, 10),
                          (5, 5)))
         )
-        self.save_feature(self.feature_long.pk)
+        self.feature_long.refresh_from_db()
+        self.feature_long.save()
+        self.feature_long.refresh_from_db()
 
         feature = Feature.objects.get(pk=self.feature_long.pk)
         self.assertEqual(feature.properties, {'first_city': 'Ville 0 0', 'last_city': 'Ville 5 5', 'name': 'tata'})
@@ -284,17 +287,18 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         async_delay.side_effect = side_effect_async
         property_mocked.return_value = True
         self.add_side_effect_async(async_mocked)
+
         self.feature_long.save()
-        feature = Feature.objects.get(pk=self.feature_long.pk)
-        self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+        self.feature_long.refresh_from_db()
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
 
         layer_relation = LayerRelation.objects.get(pk=self.layer_relation.pk)
         layer_relation.relation_type = 'distance'
         layer_relation.settings = {"distance": 1000000}
         layer_relation.save()
 
-        feature = Feature.objects.get(pk=self.feature_long.pk)
-        self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 11 11'], 'name': 'tata'})
+        self.feature_long.refresh_from_db()
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 11 11'], 'name': 'tata'})
 
     @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
     def test_signal_destination_create(self, async_delay, property_mocked, async_mocked):
@@ -312,9 +316,9 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
                           (5, 5), (0, 5),
                           (0, 0)))
         )
-        feature = Feature.objects.get(pk=self.feature_long.pk)
+        self.feature_long.refresh_from_db()
 
-        self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 0 0 2'], 'name': 'tata'})
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5', 'Ville 0 0 2'], 'name': 'tata'})
 
     @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
     @patch('terra_geocrud.tasks.feature_update_relations_origins.delay')
@@ -339,6 +343,6 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
                           (0, 0)))
         )
         feature.delete()
-        feature = Feature.objects.get(pk=self.feature_long.pk)
+        self.feature_long.refresh_from_db()
 
-        self.assertEqual(feature.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
