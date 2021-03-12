@@ -4,7 +4,7 @@ CHANGELOG
 1.0.11.dev0     (XXXX-XX-XX)
 ----------------------------
 
-*
+* Fix signals calculated properties, with save of layer relation, save and delete of destinations
 
 
 1.0.10          (2021-03-04)
