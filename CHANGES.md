@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.11.dev0     (XXXX-XX-XX)
+1.0.11          (2021-03-12)
 ----------------------------
 
 * Fix signals calculated properties, with save of layer relation, save and delete of destinations
