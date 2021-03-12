@@ -1,14 +1,17 @@
 from unittest.case import skipIf
 
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from geostore.models import LayerExtraGeom, FeatureExtraGeom, Feature
 from geostore.settings import GEOSTORE_EXPORT_CELERY_ASYNC
 
 from terra_geocrud import models
+from terra_geocrud.models import PropertyEnum
 from terra_geocrud.properties.schema import sync_layer_schema, sync_ui_schema
 from terra_geocrud.serializers import CrudFeatureExtraGeomSerializer, CrudFeatureDetailSerializer, CrudViewSerializer
 from terra_geocrud.tests import factories
 from terra_geocrud.tests.factories import CrudViewFactory
+from terra_geocrud.tests.settings import SMALL_PICTURE
 
 
 class CrudFeatureExtraGeomSerializerTestCase(TestCase):
@@ -61,10 +64,22 @@ class CrudFeatureSerializer(TestCase):
                 "title": "Not editable",
             },
         )
+        prop_with_values = models.CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="type",
+            required=False,
+            editable=False,
+            json_schema={
+                'type': "string",
+                "title": "Type",
+            },
+        )
+        PropertyEnum.objects.create(value='type_1', pictogram=ContentFile(SMALL_PICTURE))
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={
                                                   "date_start": "test",
-                                                  "date_end": "2020-12-10"
+                                                  "date_end": "2020-12-10",
+                                                  "type": "type_1"
                                               },
                                               layer=self.crud_view.layer)
         sync_layer_schema(self.crud_view)
