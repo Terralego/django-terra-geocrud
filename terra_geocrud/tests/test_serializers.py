@@ -74,7 +74,7 @@ class CrudFeatureSerializer(TestCase):
                 "title": "Type",
             },
         )
-        PropertyEnum.objects.create(value='type_1', pictogram=ContentFile(SMALL_PICTURE))
+        PropertyEnum.objects.create(value='type_1', pictogram=ContentFile(SMALL_PICTURE), property=prop_with_values)
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={
                                                   "date_start": "test",
