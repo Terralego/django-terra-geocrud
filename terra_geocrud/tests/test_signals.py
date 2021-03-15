@@ -346,3 +346,57 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         self.feature_long.refresh_from_db()
 
         self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+
+    @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
+    @patch('terra_geocrud.tasks.feature_update_relations_origins.delay')
+    def test_signal_feature_deleted_before_delay(self, async_delay_origins, async_delay_destinations, property_mocked, async_mocked):
+        def side_effect_async_destinations(feature_id, kwargs):
+            Feature.objects.get(pk=feature_id).delete()
+            task_result = feature_update_relations_destinations(feature_id, kwargs)
+            assert not task_result
+
+        def side_effect_async_origins(feature_id, kwargs):
+            feature_update_relations_origins(feature_id, kwargs)
+
+        async_delay_destinations.side_effect = side_effect_async_destinations
+        async_delay_origins.side_effect = side_effect_async_origins
+        property_mocked.return_value = True
+
+        self.add_side_effect_async(async_mocked)
+        self.feature_long.save()
+        feature = Feature.objects.create(
+            layer=self.layer_city,
+            properties={"name": "Ville 0 0 2"},
+            geom=Polygon(((0, 0), (5, 0),
+                          (5, 5), (0, 5),
+                          (0, 0)))
+        )
+        feature.delete()
+
+    @patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
+    def test_signal_layer_relation_create_deleted_before_delay(self, async_delay, property_mocked, async_mocked):
+        def side_effect_async_delay(relation_id, kwargs):
+            feature_update_relations_destinations(relation_id, kwargs)
+
+        self.add_side_effect_async(async_mocked)
+        async_delay.side_effect = side_effect_async_delay
+        property_mocked.return_value = True
+        self.feature_long.save()
+        self.feature_long.refresh_from_db()
+
+        def side_effect_async(async_func, args=()):
+            LayerRelation.objects.get(pk=args[0]).delete()
+            result_delay = async_func(*args)
+            assert not result_delay
+
+        async_mocked.side_effect = side_effect_async
+
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+
+        layer_relation = LayerRelation.objects.get(pk=self.layer_relation.pk)
+        layer_relation.relation_type = 'distance'
+        layer_relation.settings = {"distance": 1000000}
+        layer_relation.save()
+
+        self.feature_long.refresh_from_db()
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})

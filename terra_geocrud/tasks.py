@@ -51,7 +51,11 @@ def sync_relations_destination(feature, kwargs):
 @shared_task
 def feature_update_relations_destinations(feature_id, kwargs):
     """ Update all feature layer relations """
-    feature = Feature.objects.get(pk=feature_id)
+    try:
+        feature = Feature.objects.get(pk=feature_id)
+    except Feature.DoesNotExist:
+        return False
+
     feature.sync_relations(kwargs['relation_id'])
 
     feature = sync_relations_destination(feature, kwargs)
@@ -66,7 +70,11 @@ def feature_update_relations_destinations(feature_id, kwargs):
 @shared_task
 def layer_relations_set_destinations(relation_id):
     """ Update all feature layer as origin for a relation """
-    relation = LayerRelation.objects.get(pk=relation_id)
+    try:
+        relation = LayerRelation.objects.get(pk=relation_id)
+    except LayerRelation.DoesNotExist:
+        return False
+
     kwargs = {"relation_id": relation_id}
     for feature_id in relation.origin.features.values_list('pk', flat=True):
         feature_update_relations_destinations.delay(feature_id, kwargs)
