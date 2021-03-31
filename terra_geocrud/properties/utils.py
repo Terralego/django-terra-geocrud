@@ -67,7 +67,7 @@ def serialize_group_properties(feature, final_properties, editables_properties):
             crud_property = feature.layer.crud_view.properties.get(key=key)
             value_match = crud_property.values.get(value=value)
             if value_match and value_match.pictogram:
-                data = f'<img src="{value_match.pictogram.url}" /> {data}'
+                data = f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{data}</span></div>'
         except ObjectDoesNotExist:
             pass
 
