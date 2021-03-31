@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.12.dev0     (XXXX-XX-XX)
+1.0.12          (2021-03-31)
 ----------------------------
 
 * Use defined pictograms in values in display properties
