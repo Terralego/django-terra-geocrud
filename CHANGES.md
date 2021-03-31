@@ -5,6 +5,8 @@ CHANGELOG
 ----------------------------
 
 * Use defined pictograms in values in display properties
+* Update calculated properties only if feature still exists (async)
+
 
 1.0.11          (2021-03-12)
 ----------------------------
