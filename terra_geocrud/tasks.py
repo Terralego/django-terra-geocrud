@@ -45,7 +45,7 @@ def sync_relations_destination(feature, kwargs):
     for relation_destination in feature.layer.relations_as_destination.all():
         for feature in relation_destination.origin.features.all():
             feature.sync_relations(kwargs['relation_id'])
-    return feature
+            change_props(feature)
 
 
 @shared_task
@@ -56,12 +56,12 @@ def feature_update_relations_destinations(feature_id, kwargs):
     except Feature.DoesNotExist:
         return False
 
-    feature.sync_relations(kwargs['relation_id'])
-
-    feature = sync_relations_destination(feature, kwargs)
-
     if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(
             feature.layer, 'crud_view'):
+        feature.sync_relations(kwargs['relation_id'])
+
+        sync_relations_destination(feature, kwargs)
+
         change_props(feature)
 
     return True
