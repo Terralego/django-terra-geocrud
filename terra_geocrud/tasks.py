@@ -47,7 +47,9 @@ def feature_update_relations_origins(features_id, kwargs):
 
 def sync_relations_destination(feature, kwargs):
     for relation_destination in feature.layer.relations_as_destination.all():
+        logger.info(f"relation_destination : {relation_destination}")
         for feature in relation_destination.origin.features.all():
+            logger.info(f"feature : {feature}")
             feature.sync_relations(kwargs['relation_id'])
     return feature
 
@@ -60,11 +62,13 @@ def feature_update_relations_destinations(feature_id, kwargs):
     except Feature.DoesNotExist:
         return False
 
-    logger.info(f"feature_update_relations_destinations : {feature_id}")
+    logger.info(f"before sync_relations : {feature_id}")
     feature.sync_relations(kwargs['relation_id'])
 
+    logger.info(f"after sync_relations : {feature_id}")
+
     feature = sync_relations_destination(feature, kwargs)
-    logger.info(f"feature_update_relations_destinations : {json.dumps(kwargs)}")
+    logger.info(f"after sync_relations_destination : {json.dumps(kwargs)}")
     if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(
             feature.layer, 'crud_view'):
         change_props(feature)
