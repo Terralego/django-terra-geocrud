@@ -14,7 +14,7 @@ def compute_properties(instance, prop):
     value = import_string(prop.function_path)(instance)
     old_value = instance.properties.get(prop.key)
     instance.properties[prop.key] = value
-    logger.info(f" {value} will be added to {prop.key}")
+    logger.info(f"{value} will be added to {prop.key} on {instance.identifier}")
     try:
         instance.clean()
         instance.save(update_fields=['properties'])
