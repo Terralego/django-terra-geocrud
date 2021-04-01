@@ -1,4 +1,5 @@
 import logging
+import json
 from celery import shared_task
 
 from django.core.exceptions import ValidationError
@@ -36,6 +37,8 @@ def change_props(feature):
 @shared_task
 def feature_update_relations_origins(features_id, kwargs):
     features = Feature.objects.filter(pk__in=features_id)
+    logger.info(f"feature_update_relations_origins : {features_id}")
+
     for feature in features:
         feature_update_relations_destinations.delay(feature.pk, kwargs)
 
@@ -57,10 +60,11 @@ def feature_update_relations_destinations(feature_id, kwargs):
     except Feature.DoesNotExist:
         return False
 
+    logger.info(f"feature_update_relations_destinations : {feature_id}")
     feature.sync_relations(kwargs['relation_id'])
 
     feature = sync_relations_destination(feature, kwargs)
-
+    logger.info(f"feature_update_relations_destinations : {json.dumps(kwargs)}")
     if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(
             feature.layer, 'crud_view'):
         change_props(feature)
