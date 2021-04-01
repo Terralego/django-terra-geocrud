@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.13.dev0     (2021-04-01)
+1.0.13          (2021-04-01)
 ----------------------------
 
 * Fix task modification of destination and origin props
