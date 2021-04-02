@@ -74,14 +74,34 @@ class CrudFeatureSerializer(TestCase):
                 "title": "Type",
             },
         )
+        prop_with_array_values = models.CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="types",
+            required=False,
+            editable=False,
+            json_schema={
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "title": "Types"
+            }
+        )
         PropertyEnum.objects.create(value='type_1',
                                     pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
                                     property=prop_with_values)
+        PropertyEnum.objects.create(value='multi_type_1',
+                                    pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
+                                    property=prop_with_array_values)
+        PropertyEnum.objects.create(value='multi_type_2',
+                                    pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
+                                    property=prop_with_array_values)
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={
                                                   "date_start": "test",
                                                   "date_end": "2020-12-10",
-                                                  "type": "type_1"
+                                                  "type": "type_1",
+                                                  "types": ['multi_type_1', 'multi_type_2']
                                               },
                                               layer=self.crud_view.layer)
         sync_layer_schema(self.crud_view)

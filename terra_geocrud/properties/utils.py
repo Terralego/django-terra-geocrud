@@ -61,16 +61,22 @@ def serialize_group_properties(feature, final_properties, editables_properties):
 
         # if value associated for property match, and has picto, use it in <img> tag
         value = feature.properties.get(key)
-
         # find if associated property has explicit values
         try:
             crud_property = feature.layer.crud_view.properties.get(key=key)
-            value_match = crud_property.values.get(value=value)
-            if value_match and value_match.pictogram:
-                data = f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{data}</span></div>'
+            if isinstance(value, list):
+                values_match = crud_property.values.filter(value__in=value)
+                if values_match:
+                    data = []
+                    for value_match in values_match:
+                        if value_match and value_match.pictogram:
+                            data.append(f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{value_match}</span></div>')
+            else:
+                value_match = crud_property.values.get(value=value)
+                if value_match and value_match.pictogram:
+                    data = f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{value_match}</span></div>'
         except ObjectDoesNotExist:
             pass
-
         properties.update({key: {
             "display_value": data,
             "type": data_type,
