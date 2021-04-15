@@ -136,7 +136,11 @@ class CrudFeatureSerializer(TestCase):
         display_value_type = self.serializer.data['display_properties']['__default__']['properties']['type']['display_value']
         self.assertEqual(5, len(display_value_types))
         self.assertIn('<span>multi_type_1</span></div>', display_value_types[0])
-        self.assertEqual('multi_type_3', display_value_types[2])
+        self.assertIn('<img src=', display_value_types[0])
+        self.assertIn('<img src=', display_value_types[1])
+        self.assertEqual('<div class="icon-text"><span>multi_type_3</span></div>', display_value_types[2])
+        self.assertEqual('<div class="icon-text"><span>multi_type_4</span></div>', display_value_types[3])
+        self.assertEqual('<div class="icon-text"><span>multi_type_5</span></div>', display_value_types[4])
         self.assertIn('<span>type_1</span></div>', display_value_type)
 
 
