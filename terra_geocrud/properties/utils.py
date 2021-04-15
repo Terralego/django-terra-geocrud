@@ -59,10 +59,9 @@ def get_display_value(value, crud_property):
             value = f'<div class="icon-text"><img src="{value_match.pictogram}"/><span>{value}</span></div>'
         elif value_match and not value_match.pictogram:
             value = f'<div class="icon-text"><span>{value}</span></div>'
-        else:
-            return value
     except ObjectDoesNotExist:
-        return value
+        pass
+    return value
 
 
 def serialize_group_properties(feature, final_properties, editables_properties):
