@@ -52,6 +52,22 @@ def get_data_url_date(value, data_format):
     return value, 'data'
 
 
+def get_data_list_with_without_picto(crud_property, values):
+    values_match = crud_property.values.filter(value__in=values)
+    data = []
+    for value in values:
+        if value not in values_match.values_list('value', flat=True):
+            data.append(f'<div class="icon-text"><span>{value}</span></div>')
+    for value_match in values_match:
+        if value_match and value_match.pictogram:
+            data.append(
+                f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{value_match}</span></div>')
+        else:
+            data.append(
+                f'<div class="icon-text"><span>{value_match}</span></div>')
+    return data
+
+
 def serialize_group_properties(feature, final_properties, editables_properties):
     properties = {}
 
@@ -65,12 +81,7 @@ def serialize_group_properties(feature, final_properties, editables_properties):
         try:
             crud_property = feature.layer.crud_view.properties.get(key=key)
             if isinstance(value, list):
-                values_match = crud_property.values.filter(value__in=value)
-                if values_match:
-                    data = []
-                    for value_match in values_match:
-                        if value_match and value_match.pictogram:
-                            data.append(f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{value_match}</span></div>')
+                data = get_data_list_with_without_picto(crud_property, value)
             else:
                 value_match = crud_property.values.get(value=value)
                 if value_match and value_match.pictogram:

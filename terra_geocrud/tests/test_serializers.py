@@ -82,7 +82,9 @@ class CrudFeatureSerializer(TestCase):
             json_schema={
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": ['multi_type_3',
+                             'multi_type_4']
                 },
                 "title": "Types"
             }
@@ -96,12 +98,15 @@ class CrudFeatureSerializer(TestCase):
         PropertyEnum.objects.create(value='multi_type_2',
                                     pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
                                     property=prop_with_array_values)
+        PropertyEnum.objects.create(value='multi_type_5',
+                                    property=prop_with_array_values)
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={
                                                   "date_start": "test",
                                                   "date_end": "2020-12-10",
                                                   "type": "type_1",
-                                                  "types": ['multi_type_1', 'multi_type_2']
+                                                  "types": ['multi_type_1', 'multi_type_2', 'multi_type_3',
+                                                            'multi_type_4', 'multi_type_5']
                                               },
                                               layer=self.crud_view.layer)
         sync_layer_schema(self.crud_view)
