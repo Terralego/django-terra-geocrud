@@ -52,22 +52,17 @@ def get_data_url_date(value, data_format):
     return value, 'data'
 
 
-def transform_value_div(value, dict_values):
-    if value in dict_values.keys():
-        pictogram = dict_values[value]
-        if pictogram:
-            f'<div class="icon-text"><img src="{pictogram}"/><span>{value}</span></div>'
+def get_display_value(value, crud_property):
+    try:
+        value_match = crud_property.values.get(value=value)
+        if value_match and value_match.pictogram:
+            value = f'<div class="icon-text"><img src="{value_match.pictogram}"/><span>{value}</span></div>'
+        elif value_match and not value_match.pictogram:
+            value = f'<div class="icon-text"><span>{value}</span></div>'
         else:
-            f'<div class="icon-text"><span>{value}</span></div>'
-    return value
-
-
-def get_data_with_without_picto(crud_property, values):
-    values_match = crud_property.values.filter(**{'value__in' if isinstance(values, list) else 'value': values})
-    dict_values = {value_match.value: value_match.pictogram for value_match in values_match}
-    if isinstance(values, list):
-        return [transform_value_div(value, dict_values) for value in values]
-    return transform_value_div(values, dict_values)
+            return value
+    except ObjectDoesNotExist:
+        return value
 
 
 def serialize_group_properties(feature, final_properties, editables_properties):
@@ -75,17 +70,15 @@ def serialize_group_properties(feature, final_properties, editables_properties):
 
     for key, value in final_properties.items():
         data_format = feature.layer.schema.get('properties', {}).get(key, {}).get('format')
-        data, data_type = get_data_url_date(value, data_format)
 
         # if value associated for property match, and has picto, use it in <img> tag
         value = feature.properties.get(key)
         # find if associated property has explicit values
-        try:
-            crud_property = feature.layer.crud_view.properties.get(key=key)
-            if value and data == value:
-                data = get_data_with_without_picto(crud_property, value)
-        except ObjectDoesNotExist:
-            pass
+        value, data_type = get_data_url_date(value, data_format)
+
+        crud_property = feature.layer.crud_view.properties.get(key=key)
+        data = get_display_value(value, crud_property) if not isinstance(value, list) else [get_display_value(val, crud_property)for val in value]
+
         properties.update({key: {
             "display_value": data,
             "type": data_type,
