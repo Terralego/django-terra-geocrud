@@ -52,20 +52,22 @@ def get_data_url_date(value, data_format):
     return value, 'data'
 
 
-def get_data_list_with_without_picto(crud_property, values):
-    values_match = crud_property.values.filter(value__in=values)
-    data = []
-    for value in values:
-        if value not in values_match.values_list('value', flat=True):
-            data.append(f'<div class="icon-text"><span>{value}</span></div>')
-    for value_match in values_match:
-        if value_match and value_match.pictogram:
-            data.append(
-                f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{value_match}</span></div>')
+def transform_value_div(value, dict_values):
+    if value in dict_values.keys():
+        pictogram = dict_values[value]
+        if pictogram:
+            f'<div class="icon-text"><img src="{pictogram}"/><span>{value}</span></div>'
         else:
-            data.append(
-                f'<div class="icon-text"><span>{value_match}</span></div>')
-    return data
+            f'<div class="icon-text"><span>{value}</span></div>'
+    return value
+
+
+def get_data_with_without_picto(crud_property, values):
+    values_match = crud_property.values.filter(**{'value__in' if isinstance(values, list) else 'value': values})
+    dict_values = {value_match.value: value_match.pictogram for value_match in values_match}
+    if isinstance(values, list):
+        return [transform_value_div(value, dict_values) for value in values]
+    return transform_value_div(values, dict_values)
 
 
 def serialize_group_properties(feature, final_properties, editables_properties):
@@ -80,12 +82,8 @@ def serialize_group_properties(feature, final_properties, editables_properties):
         # find if associated property has explicit values
         try:
             crud_property = feature.layer.crud_view.properties.get(key=key)
-            if isinstance(value, list):
-                data = get_data_list_with_without_picto(crud_property, value)
-            else:
-                value_match = crud_property.values.get(value=value)
-                if value_match and value_match.pictogram:
-                    data = f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{value_match}</span></div>'
+            if value and data == value:
+                data = get_data_with_without_picto(crud_property, value)
         except ObjectDoesNotExist:
             pass
         properties.update({key: {
