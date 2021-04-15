@@ -131,6 +131,14 @@ class CrudFeatureSerializer(TestCase):
         date_editable = properties['date_start']['editable']
         self.assertEqual(True, date_editable)
 
+    def test_pictograms(self):
+        display_value_types = self.serializer.data['display_properties']['__default__']['properties']['types']['display_value']
+        display_value_type = self.serializer.data['display_properties']['__default__']['properties']['type']['display_value']
+        self.assertEqual(5, len(display_value_types))
+        self.assertIn('<span>multi_type_1</span></div>', display_value_types[0])
+        self.assertEqual('multi_type_3', display_value_types[2])
+        self.assertIn('<span>type_1</span></div>', display_value_type)
+
 
 class CrudViewSerializerTestCase(TestCase):
     @classmethod

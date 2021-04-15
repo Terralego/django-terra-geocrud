@@ -57,8 +57,6 @@ def get_display_value(value, crud_property):
         value_match = crud_property.values.get(value=value)
         if value_match and value_match.pictogram:
             value = f'<div class="icon-text"><img src="{value_match.pictogram}"/><span>{value}</span></div>'
-        elif value_match and not value_match.pictogram:
-            value = f'<div class="icon-text"><span>{value}</span></div>'
     except ObjectDoesNotExist:
         pass
     return value
