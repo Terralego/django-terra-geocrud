@@ -1,10 +1,10 @@
 CHANGELOG
 =========
 
-1.0.14.dev0     (XXXX-XX-XX)
+1.0.14          (2021-04-16)
 ----------------------------
 
-*
+* Use defined pictograms in multi values in display properties
 
 
 1.0.13          (2021-04-01)
