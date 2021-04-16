@@ -56,7 +56,7 @@ def get_display_value(value, crud_property, value_type):
     picto = ''
     try:
         value_match = crud_property.values.get(value=value)
-        if value_match and value_match.pictogram:
+        if value_match.pictogram:
             picto = f'<img src="{value_match.pictogram.url}"/>'
     except ObjectDoesNotExist:
         pass
