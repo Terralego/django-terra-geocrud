@@ -74,14 +74,39 @@ class CrudFeatureSerializer(TestCase):
                 "title": "Type",
             },
         )
+        prop_with_array_values = models.CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="types",
+            required=False,
+            editable=False,
+            json_schema={
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": ['multi_type_3',
+                             'multi_type_4']
+                },
+                "title": "Types"
+            }
+        )
         PropertyEnum.objects.create(value='type_1',
                                     pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
                                     property=prop_with_values)
+        PropertyEnum.objects.create(value='multi_type_1',
+                                    pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
+                                    property=prop_with_array_values)
+        PropertyEnum.objects.create(value='multi_type_2',
+                                    pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
+                                    property=prop_with_array_values)
+        PropertyEnum.objects.create(value='multi_type_5',
+                                    property=prop_with_array_values)
         self.feature = Feature.objects.create(geom='POINT(0 0)',
                                               properties={
                                                   "date_start": "test",
                                                   "date_end": "2020-12-10",
-                                                  "type": "type_1"
+                                                  "type": "type_1",
+                                                  "types": ['multi_type_1', 'multi_type_2', 'multi_type_3',
+                                                            'multi_type_4', 'multi_type_5']
                                               },
                                               layer=self.crud_view.layer)
         sync_layer_schema(self.crud_view)
@@ -105,6 +130,18 @@ class CrudFeatureSerializer(TestCase):
         self.assertEqual(False, not_editable)
         date_editable = properties['date_start']['editable']
         self.assertEqual(True, date_editable)
+
+    def test_pictograms(self):
+        display_value_types = self.serializer.data['display_properties']['__default__']['properties']['types']['display_value']
+        display_value_type = self.serializer.data['display_properties']['__default__']['properties']['type']['display_value']
+        self.assertEqual(5, len(display_value_types))
+        self.assertIn('<span>multi_type_1</span></div>', display_value_types[0])
+        self.assertIn('<img src=', display_value_types[0])
+        self.assertIn('<img src=', display_value_types[1])
+        self.assertEqual('<div class="icon-text"><span>multi_type_3</span></div>', display_value_types[2])
+        self.assertEqual('<div class="icon-text"><span>multi_type_4</span></div>', display_value_types[3])
+        self.assertEqual('<div class="icon-text"><span>multi_type_5</span></div>', display_value_types[4])
+        self.assertIn('<span>type_1</span></div>', display_value_type)
 
 
 class CrudViewSerializerTestCase(TestCase):

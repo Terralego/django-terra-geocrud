@@ -52,24 +52,32 @@ def get_data_url_date(value, data_format):
     return value, 'data'
 
 
+def get_display_value(value, crud_property, value_type):
+    picto = ''
+    try:
+        value_match = crud_property.values.get(value=value)
+        if value_match.pictogram:
+            picto = f'<img src="{value_match.pictogram.url}"/>'
+    except ObjectDoesNotExist:
+        pass
+    if value_type == list or picto:
+        value = f'<div class="icon-text">{picto}<span>{value}</span></div>'
+    return value
+
+
 def serialize_group_properties(feature, final_properties, editables_properties):
     properties = {}
 
     for key, value in final_properties.items():
         data_format = feature.layer.schema.get('properties', {}).get(key, {}).get('format')
-        data, data_type = get_data_url_date(value, data_format)
 
         # if value associated for property match, and has picto, use it in <img> tag
         value = feature.properties.get(key)
-
         # find if associated property has explicit values
-        try:
-            crud_property = feature.layer.crud_view.properties.get(key=key)
-            value_match = crud_property.values.get(value=value)
-            if value_match and value_match.pictogram:
-                data = f'<div class="icon-text"><img src="{value_match.pictogram.url}" /> <span>{data}</span></div>'
-        except ObjectDoesNotExist:
-            pass
+        value, data_type = get_data_url_date(value, data_format)
+
+        crud_property = feature.layer.crud_view.properties.get(key=key)
+        data = get_display_value(value, crud_property, str) if not isinstance(value, list) else [get_display_value(val, crud_property, list)for val in value]
 
         properties.update({key: {
             "display_value": data,
