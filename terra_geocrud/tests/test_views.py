@@ -500,7 +500,8 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                          self.feature.identifier,
                                                          layer_rel.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['relations']['view_view'], url_relation)
+        self.assertEqual(response.json()['relations'][0]['label'], "view_view")
+        self.assertEqual(response.json()['relations'][0]['url'], url_relation)
         self.assertEqual(len(response.json()['relations']), 1)
 
     def test_relations_featuredetail_without_celery(self):
@@ -520,7 +521,8 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                          self.feature.identifier,
                                                          layer_rel.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['relations']['view_view'], url_relation)
+        self.assertEqual(response.json()['relations'][0]['label'], "view_view")
+        self.assertEqual(response.json()['relations'][0]['url'], url_relation)
         self.assertEqual(len(response.json()['relations']), 1)
 
     def test_relations_featurelist_without_celery(self):

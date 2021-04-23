@@ -306,12 +306,17 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return instance
 
     def get_relations(self, obj):
-        return {
-            relation.name: reverse('feature-relation',
-                                   args=(obj.layer_id, obj.identifier, relation.pk))
-            for relation in obj.layer.relations_as_origin.all()
-            if hasattr(relation.destination, 'crud_view')
-        }
+        return [{"label": relation.name,
+                 "order": relation.destination.crud_view.order,
+                 "url": reverse('feature-relation',
+                                args=(obj.layer_id, obj.identifier, relation.pk)),
+                 "geojson": reverse('feature-relation',
+                                    kwargs={"layer": obj.layer_id,
+                                            "identifier": obj.identifier,
+                                            "id_relation": relation.pk,
+                                            "format": "geojson"}),
+                 "crud_view_pk": relation.destination.crud_view.pk
+                 } for relation in obj.layer.relations_as_origin.all() if hasattr(relation.destination, 'crud_view')]
 
     def get_pictures(self, obj):
         """ Return feature linked pictures grouped by category, with urls to create / replace / delete """
