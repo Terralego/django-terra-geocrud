@@ -447,6 +447,27 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         self.assertEqual(response.json()[0]['identifier'], str(feature_destination.identifier))
 
     @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
+    def test_featurerelation_geojson(self, mocked):
+        mocked.return_value = True
+        layer_destination = LayerFactory.create()
+        feature_destination = Feature.objects.create(geom=Point(0, 0, srid=4326), layer=layer_destination)
+        intersect_relation = LayerRelation.objects.create(
+            relation_type='distance',
+            origin=self.crud_view.layer,
+            destination=layer_destination,
+            settings={"distance": 100}
+        )
+        self.feature.sync_relations(intersect_relation.pk)
+        response = self.client.get(reverse('feature-relation', args=(self.crud_view.layer_id,
+                                                                     self.feature.identifier,
+                                                                     intersect_relation.pk)),
+                                   data={"format": "geojson"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['features'][0]['properties']['identifier'],
+                         str(feature_destination.identifier))
+
+    @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
     def test_relations_featurelist_crud_view_do_not_show(self, mocked):
         mocked.return_value = True
         layer_destination = LayerFactory.create()
