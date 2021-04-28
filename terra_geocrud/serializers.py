@@ -315,7 +315,8 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                             "identifier": obj.identifier,
                                             "id_relation": relation.pk,
                                             "format": "geojson"}),
-                 "crud_view_pk": relation.destination.crud_view.pk
+                 "crud_view_pk": relation.destination.crud_view.pk,
+                 "empty": 0 == relation.related_features.count()
                  } for relation in obj.layer.relations_as_origin.all() if hasattr(relation.destination, 'crud_view')]
 
     def get_pictures(self, obj):
