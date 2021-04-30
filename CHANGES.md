@@ -4,7 +4,7 @@ CHANGELOG
 1.0.15.dev0     (XXXX-XX-XX)
 ----------------------------
 
-*
+* Change relations : add geojson informations, label, empty
 
 
 1.0.14          (2021-04-16)
