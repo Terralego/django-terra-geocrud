@@ -122,7 +122,7 @@ class CrudFeatureViewSet(ReversionMixin, FeatureViewSet):
         if self.action in ('retrieve', 'update', 'partial_update', 'create'):
             return serializers.CrudFeatureDetailSerializer
         if self.action == 'relation':
-            return FeatureSerializer
+            return self.transform_serializer_geojson(FeatureSerializer)
         return serializers.CrudFeatureListSerializer
 
     @action(detail=True, methods=['get'], permission_classes=[],
