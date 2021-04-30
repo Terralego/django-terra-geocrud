@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.15.dev0     (XXXX-XX-XX)
+1.0.15          (2021-04-30)
 ----------------------------
 
 * Change relations : add geojson informations, label, empty
