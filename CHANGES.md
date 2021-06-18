@@ -4,7 +4,7 @@ CHANGELOG
 1.0.16.dev0     (XXXX-XX-XX)
 ----------------------------
 
-* 
+* Add migration valdation function_path
 
 
 1.0.15          (2021-04-30)
