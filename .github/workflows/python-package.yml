@@ -77,6 +77,7 @@ jobs:
 
     - name: Test with coverage
       run: |
+        ./manage.py makemigrations --check
         if [[ '${{ matrix.postgres }}' == 'postgis/postgis:10-2.5' ]]; then
           coverage run ./manage.py test --exclude-tag=routing
           coverage run -a ./manage.py test --exclude-tag=routing --settings=test_terra_geocrud.settings.async terra_geocrud.tests.test_serializers.CrudViewSerializerTestCase.test_exports_with_async_mode

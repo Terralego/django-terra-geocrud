@@ -69,6 +69,8 @@ setup(
         'django-admin-ordering',
         'django-object-actions',
         'django-nested-admin',
+        # https://github.com/psycopg/psycopg2/issues/1293
+        'psycopg2>=2.8,<2.9'
     ],
     tests_require=tests_require,
     extras_require={
