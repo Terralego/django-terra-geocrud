@@ -8,8 +8,11 @@ from rest_framework.test import APITestCase
 from geostore.tests.factories import FeatureFactory
 
 from terra_geocrud.properties.files import get_info_content, generate_storage_file_path, get_storage, \
-    get_storage_path_from_value
+    get_storage_path_from_value, store_feature_files
 from terra_geocrud.tests import factories
+from terra_geocrud.thumbnail_backends import ThumbnailDataFileBackend
+
+thumbnail_backend = ThumbnailDataFileBackend()
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
@@ -40,7 +43,7 @@ class StorageFunctionTestCase(APITestCase):
         self.feature_with_file_name = FeatureFactory(
             layer=self.crud_view.layer,
             properties={
-                self.property_key: 'data:image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+                self.property_key: 'data:image/png;name=toto.png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII='
             }
         )
 
@@ -59,19 +62,26 @@ class StorageFunctionTestCase(APITestCase):
         data = {
             "geom": "POINT(0 0)",
             "properties": {
-                self.property_key: 'data:image/png;name=toto.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+                self.property_key: 'data:image/png;name=change.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
             }
         }
+        store_feature_files(self.feature_with_file_name, {})
+        storage = get_storage()
+        old_property_value = self.feature_with_file_name.properties.get(self.property_key)
+        old_storage_file_path = old_property_value.split(';name=')[-1].split(';')[0]
+        old_thumbnail = thumbnail_backend.get_thumbnail(old_storage_file_path, "500x500", crop='noop', upscale=False)
+        self.assertTrue(storage.exists(old_thumbnail.name))
+        self.assertTrue(storage.exists(old_storage_file_path))
         response = self.client.put(
             reverse('feature-detail',
                     args=(self.feature_with_file_name.layer_id,
                           self.feature_with_file_name.identifier)),
             data=data,
             format="json")
+        self.assertFalse(storage.exists(old_storage_file_path))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        storage = get_storage()
         storage_file_path = generate_storage_file_path(self.property_key,
-                                                       self.feature_with_file_name.properties.get(self.property_key),
+                                                       data['properties'].get(self.property_key),
                                                        self.feature_with_file_name)
         self.assertTrue(storage.exists(storage_file_path))
 
