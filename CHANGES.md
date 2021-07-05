@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.16.dev0     (XXXX-XX-XX)
+1.0.16          (2021-07-05)
 ----------------------------
 
 * Add migration validation function_path
