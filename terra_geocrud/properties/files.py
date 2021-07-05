@@ -7,6 +7,8 @@ from django.core.files.storage import get_storage_class
 
 from terra_geocrud import settings as app_settings
 
+from sorl.thumbnail import delete
+
 
 def get_info_content(value):
     """ Get splitted infos from base64 value. File info at first, then file content """
@@ -43,7 +45,16 @@ def generate_storage_file_path(prop, value, feature):
         return f'terra_geocrud/features/{feature.pk}/data_file/{prop}/{file_name}'
 
 
-def store_feature_files(feature):
+def delete_old_picture_property(file_prop, old_properties):
+    storage = get_storage()
+    old_value = old_properties.get(file_prop)
+    old_storage_file_path = old_value.split(';name=')[-1].split(';')[0] if old_value else None
+    if old_storage_file_path:
+        storage.delete(old_storage_file_path)
+        delete(old_storage_file_path)
+
+
+def store_feature_files(feature, old_properties=None):
     """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
     fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
     files_properties = [
@@ -59,6 +70,7 @@ def store_feature_files(feature):
                 file_info, file_content = get_info_content(value)
                 # check if file has been saved in storage
                 if file_content != fake_content:
+                    delete_old_picture_property(file_prop, old_properties)
                     storage.save(storage_file_path, ContentFile(base64.b64decode(file_content)))
                     # patch file_infos with new path
                     detail_infos = file_info.split(';name=')

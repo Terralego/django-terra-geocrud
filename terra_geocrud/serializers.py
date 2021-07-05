@@ -447,9 +447,12 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         return data
 
     def save(self, **kwargs):
+        old_properties = {}
+        if self.instance and self.instance.pk:
+            old_properties = self.instance.properties
         super().save(**kwargs)
         # save base64 file content to storage
-        store_feature_files(self.instance)
+        store_feature_files(self.instance, old_properties)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
