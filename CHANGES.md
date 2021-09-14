@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.17.dev0     (XXXX-XX-XX)
+1.0.17          (2021-09-14)
 ----------------------------
 
 * Improve performance signals relations
