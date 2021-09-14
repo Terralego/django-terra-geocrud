@@ -4,7 +4,7 @@ CHANGELOG
 1.0.17.dev0     (XXXX-XX-XX)
 ----------------------------
 
-*
+* Improve performance signals relations
 
 
 1.0.16          (2021-07-05)

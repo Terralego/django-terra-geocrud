@@ -44,7 +44,7 @@ def feature_update_relations_origins(features_id, kwargs):
 def sync_relations_destination(feature, kwargs):
     for relation_destination in feature.layer.relations_as_destination.all():
         for feature in relation_destination.origin.features.all():
-            feature.sync_relations(kwargs['relation_id'])
+            feature.sync_relations(relation_destination.pk)
             change_props(feature)
 
 
