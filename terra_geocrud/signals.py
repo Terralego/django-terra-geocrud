@@ -15,6 +15,15 @@ signals.post_save.disconnect(save_feature, sender=Feature)
 signals.post_save.disconnect(save_layer_relation, sender=Feature)
 
 
+def execute_async_save(update_fields, instance, kwargs):
+    if (update_fields is None or 'geom' in update_fields) and hasattr(
+            instance.layer, 'crud_view'):
+        execute_async_func(feature_update_relations_and_properties, (instance.pk, kwargs))
+    if "properties" in update_fields and hasattr(
+            instance.layer, 'crud_view'):
+        execute_async_func(feature_update_destination_properties, (instance.pk, kwargs))
+
+
 @receiver(post_save, sender=Feature)
 def save_feature(sender, instance, **kwargs):
     if app_settings.GEOSTORE_RELATION_CELERY_ASYNC:
@@ -22,12 +31,7 @@ def save_feature(sender, instance, **kwargs):
         kwargs.pop('signal')
         update_fields = kwargs.get('update_fields')
         kwargs['update_fields'] = list(update_fields) if update_fields else update_fields
-        if (update_fields is None or 'geom' in update_fields) and hasattr(
-                instance.layer, 'crud_view'):
-            execute_async_func(feature_update_relations_and_properties, (instance.pk, kwargs))
-        elif "properties" in update_fields and hasattr(
-                instance.layer, 'crud_view'):
-            execute_async_func(feature_update_destination_properties, (instance.pk, kwargs))
+        execute_async_save(update_fields, instance, kwargs)
 
 
 @receiver(post_save, sender=LayerRelation)

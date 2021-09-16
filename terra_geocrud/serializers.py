@@ -293,13 +293,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                                                                             {}))
         return feature
 
-    def update(self, instance, validated_data):
-        route_description = validated_data.pop('routing_information', {})
-
-        models.RoutingInformations.objects.update_or_create(feature=instance,
-                                                            defaults={'route_description': route_description.get(
-                                                                'route_description',
-                                                                {})})
+    def get_update_fields(self, instance, validated_data):
         geom = validated_data.get("geom")
         properties = validated_data.get("properties")
         update_fields = []
@@ -307,7 +301,16 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
             update_fields = ['geom']
         elif properties and properties != instance.properties:
             update_fields = ['properties']
+        return update_fields
 
+    def update(self, instance, validated_data):
+        route_description = validated_data.pop('routing_information', {})
+
+        models.RoutingInformations.objects.update_or_create(feature=instance,
+                                                            defaults={'route_description': route_description.get(
+                                                                'route_description',
+                                                                {})})
+        update_fields = self.get_update_fields(instance, validated_data)
         for key in validated_data:
             setattr(instance, key, validated_data[key])
         instance.save(update_fields=update_fields)
