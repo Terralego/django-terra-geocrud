@@ -36,35 +36,44 @@ def change_props(feature):
 def feature_update_relations_origins(features_id, kwargs):
     features = Feature.objects.filter(pk__in=features_id)
     for feature in features:
-        feature_update_relations_destinations.delay(feature.pk, kwargs)
+        feature_update_relations_and_properties.delay(feature.pk, kwargs)
 
     return True
 
 
-def sync_relations_destination(feature, kwargs):
+def sync_properties_relations_destination(feature, update_relations=False):
     for relation_destination in feature.layer.relations_as_destination.all():
         for feature in relation_destination.origin.features.all():
-            feature.sync_relations(relation_destination.pk)
-            change_props(feature)
+            if update_relations:
+                feature.sync_relations(relation_destination.pk)
+            change_props(feature)  # TODO:  Compute link between relation and computed properties
 
 
 @shared_task
-def feature_update_relations_destinations(feature_id, kwargs):
+def feature_update_relations_and_properties(feature_id, kwargs):
     """ Update all feature layer relations """
     try:
         feature = Feature.objects.get(pk=feature_id)
     except Feature.DoesNotExist:
         return False
 
-    if (kwargs.get('update_fields') is None or 'properties' not in kwargs.get('update_fields')) and hasattr(
-            feature.layer, 'crud_view'):
-        feature.sync_relations(kwargs['relation_id'])
+    feature.sync_relations(None)
 
-        sync_relations_destination(feature, kwargs)
+    sync_properties_relations_destination(feature, update_relations=True)
 
-        change_props(feature)
+    change_props(feature)
 
     return True
+
+
+@shared_task
+def feature_update_destination_properties(feature_id, kwargs):
+    try:
+        feature = Feature.objects.get(pk=feature_id)
+    except Feature.DoesNotExist:
+        return False
+
+    sync_properties_relations_destination(feature)
 
 
 @shared_task
@@ -77,6 +86,6 @@ def layer_relations_set_destinations(relation_id):
 
     kwargs = {"relation_id": relation_id}
     for feature_id in relation.origin.features.values_list('pk', flat=True):
-        feature_update_relations_destinations.delay(feature_id, kwargs)
+        feature_update_relations_and_properties.delay(feature_id, kwargs)
 
     return True

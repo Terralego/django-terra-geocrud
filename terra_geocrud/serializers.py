@@ -300,9 +300,17 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                                             defaults={'route_description': route_description.get(
                                                                 'route_description',
                                                                 {})})
+        geom = validated_data.get("geom")
+        properties = validated_data.get("properties")
+        update_fields = []
+        if geom and geom != instance.geom:
+            update_fields = ['geom']
+        elif properties and properties != instance.properties:
+            update_fields = ['properties']
+
         for key in validated_data:
             setattr(instance, key, validated_data[key])
-        instance.save()
+        instance.save(update_fields=update_fields)
         return instance
 
     def get_relations(self, obj):
