@@ -9,7 +9,8 @@ from django.test import TestCase
 from django.contrib.gis.geos import LineString, Polygon
 
 from terra_geocrud.models import CrudViewProperty
-from terra_geocrud.tasks import feature_update_relations_and_properties, feature_update_relations_origins
+from terra_geocrud.tasks import (feature_update_relations_and_properties, feature_update_relations_origins,
+                                 feature_update_destination_properties)
 from terra_geocrud.tests.factories import CrudViewFactory
 
 
@@ -20,7 +21,7 @@ class AsyncSideEffect(object):
         mocked.side_effect = side_effect_async
 
 
-@patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
+@patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
 @patch('terra_geocrud.signals.execute_async_func')
 @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
 class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
@@ -349,7 +350,8 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
     @patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
     @patch('terra_geocrud.tasks.feature_update_relations_origins.delay')
-    def test_signal_feature_deleted_before_delay(self, async_delay_origins, async_delay_destinations, property_mocked, async_mocked):
+    def test_signal_relations_feature_deleted_before_delay(self, async_delay_origins, async_delay_destinations,
+                                                           property_mocked, async_mocked):
         def side_effect_async_destinations(feature_id, kwargs):
             Feature.objects.get(pk=feature_id).delete()
             task_result = feature_update_relations_and_properties(feature_id, kwargs)
@@ -372,6 +374,19 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
                           (0, 0)))
         )
         feature.delete()
+
+    @patch('terra_geocrud.tasks.feature_update_destination_properties.delay')
+    def test_signal_properties_feature_deleted_before_delay(self, async_delay_destinations, property_mocked, async_mocked):
+        def side_effect_async_destinations(feature_id, kwargs):
+            Feature.objects.get(pk=feature_id).delete()
+            task_result = feature_update_destination_properties(feature_id, kwargs)
+            assert not task_result
+
+        async_delay_destinations.side_effect = side_effect_async_destinations
+        property_mocked.return_value = True
+
+        self.add_side_effect_async(async_mocked)
+        self.feature_long.save(update_fields=['properties'])
 
     @patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
     def test_signal_layer_relation_create_deleted_before_delay(self, async_delay, property_mocked, async_mocked):
