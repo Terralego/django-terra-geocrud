@@ -298,9 +298,9 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         properties = validated_data.get("properties")
         update_fields = []
         if geom and geom != instance.geom:
-            update_fields = ['geom']
-        elif properties and properties != instance.properties:
-            update_fields = ['properties']
+            update_fields.append('geom')
+        if properties and properties != instance.properties:
+            update_fields.append('properties')
         return update_fields
 
     def update(self, instance, validated_data):
