@@ -272,6 +272,9 @@ class CrudViewProperty(models.Model):
     include_in_tile = models.BooleanField(default=False, db_index=True)
     required = models.BooleanField(default=False, db_index=True)
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    """ This field is used to order properties in a table view """
+    table_order = models.PositiveSmallIntegerField(null=True, blank=True, db_index=False)
     editable = models.BooleanField(default=True)
     function_path = models.CharField(max_length=255, blank=True, validators=[validate_function_path])
 
