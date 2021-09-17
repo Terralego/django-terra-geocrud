@@ -387,6 +387,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
         self.add_side_effect_async(async_mocked)
         self.feature_long.save(update_fields=['properties'])
+        async_delay_destinations.assert_called()
 
     @patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
     def test_signal_layer_relation_create_deleted_before_delay(self, async_delay, property_mocked, async_mocked):
