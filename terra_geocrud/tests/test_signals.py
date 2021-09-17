@@ -21,7 +21,7 @@ class AsyncSideEffect(object):
         mocked.side_effect = side_effect_async
 
 
-@patch('terra_geocrud.tasks.feature_update_relations_destinations.delay')
+@patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
 @patch('terra_geocrud.signals.execute_async_func')
 @patch('geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC', new_callable=PropertyMock)
 class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
