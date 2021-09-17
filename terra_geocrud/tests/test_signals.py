@@ -375,7 +375,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         )
         feature.delete()
 
-    @patch('terra_geocrud.tasks.feature_update_destination_properties.delay')
+    @patch('terra_geocrud.signals.feature_update_destination_properties')
     def test_signal_properties_feature_deleted_before_delay(self, async_delay_destinations, property_mocked, async_mocked):
         def side_effect_async_destinations(feature_id, kwargs):
             Feature.objects.get(pk=feature_id).delete()
