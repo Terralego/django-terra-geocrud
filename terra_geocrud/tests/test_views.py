@@ -247,6 +247,9 @@ class CrudSettingsViewTestCase(TestCase):
         self.group_1 = models.CrudGroupView.objects.create(name="group 1", order=0)
         self.group_2 = models.CrudGroupView.objects.create(name="group 2", order=1)
         self.view_1 = factories.CrudViewFactory(name="View 1", order=0, group=self.group_1)
+
+        CrudViewProperty.objects.create(view=self.view_1, key="test_property", table_order=54, required=False)
+
         self.view_2 = factories.CrudViewFactory(name="View 2", order=0, group=self.group_2)
         self.view_3 = factories.CrudViewFactory(name="View 3", order=1, group=self.group_2)
         self.response = self.client.get(reverse('crud-settings'))
@@ -260,6 +263,7 @@ class CrudSettingsViewTestCase(TestCase):
         """
         data = self.response.json()
         self.assertEqual(len(data['menu']), models.CrudGroupView.objects.count() + 1)
+        self.assertEqual(data['menu'][0]['crud_views'][0]['feature_list_properties']['test_property']['table_order'], 54)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
