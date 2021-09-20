@@ -16,9 +16,12 @@ signals.post_save.disconnect(save_layer_relation, sender=Feature)
 
 
 def execute_async_save(update_fields, instance, kwargs):
+    # update_fields=None (most of the time) .save()
+    # update_fields=['geom', 'properties] => update everything
     if update_fields is None or 'geom' in update_fields:
         execute_async_func(feature_update_relations_and_properties, (instance.pk, kwargs))
-    else:
+    # update_fields=['properties'] => update only relations properties
+    elif "properties" in update_fields:
         execute_async_func(feature_update_destination_properties, (instance.pk, kwargs))
 
 
