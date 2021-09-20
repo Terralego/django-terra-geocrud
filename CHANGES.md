@@ -1,10 +1,11 @@
 CHANGELOG
 =========
 
-1.0.18.dev0     (XXXX-XX-XX)
+1.0.18          (2021-09-20)
 ----------------------------
 
-*
+* Remove duplicates tasks signals
+* Add feature properties list order
 
 
 1.0.17          (2021-09-14)
