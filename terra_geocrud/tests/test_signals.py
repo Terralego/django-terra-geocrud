@@ -374,8 +374,10 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
                           (0, 0)))
         )
         feature.delete()
-        async_delay_destinations.assert_called()
-        async_delay_origins.assert_called()
+        # Delete feature and 2 linestring in side_effect_async_destinations
+        self.assertEqual(async_delay_origins.call_count, 3)
+        # Change 2 linestrings props
+        self.assertEqual(async_delay_destinations.call_count, 2)
 
     @patch('terra_geocrud.signals.feature_update_destination_properties')
     def test_signal_properties_feature_deleted_before_delay(self, async_delay_destinations, property_mocked, async_mocked):
@@ -389,7 +391,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
         self.add_side_effect_async(async_mocked)
         self.feature_long.save(update_fields=['properties'])
-        async_delay_destinations.assert_called()
+        async_delay_destinations.assert_called_once()
 
     @patch('terra_geocrud.signals.feature_update_relations_and_properties')
     @patch('terra_geocrud.signals.feature_update_destination_properties')
@@ -405,8 +407,7 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         async_delay_relations_props.side_effect = side_effect_async_relations
         property_mocked.return_value = True
         self.add_side_effect_async(async_mocked)
-        self.feature_long.save(update_fields=['geom'])
-        self.feature_long.refresh_from_db()
+        self.feature_long.save()
         self.feature_long.refresh_from_db()
         async_delay_relations_props.assert_called_once()
         async_delay_destinations.assert_not_called()
@@ -416,12 +417,43 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
         self.feature_city_first.properties['name'] = "City 0 0"
 
         self.feature_city_first.save(update_fields=["properties"])
-        async_delay_destinations.assert_called()
         self.feature_long.refresh_from_db()
 
         self.assertEqual(self.feature_long.properties, {'city': ['City 0 0', 'Ville 5 5'], 'name': 'tata'})
         async_delay_destinations.assert_called_once()
         async_delay_relations_props.assert_called_once()
+
+    @patch('terra_geocrud.signals.feature_update_relations_and_properties')
+    @patch('terra_geocrud.signals.feature_update_destination_properties')
+    def test_signal_feature_save_change_geom(self, async_delay_destinations, async_delay_relations_props,
+                                             property_mocked, async_mocked):
+        def side_effect_async_destinations(feature_id, kwargs):
+            feature_update_destination_properties(feature_id, kwargs)
+
+        def side_effect_async_relations(feature_id, kwargs):
+            feature_update_relations_and_properties(feature_id, kwargs)
+
+        async_delay_destinations.side_effect = side_effect_async_destinations
+        async_delay_relations_props.side_effect = side_effect_async_relations
+        property_mocked.return_value = True
+
+        self.add_side_effect_async(async_mocked)
+        self.feature_long.save()
+
+        self.feature_long.refresh_from_db()
+        async_delay_relations_props.assert_called_once()
+        async_delay_destinations.assert_not_called()
+
+        self.assertEqual(self.feature_long.properties,
+                         {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+
+        self.feature_long.geom = LineString((0, 0), (1, 0))
+
+        self.feature_long.save(update_fields=["geom"])
+        self.feature_long.refresh_from_db()
+
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0'], 'name': 'tata'})
+        self.assertEqual(async_delay_relations_props.call_count, 2)
 
     @patch('terra_geocrud.signals.feature_update_relations_and_properties')
     @patch('terra_geocrud.signals.feature_update_destination_properties')
