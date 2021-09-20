@@ -457,6 +457,38 @@ class RelationChangeCalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
     @patch('terra_geocrud.signals.feature_update_relations_and_properties')
     @patch('terra_geocrud.signals.feature_update_destination_properties')
+    def test_signal_feature_save_change_geom_empty_update_fields(self, async_delay_destinations, async_delay_relations_props,
+                                                                 property_mocked, async_mocked):
+        def side_effect_async_destinations(feature_id, kwargs):
+            feature_update_destination_properties(feature_id, kwargs)
+
+        def side_effect_async_relations(feature_id, kwargs):
+            feature_update_relations_and_properties(feature_id, kwargs)
+
+        async_delay_destinations.side_effect = side_effect_async_destinations
+        async_delay_relations_props.side_effect = side_effect_async_relations
+        property_mocked.return_value = True
+
+        self.add_side_effect_async(async_mocked)
+        self.feature_long.save()
+
+        self.feature_long.refresh_from_db()
+        async_delay_relations_props.assert_called_once()
+        async_delay_destinations.assert_not_called()
+
+        self.assertEqual(self.feature_long.properties,
+                         {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+
+        self.feature_long.geom = LineString((0, 0), (1, 0))
+        self.assertEqual(async_delay_relations_props.call_count, 1)
+        self.feature_long.save(update_fields=[])
+        self.feature_long.refresh_from_db()
+
+        self.assertEqual(self.feature_long.properties, {'city': ['Ville 0 0', 'Ville 5 5'], 'name': 'tata'})
+        self.assertEqual(async_delay_relations_props.call_count, 1)
+
+    @patch('terra_geocrud.signals.feature_update_relations_and_properties')
+    @patch('terra_geocrud.signals.feature_update_destination_properties')
     def test_signal_feature_save_change_geom_revert_relation(self, async_delay_destinations, async_delay_relations_props,
                                                              property_mocked, async_mocked):
         def side_effect_async_destinations(feature_id, kwargs):
