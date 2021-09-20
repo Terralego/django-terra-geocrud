@@ -114,7 +114,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
             prop.key: {
                 "title": obj.layer.get_property_title(prop.key),
                 "selected": True if prop.key in default_list else False,
-                "type": obj.layer.get_property_type(prop.key)
+                "type": obj.layer.get_property_type(prop.key),
+                "table_order": prop.table_order
             }
             for prop in obj.list_available_properties.all()
         }
