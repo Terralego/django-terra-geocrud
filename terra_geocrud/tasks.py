@@ -16,7 +16,7 @@ def compute_properties(instance, prop):
     instance.properties[prop.key] = value
     try:
         instance.clean()
-        instance.save(update_fields=['properties'])
+        Feature.objects.bulk_update([instance], ['properties'])
     except ValidationError:
         logger.warning("The function to update property didn't give the good format, "
                        "fix your function or the schema")
