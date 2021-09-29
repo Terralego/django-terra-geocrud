@@ -1,17 +1,27 @@
+from unittest import mock
+
+from django.db.models import signals
+
 from ..properties.schema import sync_layer_schema
 from unittest.mock import patch, PropertyMock
 
 from geostore import GeometryTypes
 from geostore.models import Feature, LayerRelation
 from geostore.tests.factories import LayerFactory
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from django.contrib.gis.geos import LineString, Polygon
 
 from terra_geocrud.models import CrudViewProperty
-from terra_geocrud.tasks import (feature_update_relations_and_properties, feature_update_relations_origins,
-                                 feature_update_destination_properties)
+from terra_geocrud.tasks import (
+    ConcurrentPropertyModificationError,
+    feature_update_relations_and_properties,
+    feature_update_relations_origins,
+    feature_update_destination_properties,
+    sync_properties_relations_destination,
+)
 from terra_geocrud.tests.factories import CrudViewFactory
+from ..signals import save_feature
 
 
 class AsyncSideEffect(object):
@@ -203,6 +213,185 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
 
         feature = Feature.objects.get(pk=self.feature_long.pk)
         self.assertEqual(feature.properties, {'first_city': 'Ville 0 0', 'last_city': 'Ville 5 5', 'name': 'tata'})
+
+
+class ConcurrentPropertiesTest(AsyncSideEffect, TestCase):
+    def setUp(self):
+        self.test_value = "PotatoSalad"
+        self.layer = LayerFactory.create(
+            geom_type=GeometryTypes.LineString,
+            schema={
+                "type": "object",
+                "required": [
+                    "name",
+                ],
+                "properties": {"name": {"type": "string", "title": "Name"}},
+            },
+        )
+        self.crud_view = CrudViewFactory(layer=self.layer)
+        CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="length",
+            editable=False,
+            json_schema={"type": "integer", "title": "Length"},
+            function_path="test_terra_geocrud.functions_test.get_length_km",
+        )
+        CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="name",
+            editable=True,
+            json_schema={"type": "string", "title": "Name"},
+        )
+        self.test_prop = CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="test_property",
+            editable=True,
+            json_schema={"type": "string", "title": "Test Property"},
+        )
+        sync_layer_schema(self.crud_view)
+
+        self.new_object = Feature.objects.create(
+            layer=self.crud_view.layer,
+            properties={"name": "super test"},
+            geom=LineString((0, 0), (1, 0)),
+        )
+
+    @mock.patch("terra_geocrud.signals.execute_async_func")
+    @mock.patch(
+        "geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC", new_callable=PropertyMock
+    )
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_concurrent_writes_in_async_ctx(
+        self, mocked_setting, mocked_execute_async_func
+    ):
+        """
+        Test that an object modification while it is being used in an async signal handler does not result in data loss.
+
+        To create a concurrency issue, we patch 'tasks.sync_properties_relations_destination' with a wrapper.
+        'tasks.sync_properties_relations_destination' is usually called in a celery task, by wrapping it we can modify
+        the database to emulate a concurrent write to the underlying feature that is being updated.
+        """
+
+        self.add_side_effect_async(mocked_execute_async_func)
+
+        def wrapped_sync_properties_relations_destination(*args, **kwargs):
+            def inject_property_modification(pk, key, value):
+                f = Feature.objects.get(pk=pk)
+                f.properties[key] = value
+                signals.post_save.disconnect(save_feature, sender=Feature)
+                f.save()
+                signals.post_save.connect(save_feature, sender=Feature)
+
+            # If the argument is our test object => modify it's database instance to create a data race
+            if args[0].pk == self.new_object.pk:
+                inject_property_modification(
+                    args[0].pk, self.test_prop.key, self.test_value
+                )
+            return sync_properties_relations_destination(*args, **kwargs)
+
+        """ Patch using a context manager instead of a function decorator : otherwise we can't access the original function
+        to call it since it has been mocked. """
+        with patch(
+            "terra_geocrud.tasks.sync_properties_relations_destination"
+        ) as mocked_sync_properties_relations_destination:
+            # Update geometry to trigger properties computations
+            mocked_sync_properties_relations_destination.side_effect = (
+                wrapped_sync_properties_relations_destination
+            )
+            self.new_object.geom = LineString((0, 1), (1, 0))
+            self.new_object.save()
+            mocked_sync_properties_relations_destination.assert_called()
+
+        self.assertEqual(
+            Feature.objects.get(pk=self.new_object.pk).properties[self.test_prop.key],
+            self.test_value,
+        )
+        self.assertTrue(
+            "length" in Feature.objects.get(pk=self.new_object.pk).properties
+        )
+
+    @mock.patch("terra_geocrud.signals.execute_async_func")
+    @mock.patch(
+        "geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC", new_callable=PropertyMock
+    )
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_concurrent_delete_in_async_ctx(
+        self, mocked_setting, mocked_execute_async_func
+    ):
+        """
+        Test that an object deletion while it is being used in an async signal handler results in an exception.
+
+        See 'test_concurrent_writes_in_async_ctx' for more details on the inner workings of this test.
+        """
+
+        self.add_side_effect_async(mocked_execute_async_func)
+
+        def wrapped_sync_properties_relations_destination(*args, **kwargs):
+            def inject_feature_deletion(pk):
+                f = Feature.objects.get(pk=pk)
+                f.delete()
+
+            # If the argument is our test object => modify it's database instance to create a data race
+            if args[0].pk == self.new_object.pk:
+                inject_feature_deletion(args[0].pk)
+            return sync_properties_relations_destination(*args, **kwargs)
+
+        """ Patch using a context manager instead of a function decorator : otherwise we can't access the original function
+        to call it since it has been mocked. """
+        with patch(
+            "terra_geocrud.tasks.sync_properties_relations_destination"
+        ) as mocked_sync_properties_relations_destination:
+            with self.assertRaises(Feature.DoesNotExist):
+                # Update geometry to trigger properties computations
+                mocked_sync_properties_relations_destination.side_effect = (
+                    wrapped_sync_properties_relations_destination
+                )
+                self.new_object.geom = LineString((0, 1), (1, 0))
+                self.new_object.save()
+                mocked_sync_properties_relations_destination.assert_called()
+
+    @mock.patch("terra_geocrud.signals.execute_async_func")
+    @mock.patch(
+        "geostore.settings.GEOSTORE_RELATION_CELERY_ASYNC", new_callable=PropertyMock
+    )
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_concurrent_property_modification_in_async_ctx(
+        self, mocked_setting, mocked_execute_async_func
+    ):
+        """
+        Test that if the property of a json field is modified concurrently an exception is raised.
+
+        See 'test_concurrent_writes_in_async_ctx' for more details on the inner workings of this test.
+        """
+
+        self.add_side_effect_async(mocked_execute_async_func)
+
+        def wrapped_sync_properties_relations_destination(*args, **kwargs):
+            def inject_property_modification(pk, key, value):
+                f = Feature.objects.get(pk=pk)
+                f.properties[key] = value
+                signals.post_save.disconnect(save_feature, sender=Feature)
+                f.save()
+                signals.post_save.connect(save_feature, sender=Feature)
+
+            # If the argument is our test object => modify it's database instance to create a data race
+            if args[0].pk == self.new_object.pk:
+                inject_property_modification(args[0].pk, "length", 42)
+            return sync_properties_relations_destination(*args, **kwargs)
+
+        """ Patch using a context manager instead of a function decorator : otherwise we can't access the original function
+        to call it since it has been mocked. """
+        with patch(
+            "terra_geocrud.tasks.sync_properties_relations_destination"
+        ) as mocked_sync_properties_relations_destination:
+            with self.assertRaises(ConcurrentPropertyModificationError):
+                # Update geometry to trigger properties computations
+                mocked_sync_properties_relations_destination.side_effect = (
+                    wrapped_sync_properties_relations_destination
+                )
+                self.new_object.geom = LineString((0, 1), (1, 0))
+                self.new_object.save()
+                mocked_sync_properties_relations_destination.assert_called()
 
 
 @patch('terra_geocrud.signals.execute_async_func')
