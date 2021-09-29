@@ -7,6 +7,10 @@ def get_length(feature):
     return feature.geom.length
 
 
+def get_length_km(feature):
+    return 15
+
+
 def get_cities(feature):
     try:
         lr = LayerRelation.objects.get(name='cities')
