@@ -10,9 +10,30 @@ from geostore.models import Feature, LayerRelation
 logger = logging.getLogger(__name__)
 
 
+class ConcurrentPropertyModificationError(Exception):
+    """
+    This exception is raised when an instance property field is being modified concurrently by two processes
+    It means that a data race is happening. Maybe your property field should be marked as read-only ?
+    """
+
+    pass
+
+
 def compute_properties(instance, prop):
     value = import_string(prop.function_path)(instance)
     old_value = instance.properties.get(prop.key)
+
+    # Since this function is called in an async context, the 'properties' field might have been modified during our
+    # computation. To avoid data loss we fetch the latest version of the dict and handle conflicting modifications.
+    instance.refresh_from_db()
+
+    value_from_db = instance.properties.get(prop.key)
+    if value_from_db != old_value:
+        raise ConcurrentPropertyModificationError(
+            "A property has been modified while a computation was going on. Computed "
+            "properties should be non-editable, check your configuration."
+        )
+
     instance.properties[prop.key] = value
     try:
         instance.clean()
@@ -57,7 +78,6 @@ def feature_update_relations_and_properties(feature_id, kwargs):
         feature = Feature.objects.get(pk=feature_id)
     except Feature.DoesNotExist:
         return False
-
     feature.sync_relations(None)
 
     sync_properties_relations_destination(feature, update_relations=True)
