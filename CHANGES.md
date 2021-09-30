@@ -1,10 +1,16 @@
 CHANGELOG
 =========
 
-1.0.19.dev0     (XXXX-XX-XX)
+
+1.0.20.dev0     (XXXX-XX-XX)
 ----------------------------
 
 *
+
+1.0.19          (2021-09-30)
+----------------------------
+
+* Fix concurrency issue when synchronizing relations between Features. This issue was causing data loss when a user tried to edit a feature properties while a celery task was also updating those properties.
 
 
 1.0.18          (2021-09-20)
