@@ -79,6 +79,13 @@ class CrudSettingsApiView(APIView):
         })
         return data
 
+    def make_map_styles(self):
+        result = {}
+        for crud_view in models.CrudView.objects.all():
+            layer_name = crud_view.layer.name if crud_view.layer else crud_view.object_name
+            result[layer_name] = {'map_style': crud_view.map_style}
+        return result
+
     def get(self, request, *args, **kwargs):
         default_config = deepcopy(app_settings.TERRA_GEOCRUD)
         default_config.update(getattr(settings, 'TERRA_GEOCRUD', {}))
@@ -94,6 +101,9 @@ class CrudSettingsApiView(APIView):
                     for base_layer in MapBaseLayer.objects.all()
                 ],
                 "attachment_categories": reverse('attachmentcategory-list'),
+            },
+            "map_styles": {
+                self.make_map_styles()
             }
         }
         return Response(data)
