@@ -80,6 +80,18 @@ class CrudViewSerializer(serializers.ModelSerializer):
             'style': obj.map_style_with_default,
             'main': True
         }]
+
+        for relation in obj.layer.relations_as_origin.all():
+            related_crud_view = relation.destination.layer.crud_view
+            view = {
+                'title': related_crud_view.name,
+                'style': related_crud_view.map_style,
+                'id_layer_vt': related_crud_view.layer.name,
+                'main': False,
+                'visible': related_crud_view.visible,
+            }
+            data.append(view)
+
         # add extra_layer styles
         for extra_layer in obj.layer.extra_geometries.all():
             # get final style
