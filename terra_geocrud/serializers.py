@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from django.template.defaultfilters import date
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from geostore import settings as geostore_settings
@@ -82,15 +83,19 @@ class CrudViewSerializer(serializers.ModelSerializer):
         }]
 
         for relation in obj.layer.relations_as_origin.all():
-            related_crud_view = relation.destination.layer.crud_view
-            view = {
-                'title': related_crud_view.name,
-                'style': related_crud_view.map_style,
-                'id_layer_vt': related_crud_view.layer.name,
-                'main': False,
-                'visible': related_crud_view.visible,
-            }
-            data.append(view)
+            layer = relation.destination
+            try :
+                related_crud_view = layer.crud_view
+                view = {
+                    'title': related_crud_view.name,
+                    'style': related_crud_view.map_style,
+                    'id_layer_vt': related_crud_view.layer.name,
+                    'main': False,
+                    'source': 'relation',
+                }
+                data.append(view)
+            except ObjectDoesNotExist :
+                pass
 
         # add extra_layer styles
         for extra_layer in obj.layer.extra_geometries.all():
@@ -104,7 +109,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
                 'title': extra_layer.title,
                 'id_layer_vt': extra_layer.name,
                 'style': style,
-                'main': False
+                'main': False,
+                'source' : 'extra_geometry'
             })
         return data
 
