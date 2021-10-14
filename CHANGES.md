@@ -2,10 +2,10 @@ CHANGELOG
 =========
 
 
-1.0.20.dev0     (XXXX-XX-XX)
+1.0.20         (2020-10-14)
 ----------------------------
 
-*
+* Change crud/settings generation so that '.menu[].crud_views[].map_layers' now includes related layer. A source attribute has been added to distinguish layers from "relations" and layers from "extra_geometry"
 
 1.0.19          (2021-09-30)
 ----------------------------
