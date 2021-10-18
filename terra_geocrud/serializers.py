@@ -84,7 +84,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
         for relation in obj.layer.relations_as_origin.all():
             layer = relation.destination
-            try :
+            try:
                 related_crud_view = layer.crud_view
                 view = {
                     'title': related_crud_view.name,
@@ -94,7 +94,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
                     'view_source': 'relation',
                 }
                 data.append(view)
-            except ObjectDoesNotExist :
+            except ObjectDoesNotExist:
                 pass
 
         # add extra_layer styles
@@ -110,7 +110,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
                 'id_layer_vt': extra_layer.name,
                 'style': style,
                 'main': False,
-                'view_source' : 'extra_geometry'
+                'view_source': 'extra_geometry'
             })
         return data
 
