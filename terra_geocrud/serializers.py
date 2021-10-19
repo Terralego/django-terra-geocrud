@@ -92,6 +92,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
                     'id_layer_vt': related_crud_view.layer.name,
                     'main': False,
                     'view_source': 'relation',
+                    'pk': layer.pk
                 }
                 data.append(view)
             except ObjectDoesNotExist:
@@ -110,7 +111,8 @@ class CrudViewSerializer(serializers.ModelSerializer):
                 'id_layer_vt': extra_layer.name,
                 'style': style,
                 'main': False,
-                'view_source': 'extra_geometry'
+                'view_source': 'extra_geometry',
+                'pk': extra_layer.pk
             })
         return data
 
