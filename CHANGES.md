@@ -1,9 +1,10 @@
 CHANGELOG
 =========
 
-1.0.22.dev0    (XXXX-XX-XX)
+1.0.22	      (2021-10-19)
 ---------------------------
 
+* Add layer pk in crud/settings map_layers (relation and extra_geom)
 
 1.0.21		   (2021-10-18)
 ---------------------------
