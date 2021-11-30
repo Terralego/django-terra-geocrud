@@ -90,7 +90,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
                 view = {
                     'title': related_crud_view.name,
                     'style': related_crud_view.map_style,
-                    'id_layer_vt': f'{obj.layer.name}-{slugify(relation.name)}',
+                    'id_layer_vt': f'relation-{obj.layer.name}-{slugify(relation.name)}',
                     'main': False,
                     'view_source': 'relation',
                     'pk': layer.pk
