@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.22+dev	   (XXXX-XX-XX)
+1.0.23   	   (2022-02-11)
 ---------------------------
 
 * Add relation layer in vector tiles
