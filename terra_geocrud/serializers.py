@@ -6,6 +6,7 @@ from pathlib import Path
 from django.template.defaultfilters import date
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_string
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore import settings as geostore_settings
 from geostore.models import Feature, LayerExtraGeom
@@ -89,7 +90,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
                 view = {
                     'title': related_crud_view.name,
                     'style': related_crud_view.map_style,
-                    'id_layer_vt': related_crud_view.layer.name,
+                    'id_layer_vt': f'relation-{slugify(obj.layer.name)}-{slugify(relation.name)}',
                     'main': False,
                     'view_source': 'relation',
                     'pk': layer.pk
