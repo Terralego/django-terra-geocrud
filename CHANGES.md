@@ -4,6 +4,7 @@ CHANGELOG
 1.0.22+dev	   (XXXX-XX-XX)
 ---------------------------
 
+* Add relation layer in vector tiles
 
 1.0.22	      (2021-10-19)
 ---------------------------
