@@ -4,6 +4,7 @@ CHANGELOG
 1.0.23+dev	   (XXXX-XX-XX)
 ---------------------------
 
+* Add deletion signal delete properties pictures and thumbnails
 
 1.0.23   	   (2022-02-11)
 ---------------------------

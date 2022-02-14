@@ -6,6 +6,7 @@ from geostore import settings as app_settings
 from geostore.helpers import execute_async_func
 from geostore.models import Feature, LayerRelation
 from geostore.signals import save_feature, save_layer_relation
+from terra_geocrud.properties.files import delete_feature_files
 from terra_geocrud.tasks import (feature_update_relations_and_properties, layer_relations_set_destinations,
                                  feature_update_relations_origins, feature_update_destination_properties)
 
@@ -42,8 +43,14 @@ def save_layer_relation(sender, instance, **kwargs):
         execute_async_func(layer_relations_set_destinations, (instance.pk, ))
 
 
+@receiver(post_delete, sender=Feature, dispatch_uid='delete_files_feature')
+def delete_files_feature(sender, instance, **kwargs):
+    delete_feature_files(instance)
+
+
 @receiver(post_delete, sender=Feature, dispatch_uid='delete_feature')
 def delete_feature(sender, instance, **kwargs):
+    # save base64 file content to storage
     if app_settings.GEOSTORE_RELATION_CELERY_ASYNC:
         kwargs['relation_id'] = None
         kwargs.pop('signal')
