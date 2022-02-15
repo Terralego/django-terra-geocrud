@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.23+dev	   (XXXX-XX-XX)
+1.0.24         (2022-02-15)
 ---------------------------
 
 * Add deletion signal delete properties pictures and thumbnails
