@@ -376,7 +376,8 @@ class CrudFeatureViewsSetTestCase(APITestCase):
         response_list = self.client.get(reverse('feature-list', args=(self.crud_view.layer_id,)),
                                         format="json")
         data = response_list.json()
-        self.assertEqual(len(data), self.crud_view.layer.features.count())
+        features = self.crud_view.layer.features.all()
+        self.assertEqual(len(data), len(features))
 
     def test_property_detail_display_with_groups(self):
         response_detail = self.client.get(reverse('feature-detail',

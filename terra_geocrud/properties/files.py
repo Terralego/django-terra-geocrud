@@ -54,13 +54,25 @@ def delete_old_picture_property(file_prop, old_properties):
         delete(old_storage_file_path)
 
 
-def store_feature_files(feature, old_properties=None):
-    """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
-    fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
+def get_files_properties(feature):
     files_properties = [
         key for key, value in feature.layer.schema['properties'].items()
         if feature.layer.schema['properties'][key].get('format') == 'data-url'
     ]
+    return files_properties
+
+
+def delete_feature_files(feature):
+    files_properties = get_files_properties(feature)
+    if files_properties:
+        for file_prop in files_properties:
+            delete_old_picture_property(file_prop, feature.properties)
+
+
+def store_feature_files(feature, old_properties=None):
+    """ Handle base64 encoded files to django storage. Use fake base64 to compatibility with react-json-schema """
+    fake_content = 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
+    files_properties = get_files_properties(feature)
     if files_properties:
         storage = get_storage()
         for file_prop in files_properties:

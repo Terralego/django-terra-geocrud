@@ -13,6 +13,7 @@ from django.test import TestCase, override_settings
 from django.contrib.gis.geos import LineString, Polygon
 
 from terra_geocrud.models import CrudViewProperty
+from terra_geocrud.properties.files import get_storage, store_feature_files
 from terra_geocrud.tasks import (
     ConcurrentPropertyModificationError,
     feature_update_relations_and_properties,
@@ -20,8 +21,12 @@ from terra_geocrud.tasks import (
     feature_update_destination_properties,
     sync_properties_relations_destination,
 )
+from terra_geocrud.thumbnail_backends import ThumbnailDataFileBackend
+
 from terra_geocrud.tests.factories import CrudViewFactory
 from ..signals import save_feature
+
+thumbnail_backend = ThumbnailDataFileBackend()
 
 
 class AsyncSideEffect(object):
@@ -29,6 +34,46 @@ class AsyncSideEffect(object):
         def side_effect_async(async_func, args=()):
             async_func(*args)
         mocked.side_effect = side_effect_async
+
+
+@patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
+@patch('terra_geocrud.signals.execute_async_func')
+class DeletionFeatureDeletePictureTest(TestCase):
+    def setUp(self):
+
+        layer = LayerFactory.create(geom_type=GeometryTypes.LineString,
+                                    schema={"type": "object",
+                                            "required": ["name", ],
+                                            "properties": {"name": {"type": "string", "title": "Name"}}
+                                            })
+        self.crud_view = CrudViewFactory(layer=layer)
+        self.prop_name = CrudViewProperty.objects.create(
+            view=self.crud_view, key="picture",
+            editable=True,
+            json_schema={'type': "string",
+                         'title': "Picture",
+                         'format': "data-url"}
+        )
+        sync_layer_schema(self.crud_view)
+        self.feature = Feature.objects.create(
+            layer=self.crud_view.layer,
+            properties={'name': 'foo',
+                        'picture': "data:image/png;name=titre_laromieu-fondblanc.jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAA"
+                                   "EAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="},
+            geom=LineString((0, 0), (1, 0))
+        )
+        store_feature_files(self.feature, {})
+        self.storage = get_storage()
+        self.property_value = self.feature.properties.get('picture')
+        self.storage_file_path = self.property_value.split(';name=')[-1].split(';')[0]
+        self.thumbnail = thumbnail_backend.get_thumbnail(self.storage_file_path, "500x500", crop='noop', upscale=False)
+        self.assertTrue(self.storage.exists(self.thumbnail.name))
+        self.assertTrue(self.storage.exists(self.storage_file_path))
+
+    def test_signal_feature_delete_pictures(self, async_mocked, mock_delay):
+        self.feature.delete()
+        self.assertFalse(self.storage.exists(self.thumbnail.name))
+        self.assertFalse(self.storage.exists(self.storage_file_path))
 
 
 @patch('terra_geocrud.tasks.feature_update_relations_and_properties.delay')
@@ -70,7 +115,7 @@ class CalculatedPropertiesTest(AsyncSideEffect, TestCase):
                     geom=LineString((0, 0), (10, 10))
                 )
 
-    def test_signal(self, property_mocked, async_mocked, mock_delay):
+    def test_signal_property_update(self, property_mocked, async_mocked, mock_delay):
         property_mocked.return_value = True
         self.add_side_effect_async(async_mocked)
         self.feature.refresh_from_db()
