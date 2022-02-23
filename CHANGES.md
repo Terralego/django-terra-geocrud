@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.24+dev     (XXXX-XX-XX)
+1.0.25         (2022-02-23)
 ---------------------------
 
 * Add id_layer_vt in relation endpoint to show/unshow vector tiles
