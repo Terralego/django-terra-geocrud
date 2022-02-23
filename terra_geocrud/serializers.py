@@ -78,6 +78,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
     def get_map_layers(self, obj):
         data = [{
             'title': obj.name,
+            # TODO: Add slugify to be consistent with relations
             'id_layer_vt': obj.layer.name,
             'style': obj.map_style_with_default,
             'main': True
@@ -109,6 +110,7 @@ class CrudViewSerializer(serializers.ModelSerializer):
 
             data.append({
                 'title': extra_layer.title,
+                # TODO: Add slugify to be consistent with relations
                 'id_layer_vt': extra_layer.name,
                 'style': style,
                 'main': False,
@@ -343,11 +345,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                  "order": relation.destination.crud_view.order,
                  "url": reverse('feature-relation',
                                 args=(obj.layer_id, obj.identifier, relation.pk)),
-                 "geojson": reverse('feature-relation',
-                                    kwargs={"layer": obj.layer_id,
-                                            "identifier": obj.identifier,
-                                            "id_relation": relation.pk,
-                                            "format": "geojson"}),
+                 'id_layer_vt': f'relation-{slugify(obj.layer.name)}-{slugify(relation.name)}',
                  "crud_view_pk": relation.destination.crud_view.pk,
                  "empty": not relation.related_features.exists()
                  } for relation in obj.layer.relations_as_origin.all() if hasattr(relation.destination, 'crud_view')]
