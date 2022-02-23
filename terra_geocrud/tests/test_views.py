@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from geostore import GeometryTypes
 from geostore.models import Feature, LayerExtraGeom, FeatureExtraGeom, LayerRelation
-from geostore.tests.factories import LayerFactory
+from geostore.tests.factories import LayerFactory, LayerSchemaFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from terra_geocrud.properties.schema import sync_layer_schema
@@ -329,7 +329,7 @@ class CrudLayerViewsSetTestCase(APITestCase):
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
 class CrudFeatureViewsSetTestCase(APITestCase):
     def setUp(self):
-        self.crud_view = factories.CrudViewFactory()
+        self.crud_view = factories.CrudViewFactory(layer=LayerSchemaFactory.create(name="layer_view_name"))
         # add extra geometries to layer
         self.extra_layer_1 = LayerExtraGeom.objects.create(
             layer=self.crud_view.layer,
@@ -503,7 +503,7 @@ class CrudFeatureViewsSetTestCase(APITestCase):
     def test_relations_featuredetail_crud_view_do_not_show(self, mocked):
         mocked.return_value = True
         layer_destination = LayerFactory.create()
-        crud_view = factories.CrudViewFactory()
+        crud_view = factories.CrudViewFactory(layer=LayerFactory.create(name="other_layer"))
         LayerRelation.objects.create(
             name='layer_view',
             relation_type='distance',
@@ -526,17 +526,26 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                          self.feature.identifier,
                                                          layer_rel.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['relations'][0]['label'], "view_view")
-        self.assertEqual(response.json()['relations'][0]['url'], url_relation)
-        self.assertEqual(response.json()['relations'][0]['empty'], True)
-        self.assertEqual(len(response.json()['relations']), 1)
+        self.assertEqual(response.json()['relations'], [{'crud_view_pk': crud_view.pk,
+                                                         'empty': True,
+                                                         'id_layer_vt': 'relation-layer_view_name-view_view',
+                                                         'label': 'view_view',
+                                                         'order': 0,
+                                                         'url': url_relation
+                                                         }])
         Feature.objects.create(geom=Point(0, 0, srid=4326), layer=crud_view.layer)
         self.feature.sync_relations(layer_rel.pk)
         response = self.client.get(reverse('feature-detail',
                                            args=(self.crud_view.layer_id,
                                                  self.feature.identifier)),
                                    format="json")
-        self.assertEqual(response.json()['relations'][0]['empty'], False)
+        self.assertEqual(response.json()['relations'], [{'crud_view_pk': crud_view.pk,
+                                                         'empty': False,
+                                                         'id_layer_vt': 'relation-layer_view_name-view_view',
+                                                         'label': 'view_view',
+                                                         'order': 0,
+                                                         'url': url_relation
+                                                         }])
 
     def test_relations_featuredetail_without_celery(self):
         crud_view = factories.CrudViewFactory()
@@ -555,9 +564,13 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                          self.feature.identifier,
                                                          layer_rel.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['relations'][0]['label'], "view_view")
-        self.assertEqual(response.json()['relations'][0]['url'], url_relation)
-        self.assertEqual(len(response.json()['relations']), 1)
+        self.assertEqual(response.json()['relations'], [{'crud_view_pk': crud_view.pk,
+                                                         'empty': True,
+                                                         'id_layer_vt': 'relation-layer_view_name-view_view',
+                                                         'label': 'view_view',
+                                                         'order': 0,
+                                                         'url': url_relation
+                                                         }])
 
     def test_relations_featurelist_without_celery(self):
         crud_view = factories.CrudViewFactory()
@@ -625,6 +638,7 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                            args=(self.crud_view.layer_id,
                                                  self.feature.identifier)),
                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 @override_settings(MEDIA_ROOT=TemporaryDirectory().name)
