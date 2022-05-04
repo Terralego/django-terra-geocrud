@@ -4,6 +4,7 @@ CHANGELOG
 1.0.25+dev     (XXXX-XX-XX)
 ---------------------------
 
+*  Update value updated_at on update
 
 1.0.25         (2022-02-23)
 ---------------------------
