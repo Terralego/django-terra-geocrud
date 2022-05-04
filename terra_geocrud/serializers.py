@@ -5,6 +5,7 @@ from pathlib import Path
 
 from django.template.defaultfilters import date
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -337,6 +338,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
         update_fields = self.get_update_fields(instance, validated_data)
         for key in validated_data:
             setattr(instance, key, validated_data[key])
+        instance.updated_at = timezone.now()
         instance.save(update_fields=update_fields)
         return instance
 
