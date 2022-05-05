@@ -60,7 +60,7 @@ def get_display_value(value, crud_property, value_type):
             picto = f'<img src="{value_match.pictogram.url}"/>'
     except ObjectDoesNotExist:
         pass
-    if value_type == list or picto:
+    if (value_type == list or picto) and not isinstance(value, dict):
         value = f'<div class="icon-text">{picto}<span>{value}</span></div>'
     return value
 

@@ -89,6 +89,32 @@ class CrudFeatureSerializer(TestCase):
                 "title": "Types"
             }
         )
+        models.CrudViewProperty.objects.create(
+            view=self.crud_view,
+            key="other",
+            required=False,
+            editable=False,
+            json_schema={"type": "array",
+                         "items": {
+                             "type": "object",
+                             "properties": {
+                                 "other_1": {
+                                     "type": "string",
+                                     "title": "Other_1",
+                                 },
+                                 "other_2": {
+                                     "type": "string",
+                                     "title": "Other_2",
+                                 },
+                                 "other_number": {
+                                     "type": "number",
+                                     "title": "Other_number"
+                                 }
+                             }
+                         },
+                         "title": "Other"
+                         }
+        )
         PropertyEnum.objects.create(value='type_1',
                                     pictogram=ContentFile(SMALL_PICTURE, name='test.png'),
                                     property=prop_with_values)
@@ -106,7 +132,8 @@ class CrudFeatureSerializer(TestCase):
                                                   "date_end": "2020-12-10",
                                                   "type": "type_1",
                                                   "types": ['multi_type_1', 'multi_type_2', 'multi_type_3',
-                                                            'multi_type_4', 'multi_type_5']
+                                                            'multi_type_4', 'multi_type_5'],
+                                                  "other": [{"other_1": "Foo", "other_2": "Bar", "other_number": "5"}]
                                               },
                                               layer=self.crud_view.layer)
         sync_layer_schema(self.crud_view)
@@ -142,6 +169,15 @@ class CrudFeatureSerializer(TestCase):
         self.assertEqual('<div class="icon-text"><span>multi_type_4</span></div>', display_value_types[3])
         self.assertEqual('<div class="icon-text"><span>multi_type_5</span></div>', display_value_types[4])
         self.assertIn('<span>type_1</span></div>', display_value_type)
+
+    def test_arrays_objects(self):
+        display_value_other = self.serializer.data['display_properties']['__default__']['properties']['other']['display_value']
+        self.assertEqual(1, len(display_value_other))
+        object_other = display_value_other[0]
+        self.assertEqual(3, len(object_other))
+        self.assertEqual("Foo", object_other["other_1"])
+        self.assertEqual("Bar", object_other["other_2"])
+        self.assertEqual("5", object_other["other_number"])
 
 
 class CrudViewSerializerTestCase(TestCase):
