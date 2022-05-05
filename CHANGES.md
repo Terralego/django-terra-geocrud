@@ -4,7 +4,7 @@ CHANGELOG
 1.0.25+dev     (XXXX-XX-XX)
 ---------------------------
 
-*  Update value updated_at on update
+*  Fix tile cache invalidation by keeping update_at value at api update
 
 1.0.25         (2022-02-23)
 ---------------------------
