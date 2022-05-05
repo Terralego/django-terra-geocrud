@@ -74,7 +74,7 @@ setup(
     extras_require={
         'routing': ['django-geostore-routing'],
         'dev': tests_require + [
-            'django-debug-toolbar<3.3',  # 3.3.0 is not compatible with Django 3.2',
+            'django-debug-toolbar<3.3',  # 3.3.0 is not compatible with Django < 3.2,
         ]
     }
 )
