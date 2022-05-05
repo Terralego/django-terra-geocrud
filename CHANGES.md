@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.25+dev     (XXXX-XX-XX)
+1.0.26         (2022-05-05)
 ---------------------------
 
 * Fix display value of arrays of objects
