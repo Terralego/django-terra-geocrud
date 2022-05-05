@@ -320,7 +320,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
     def get_update_fields(self, instance, validated_data):
         geom = validated_data.get("geom")
         properties = validated_data.get("properties")
-        update_fields = []
+        update_fields = ["updated_at"]
         if geom and geom != instance.geom:
             update_fields.append('geom')
         if properties and properties != instance.properties:
