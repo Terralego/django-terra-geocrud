@@ -54,13 +54,15 @@ def get_data_url_date(value, data_format):
 
 def get_display_value(value, crud_property, value_type):
     picto = ''
+    if isinstance(value, dict):
+        return value
     try:
         value_match = crud_property.values.get(value=value)
         if value_match.pictogram:
             picto = f'<img src="{value_match.pictogram.url}"/>'
     except ObjectDoesNotExist:
         pass
-    if (value_type == list or picto) and not isinstance(value, dict):
+    if value_type == list or picto:
         value = f'<div class="icon-text">{picto}<span>{value}</span></div>'
     return value
 
@@ -77,7 +79,7 @@ def serialize_group_properties(feature, final_properties, editables_properties):
         value, data_type = get_data_url_date(value, data_format)
 
         crud_property = feature.layer.crud_view.properties.get(key=key)
-        data = get_display_value(value, crud_property, str) if not isinstance(value, list) else [get_display_value(val, crud_property, list)for val in value]
+        data = get_display_value(value, crud_property, str) if not isinstance(value, list) else [get_display_value(val, crud_property, list) for val in value]
 
         properties.update({key: {
             "display_value": data,
