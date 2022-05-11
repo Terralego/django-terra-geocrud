@@ -89,6 +89,9 @@ def store_feature_files(feature, old_properties=None):
                     new_info = f"{detail_infos[0]};name={storage_file_path}"
                     feature.properties[file_prop] = f'{new_info};base64,{fake_content}'
                     feature.save()
+            else:
+                # We removed content for the key `file_prop`, we should remove old file
+                delete_old_picture_property(file_prop, old_properties)
 
 
 def get_storage_file_url(storage_file_path):

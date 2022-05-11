@@ -62,7 +62,7 @@ class StorageFunctionTestCase(APITestCase):
         data = {
             "geom": "POINT(0 0)",
             "properties": {
-                self.property_key: 'data:image/png;name=change.png;base64,xxxxxxxxxxxxxxxxxxxxxxxxxx=='
+                self.property_key: 'data:image/png;name=change.png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII='
             }
         }
         store_feature_files(self.feature_with_file_name, {})
@@ -79,11 +79,36 @@ class StorageFunctionTestCase(APITestCase):
             data=data,
             format="json")
         self.assertFalse(storage.exists(old_storage_file_path))
+        self.assertFalse(storage.exists(old_thumbnail.name))
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        storage_file_path = generate_storage_file_path(self.property_key,
-                                                       data['properties'].get(self.property_key),
-                                                       self.feature_with_file_name)
-        self.assertTrue(storage.exists(storage_file_path))
+        new_storage_file_path = generate_storage_file_path(self.property_key,
+                                                           data['properties'].get(self.property_key),
+                                                           self.feature_with_file_name)
+        self.assertTrue(storage.exists(new_storage_file_path))
+
+        old_thumbnail = thumbnail_backend.get_thumbnail(old_storage_file_path, "500x500", crop='noop', upscale=False)
+        self.assertFalse(storage.exists(old_thumbnail.name))
+
+        new_thumbnail = thumbnail_backend.get_thumbnail(new_storage_file_path, "500x500", crop='noop', upscale=False)
+        self.assertTrue(storage.exists(new_thumbnail.name))
+
+        data = {
+            "geom": "POINT(0 0)",
+            "properties": {
+                self.property_key: ''
+            }
+        }
+        response = self.client.put(
+            reverse('feature-detail',
+                    args=(self.feature_with_file_name.layer_id,
+                          self.feature_with_file_name.identifier)),
+            data=data,
+            format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(storage.exists(new_storage_file_path))
+        new_thumbnail = thumbnail_backend.get_thumbnail(new_storage_file_path, "500x500", crop='noop', upscale=False)
+        self.assertFalse(storage.exists(new_thumbnail.name))
 
     def test_get_storage_path_from_value(self):
         data = get_storage_path_from_value("test;name=file.jpg;base64,xxxxxxxxx")
