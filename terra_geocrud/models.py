@@ -19,6 +19,7 @@ from geostore.db.mixins import BaseUpdatableModel
 from sorl.thumbnail import ImageField, get_thumbnail, delete
 
 from terra_geocrud.map.styles import MapStyleModelMixin
+from terra_geocrud.properties.files import delete_old_picture_property
 from . import settings as app_settings
 from .properties.files import get_storage
 from .properties.schema import FormSchemaMixin
@@ -312,6 +313,14 @@ class CrudViewProperty(models.Model):
         return self.ui_schema.get('title',
                                   self.json_schema.get('title',
                                                        self.key.capitalize()))
+
+    def delete(self, *args, **kwargs):
+        """ Delete file at deletion """
+        if self.json_schema.get('format') == "data-url":
+            features = self.view.layer.features.all()
+            for feature in features:
+                delete_old_picture_property(self.key, feature.properties)
+        super().delete(*args, **kwargs)
 
     @cached_property
     def full_json_schema(self):
