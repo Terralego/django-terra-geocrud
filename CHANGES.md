@@ -4,7 +4,7 @@ CHANGELOG
 1.0.26+dev     (XXXX-XX-XX)
 ---------------------------
 
-*
+*  Remove file when property has been removed or value become empty
 
 1.0.26         (2022-05-05)
 ---------------------------
