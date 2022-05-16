@@ -44,7 +44,7 @@ class ThumbnailDataFileBackend(ThumbnailBackend):
         thumbnail = ImageFile(name, default.storage)
         cached = default.kvstore.get(thumbnail)
 
-        if cached:
+        if cached.exists():
             return cached
 
         # We have to check exists() because the Storage backend does not
