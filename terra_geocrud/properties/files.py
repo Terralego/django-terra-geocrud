@@ -50,8 +50,7 @@ def delete_old_picture_property(file_prop, old_properties):
     old_value = old_properties.get(file_prop)
     old_storage_file_path = old_value.split(';name=')[-1].split(';')[0] if old_value else None
     if old_storage_file_path:
-        storage.delete(old_storage_file_path)
-        delete(old_storage_file_path)
+        delete(old_storage_file_path, delete_file=True)
 
 
 def get_files_properties(feature):

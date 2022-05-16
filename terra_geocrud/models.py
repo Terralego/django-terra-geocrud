@@ -235,8 +235,7 @@ class FeaturePicture(AttachmentMixin):
 
     def delete(self, *args, **kwargs):
         """ Delete image and thumbnail at deletion """
-        self.image.storage.delete(self.image.name)
-        delete(self.image)
+        delete(self.image,delete_file=True)
         super().delete(*args, **kwargs)
 
     class Meta:
