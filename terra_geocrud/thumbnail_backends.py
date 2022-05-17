@@ -44,14 +44,14 @@ class ThumbnailDataFileBackend(ThumbnailBackend):
             source_image = default.engine.get_image(source)
             options['width'] = source_image.width
             options['height'] = source_image.height
-        except IOError as e:
+        except IOError:
             pass
 
         name = self._get_thumbnail_filename(source, geometry_string, options)
         thumbnail = ImageFile(name, default.storage)
         cached = default.kvstore.get(thumbnail)
 
-        if cached.exists():
+        if cached and cached.exists():
             return cached
 
         # We have to check exists() because the Storage backend does not
