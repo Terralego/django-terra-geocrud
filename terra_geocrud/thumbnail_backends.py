@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 from sorl.thumbnail.base import ThumbnailBackend
@@ -42,8 +43,7 @@ class ThumbnailDataFileBackend(ThumbnailBackend):
 
         try:
             source_image = default.engine.get_image(source)
-            options['width'] = source_image.width
-            options['height'] = source_image.height
+            options['hash'] = hashlib.md5(source_image.tobytes()).hexdigest()
         except IOError:
             pass
 

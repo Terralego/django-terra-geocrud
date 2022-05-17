@@ -152,3 +152,30 @@ class CrudViewStorageFunctionTestCase(APITestCase):
         sync_layer_schema(self.crud_view)
         self.assertFalse(storage.exists(old_thumbnail.name))
         self.assertFalse(storage.exists(old_storage_file_path))
+
+    def test_same_name_file_crudviewproperty(self):
+        store_feature_files(self.feature_with_file_name, self.feature_with_file_name.properties)
+        storage = get_storage()
+        old_property_value = self.feature_with_file_name.properties.get(self.property_key)
+        old_storage_file_path = old_property_value.split(';name=')[-1].split(';')[0]
+        old_thumbnail = thumbnail_backend.get_thumbnail(old_storage_file_path, "500x500", crop='noop', upscale=False)
+        self.assertTrue(storage.exists(old_thumbnail.name))
+        self.assertTrue(storage.exists(old_storage_file_path))
+        storage.delete(old_storage_file_path)
+
+        base_64_img = 'data:image/png;name=toto.png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC '
+
+        self.feature_with_file_name.properties[self.property_key] = base_64_img
+
+        self.feature_with_file_name.save()
+        store_feature_files(self.feature_with_file_name, self.feature_with_file_name.properties)
+
+        new_property_value = self.feature_with_file_name.properties.get(self.property_key)
+        new_storage_file_path = new_property_value.split(';name=')[-1].split(';')[0]
+
+        sync_layer_schema(self.crud_view)
+
+        new_thumbnail = thumbnail_backend.get_thumbnail(new_storage_file_path, "500x500", crop='noop', upscale=False)
+
+        self.assertEqual(old_storage_file_path, new_storage_file_path)
+        self.assertNotEqual(old_thumbnail.url, new_thumbnail.url)
