@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.26+dev     (XXXX-XX-XX)
+1.0.27         (2022-05-17)
 ---------------------------
 
 * Remove file when property has been removed or value become empty
