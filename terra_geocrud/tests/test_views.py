@@ -54,6 +54,24 @@ class CrudViewSetTestCase(APITestCase):
         self.extra_layer = LayerExtraGeom.objects.create(geom_type=GeometryTypes.MultiPolygon,
                                                          title='extra geom 1',
                                                          layer=self.view_1.layer)
+        self.relation_layer = LayerFactory.create()
+        self.relation_crud_view = factories.CrudViewFactory()
+        # relation with view
+        LayerRelation.objects.create(
+            name="relation_1",
+            relation_type='distance',
+            origin=self.view_1.layer,
+            destination=self.relation_crud_view.layer,
+            settings={"distance": 100}
+        )
+        # relation without view
+        LayerRelation.objects.create(
+            name="relation_2",
+            relation_type='distance',
+            origin=self.view_1.layer,
+            destination=self.relation_layer,
+            settings={"distance": 100}
+        )
 
     def test_list_endpoint(self):
         response = self.client.get(reverse('crudview-list'))
@@ -168,6 +186,29 @@ class CrudViewSetTestCase(APITestCase):
         )
         group_1.delete()
         group_2.delete()
+
+    def test_map_layers(self):
+        response = self.client.get(reverse('crudview-detail', args=(self.view_1.pk,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+
+        self.assertDictEqual(data['map_layers'][0], {'title': 'View 1',
+                                                     'id_layer_vt': str(self.view_1.layer.name),
+                                                     'style': {'type': 'circle',
+                                                               'paint': {'circle-color': '#000', 'circle-radius': 8}},
+                                                     'main': True})
+        self.assertDictEqual(data['map_layers'][1], {'title': self.relation_crud_view.name,
+                                                     'id_layer_vt': f'relation-{self.view_1.layer.name}-relation_1',
+                                                     'style': {},
+                                                     'view_source': 'relation',
+                                                     'pk': self.relation_crud_view.layer.pk,
+                                                     'main': False})
+        self.assertDictEqual(data['map_layers'][2], {'title': 'extra geom 1',
+                                                     'id_layer_vt': f'{self.view_1.layer.name}-extra-geom-1',
+                                                     'style': {'paint': {'fill-color': '#000'}, 'type': 'fill'},
+                                                     'view_source': 'extra_geometry',
+                                                     'pk': self.extra_layer.pk,
+                                                     'main': False})
 
     def test_json_schema(self):
         prop_country = CrudViewProperty.objects.create(view=self.view_1, key="country",

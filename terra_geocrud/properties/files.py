@@ -46,7 +46,6 @@ def generate_storage_file_path(prop, value, feature):
 
 
 def delete_old_picture_property(file_prop, old_properties):
-    storage = get_storage()
     old_value = old_properties.get(file_prop)
     old_storage_file_path = old_value.split(';name=')[-1].split(';')[0] if old_value else None
     if old_storage_file_path:
