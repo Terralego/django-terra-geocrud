@@ -46,12 +46,10 @@ def generate_storage_file_path(prop, value, feature):
 
 
 def delete_old_picture_property(file_prop, old_properties):
-    storage = get_storage()
     old_value = old_properties.get(file_prop)
     old_storage_file_path = old_value.split(';name=')[-1].split(';')[0] if old_value else None
     if old_storage_file_path:
-        storage.delete(old_storage_file_path)
-        delete(old_storage_file_path)
+        delete(old_storage_file_path, delete_file=True)
 
 
 def get_files_properties(feature):
@@ -83,7 +81,7 @@ def store_feature_files(feature, old_properties=None):
                 # check if file has been saved in storage
                 if file_content != fake_content:
                     delete_old_picture_property(file_prop, old_properties)
-                    storage.save(storage_file_path, ContentFile(base64.b64decode(file_content)))
+                    storage_file_path = storage.save(storage_file_path, ContentFile(base64.b64decode(file_content)))
                     # patch file_infos with new path
                     detail_infos = file_info.split(';name=')
                     new_info = f"{detail_infos[0]};name={storage_file_path}"

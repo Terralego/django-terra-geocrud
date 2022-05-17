@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 from sorl.thumbnail.base import ThumbnailBackend
@@ -40,11 +41,17 @@ class ThumbnailDataFileBackend(ThumbnailBackend):
             if value != getattr(default_settings, attr):
                 options.setdefault(key, value)
 
+        try:
+            source_image = default.engine.get_image(source)
+            options['hash'] = hashlib.md5(source_image.tobytes()).hexdigest()
+        except IOError:
+            pass
+
         name = self._get_thumbnail_filename(source, geometry_string, options)
         thumbnail = ImageFile(name, default.storage)
         cached = default.kvstore.get(thumbnail)
 
-        if cached:
+        if cached and cached.exists():
             return cached
 
         # We have to check exists() because the Storage backend does not
