@@ -39,7 +39,9 @@ class ThumbnailDataFileBackend(ThumbnailBackend):
             value = getattr(settings, attr)
             if value != getattr(default_settings, attr):
                 options.setdefault(key, value)
-
+        if source:
+            options['height'] = source.height
+            options['width'] = source.width
         name = self._get_thumbnail_filename(source, geometry_string, options)
         thumbnail = ImageFile(name, default.storage)
         cached = default.kvstore.get(thumbnail)
