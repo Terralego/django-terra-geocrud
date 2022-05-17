@@ -4,7 +4,8 @@ CHANGELOG
 1.0.26+dev     (XXXX-XX-XX)
 ---------------------------
 
-*  Remove file when property has been removed or value become empty
+* Remove file when property has been removed or value become empty
+* Fix thumbnail regeneration with same name of main picture
 
 1.0.26         (2022-05-05)
 ---------------------------
