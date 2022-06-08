@@ -574,6 +574,22 @@ class CrudFeatureViewsSetTestCase(APITestCase):
                                                          'order': 0,
                                                          'url': url_relation
                                                          }])
+        other_feature = Feature.objects.create(geom=Point(5, 5, srid=4326), layer=self.crud_view.layer)
+        Feature.objects.create(geom=Point(5, 5, srid=4326), layer=crud_view.layer)
+        other_feature.sync_relations(layer_rel.pk)
+        response = self.client.get(reverse('feature-detail',
+                                           args=(self.crud_view.layer_id,
+                                                 self.feature.identifier)),
+                                   format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['relations'], [{'crud_view_pk': crud_view.pk,
+                                                         'empty': True,
+                                                         'id_layer_vt': 'relation-layer_view_name-view_view',
+                                                         'label': 'view_view',
+                                                         'order': 0,
+                                                         'url': url_relation
+                                                         }])
+
         Feature.objects.create(geom=Point(0, 0, srid=4326), layer=crud_view.layer)
         self.feature.sync_relations(layer_rel.pk)
         response = self.client.get(reverse('feature-detail',
