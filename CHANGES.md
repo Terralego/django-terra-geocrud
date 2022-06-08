@@ -4,7 +4,7 @@ CHANGELOG
 1.0.27+dev     (XXXX-XX-XX)
 ---------------------------
 
-*
+* Fix empty relations filter on current feature
 
 1.0.27         (2022-05-17)
 ---------------------------
