@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.27+dev     (XXXX-XX-XX)
+1.0.28         (2022-06-09)
 ---------------------------
 
 * Fix empty relations filter on current feature
