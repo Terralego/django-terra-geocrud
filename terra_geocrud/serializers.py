@@ -347,7 +347,7 @@ class CrudFeatureDetailSerializer(BaseUpdatableMixin, FeatureSerializer):
                                 args=(obj.layer_id, obj.identifier, relation.pk)),
                  'id_layer_vt': f'relation-{slugify(obj.layer.name)}-{slugify(relation.name)}',
                  "crud_view_pk": relation.destination.crud_view.pk,
-                 "empty": not relation.related_features.exists()
+                 "empty": not relation.related_features.filter(origin=obj).exists()
                  } for relation in obj.layer.relations_as_origin.all() if hasattr(relation.destination, 'crud_view')]
 
     def get_pictures(self, obj):
