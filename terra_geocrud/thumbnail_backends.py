@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ThumbnailDataFileBackend(ThumbnailBackend):
+
     def get_thumbnail(self, file_, geometry_string, **options):
         """
         Returns thumbnail as an ImageFile instance for file with geometry and

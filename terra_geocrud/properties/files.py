@@ -7,7 +7,8 @@ from django.core.files.storage import get_storage_class
 
 from terra_geocrud import settings as app_settings
 
-from sorl.thumbnail import delete
+from sorl.thumbnail import default
+from sorl.thumbnail.images import ImageFile
 
 
 def get_info_content(value):
@@ -49,7 +50,9 @@ def delete_old_picture_property(file_prop, old_properties):
     old_value = old_properties.get(file_prop)
     old_storage_file_path = old_value.split(';name=')[-1].split(';')[0] if old_value else None
     if old_storage_file_path:
-        delete(old_storage_file_path, delete_file=True)
+        image_file = ImageFile(old_storage_file_path, storage=get_storage())
+        image_file.delete()
+        default.kvstore.delete(image_file)
 
 
 def get_files_properties(feature):
