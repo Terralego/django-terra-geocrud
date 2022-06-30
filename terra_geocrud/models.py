@@ -16,7 +16,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.db.mixins import BaseUpdatableModel
-from sorl.thumbnail import default, ImageField, get_thumbnail, delete
+from sorl.thumbnail import default, ImageField, get_thumbnail
 from sorl.thumbnail.images import ImageFile
 
 from terra_geocrud.map.styles import MapStyleModelMixin

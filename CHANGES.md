@@ -4,7 +4,7 @@ CHANGELOG
 1.0.28+dev     (XXXX-XX-XX)
 ---------------------------
 
-* Fix deletion  image on different storage (sorl thumbnail)
+* Fix deletion image on different storage (sorl thumbnail)
 
 1.0.28         (2022-06-09)
 ---------------------------
