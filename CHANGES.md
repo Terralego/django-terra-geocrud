@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.28+dev     (XXXX-XX-XX)
+1.0.29         (2022-06-30)
 ---------------------------
 
 * Fix deletion image on different storage (sorl thumbnail)
