@@ -16,7 +16,8 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from geostore.db.mixins import BaseUpdatableModel
-from sorl.thumbnail import ImageField, get_thumbnail, delete
+from sorl.thumbnail import default, ImageField, get_thumbnail, delete
+from sorl.thumbnail.images import ImageFile
 
 from terra_geocrud.map.styles import MapStyleModelMixin
 from terra_geocrud.properties.files import delete_old_picture_property
@@ -235,7 +236,9 @@ class FeaturePicture(AttachmentMixin):
 
     def delete(self, *args, **kwargs):
         """ Delete image and thumbnail at deletion """
-        delete(self.image, delete_file=True)
+        image_file = ImageFile(self.image, storage=get_storage())
+        image_file.delete()
+        default.kvstore.delete(image_file)
         super().delete(*args, **kwargs)
 
     class Meta:

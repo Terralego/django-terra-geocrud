@@ -11,15 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class ThumbnailDataFileBackend(ThumbnailBackend):
-    def delete(self, file_, delete_file=True):
-        """
-        Deletes file_ references in Key Value store and optionally the file_
-        it self.
-        """
-        image_file = ImageFile(file_, storage=get_storage())
-        if delete_file:
-            image_file.delete()
-        default.kvstore.delete(image_file)
 
     def get_thumbnail(self, file_, geometry_string, **options):
         """
